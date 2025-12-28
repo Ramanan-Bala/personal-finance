@@ -1,0 +1,28 @@
+<div class="flex">
+  <!-- Sidebar -->
+  <aside class="min-h-screen w-full max-w-[275px] border-r border-neutral-200 p-3 pr-0">
+    <div class="mb-4 border-b border-neutral-200 pb-3">
+      <logo size="md" [showWordMark]="true" variant="dark" />
+    </div>
+
+    <!-- Navigation -->
+    <nav class="mr-4">
+      <ul>
+        <li *ngFor="let item of menuItems">
+          <button
+            (click)="handleNavigate(item)"
+            [ngClass]="{ 'bg-primary! text-gray-100!': currentPage === item.label }"
+            class="mb-1 flex w-full items-center gap-2 rounded-lg px-4 py-3 text-gray-800 transition-colors hover:bg-emerald-400/20 hover:text-emerald-800"
+          >
+            <i-lucide [img]="item.icon" class="h-5 w-5"></i-lucide>
+            <span class="nav-label">{{ item.label }}</span>
+          </button>
+        </li>
+      </ul>
+    </nav>
+  </aside>
+  <!-- Main Content -->
+  <main class="grow bg-neutral-50 p-6">
+    <router-outlet></router-outlet>
+  </main>
+</div>
