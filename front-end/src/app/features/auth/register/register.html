@@ -1,6 +1,6 @@
-<div class="flex min-h-screen bg-neutral-50">
+<div class="bg-background flex min-h-screen">
   <div
-    class="relative hidden flex-col justify-between overflow-hidden bg-linear-to-br from-emerald-500 to-emerald-600 p-12 lg:flex lg:w-1/2"
+    class="dark:bg-card relative hidden flex-col justify-between overflow-hidden bg-linear-to-br from-emerald-500 to-emerald-600 p-12 lg:flex lg:w-1/2 dark:bg-none"
   >
     <div class="absolute inset-0 opacity-10">
       <div class="absolute top-20 right-20">
@@ -14,7 +14,13 @@
       </div>
     </div>
 
-    <logo size="md" [showWordMark]="true" variant="light" animate.enter="stagger-left" />
+    <logo
+      size="md"
+      [showWordMark]="true"
+      variant="light"
+      animate.enter="stagger-left"
+      class="z-10"
+    />
 
     <div class="relative z-10 text-white" animate.enter="stagger-left">
       <h1 class="mb-4 text-4xl">Start your financial journey</h1>
@@ -88,247 +94,256 @@
     <div class="relative z-10"></div>
   </div>
 
-  <div class="flex flex-1 items-center justify-center p-8" animate.enter="fade-in">
-    <div class="w-full max-w-md">
-      <div class="mb-8 flex justify-center lg:hidden">
-        <logo size="lg" [showWordMark]="true" variant="default" />
-      </div>
-
-      <div class="rounded-2xl border border-neutral-200 bg-white p-8 shadow-lg">
-        <div class="mb-8">
-          <h2 class="mb-2 text-neutral-800">Create your account</h2>
-          <p class="text-sm text-neutral-500">Get started with Cashly for free</p>
+  <div class="flex flex-1 flex-col">
+    <theme-switcher class="flex justify-end p-5"></theme-switcher>
+    <div class="flex flex-1 items-center justify-center p-8" animate.enter="fade-in">
+      <div class="w-full max-w-md">
+        <div class="mb-8 flex justify-center lg:hidden">
+          <logo size="lg" [showWordMark]="true" variant="default" />
         </div>
 
-        <form [formGroup]="registerForm" class="space-y-5" (ngSubmit)="onSubmit()">
-          <div class="flex flex-col gap-2">
-            <label for="name" class="text-neutral-700">Full name</label>
-            <input
-              pInputText
-              pSize="small"
-              id="name"
-              type="text"
-              formControlName="fullName"
-              placeholder="John Doe"
-              class="primary"
-            />
-            @if (
-              registerForm.controls.fullName.touched &&
-              registerForm.controls.fullName.invalid &&
-              registerForm.controls.fullName.errors
-            ) {
-              @if (registerForm.controls.fullName.errors['required']) {
-                <p-message
-                  severity="error"
-                  size="small"
-                  variant="simple"
-                  class="text-xs text-red-500"
-                  >Full name is required</p-message
-                >
-              } @else if (registerForm.controls.fullName.errors['minlength']) {
-                <p-message
-                  severity="error"
-                  size="small"
-                  variant="simple"
-                  class="text-xs text-red-500"
-                >
-                  Minimum length is
-                  {{ registerForm.controls.fullName.errors['minlength'].requiredLength }}
-                  characters
-                </p-message>
-              } @else if (registerForm.controls.fullName.errors['maxlength']) {
-                <p-message
-                  severity="error"
-                  size="small"
-                  variant="simple"
-                  class="text-xs text-red-500"
-                >
-                  Maximum length is
-                  {{ registerForm.controls.fullName.errors['maxlength'].requiredLength }}
-                  characters
-                </p-message>
-              }
-            }
+        <div class="border-border bg-card rounded-2xl border p-8 shadow-lg">
+          <div class="mb-8">
+            <h2 class="text-foreground mb-2">Create your account</h2>
+            <p class="text-muted-foreground text-sm">Get started with Cashly for free</p>
           </div>
 
-          <div class="flex flex-col gap-2">
-            <label for="email" class="text-neutral-700">Email address</label>
-            <input
-              pInputText
-              pSize="small"
-              id="email"
-              type="email"
-              formControlName="email"
-              placeholder="you@example.com"
-              class="primary"
-            />
-            @if (
-              registerForm.controls.email.touched &&
-              registerForm.controls.email.invalid &&
-              registerForm.controls.email.errors
-            ) {
-              @if (registerForm.controls.email.errors['required']) {
-                <p-message
-                  severity="error"
-                  size="small"
-                  variant="simple"
-                  class="text-xs text-red-500"
-                  >Email is required</p-message
-                >
-              } @else {
-                <p-message
-                  severity="error"
-                  size="small"
-                  variant="simple"
-                  class="text-xs text-red-500"
-                  >Invalid email address</p-message
-                >
-              }
-            }
-          </div>
-
-          <div class="flex flex-col gap-2">
-            <label for="password" class="text-neutral-700">Password</label>
-            <input
-              pInputText
-              pSize="small"
-              id="password"
-              type="password"
-              formControlName="password"
-              placeholder="••••••••"
-              class="primary"
-            />
-            @if (
-              registerForm.controls.password.touched &&
-              registerForm.controls.password.invalid &&
-              registerForm.controls.password.errors
-            ) {
-              @if (registerForm.controls.password.errors['required']) {
-                <p-message
-                  severity="error"
-                  size="small"
-                  variant="simple"
-                  class="text-xs text-red-500"
-                  >Password is required</p-message
-                >
-              } @else if (registerForm.controls.password.errors['tooShort']) {
-                <p-message
-                  severity="error"
-                  size="small"
-                  variant="simple"
-                  class="text-xs text-red-500"
-                >
-                  Minimum length is
-                  {{ registerForm.controls.password.errors['tooShort'].requiredLength }}
-                  characters
-                </p-message>
-              } @else if (registerForm.controls.password.errors['tooLong']) {
-                <p-message
-                  severity="error"
-                  size="small"
-                  variant="simple"
-                  class="text-xs text-red-500"
-                >
-                  Maximum length is
-                  {{ registerForm.controls.password.errors['tooLong'].requiredLength }}
-                  characters
-                </p-message>
-              } @else if (registerForm.controls.password.errors['missingUppercase']) {
-                <p-message
-                  severity="error"
-                  size="small"
-                  variant="simple"
-                  class="text-xs text-red-500"
-                  >Must include at least one uppercase letter</p-message
-                >
-              } @else if (registerForm.controls.password.errors['missingLowercase']) {
-                <p-message
-                  severity="error"
-                  size="small"
-                  variant="simple"
-                  class="text-xs text-red-500"
-                  >Must include at least one lowercase letter</p-message
-                >
-              } @else if (registerForm.controls.password.errors['missingNumber']) {
-                <p-message
-                  severity="error"
-                  size="small"
-                  variant="simple"
-                  class="text-xs text-red-500"
-                  >Must include at least one number</p-message
-                >
-              } @else if (registerForm.controls.password.errors['missingSpecial']) {
-                <p-message
-                  severity="error"
-                  size="small"
-                  variant="simple"
-                  class="text-xs text-red-500"
-                >
-                  Must include at least one special character
-                  {{ registerForm.controls.password.errors['missingSpecial'].allowed }}
-                </p-message>
-              }
-            }
-          </div>
-
-          <div class="flex flex-col gap-2">
-            <label for="confirm-password" class="text-neutral-700">Confirm password</label>
-            <input
-              pInputText
-              pSize="small"
-              id="confirm-password"
-              type="password"
-              formControlName="confirmPassword"
-              placeholder="••••••••"
-              class="primary"
-            />
-            @if (
-              registerForm.controls.confirmPassword.touched &&
-              (registerForm.controls.confirmPassword.invalid || registerForm.invalid)
-            ) {
+          <form [formGroup]="registerForm" class="space-y-5" (ngSubmit)="onSubmit()">
+            <div class="flex flex-col gap-2">
+              <label for="name" class="text-foreground text-sm font-medium">Full name</label>
+              <input
+                pInputText
+                pSize="small"
+                id="name"
+                type="text"
+                formControlName="fullName"
+                placeholder="John Doe"
+                class="primary"
+              />
               @if (
-                registerForm.controls.confirmPassword.errors &&
-                registerForm.controls.confirmPassword.errors['required']
+                registerForm.controls.fullName.touched &&
+                registerForm.controls.fullName.invalid &&
+                registerForm.controls.fullName.errors
               ) {
-                <p-message
-                  severity="error"
-                  size="small"
-                  variant="simple"
-                  class="text-xs text-red-500"
-                  >Confirm password is required</p-message
-                >
-              } @else if (registerForm.errors && registerForm.errors['passwordMismatch']) {
-                <p-message
-                  severity="error"
-                  size="small"
-                  variant="simple"
-                  class="text-xs text-red-500"
-                  >Passwords do not match</p-message
-                >
+                @if (registerForm.controls.fullName.errors['required']) {
+                  <p-message
+                    severity="error"
+                    size="small"
+                    variant="simple"
+                    class="text-xs text-red-500"
+                    >Full name is required</p-message
+                  >
+                } @else if (registerForm.controls.fullName.errors['minlength']) {
+                  <p-message
+                    severity="error"
+                    size="small"
+                    variant="simple"
+                    class="text-xs text-red-500"
+                  >
+                    Minimum length is
+                    {{ registerForm.controls.fullName.errors['minlength'].requiredLength }}
+                    characters
+                  </p-message>
+                } @else if (registerForm.controls.fullName.errors['maxlength']) {
+                  <p-message
+                    severity="error"
+                    size="small"
+                    variant="simple"
+                    class="text-xs text-red-500"
+                  >
+                    Maximum length is
+                    {{ registerForm.controls.fullName.errors['maxlength'].requiredLength }}
+                    characters
+                  </p-message>
+                }
               }
-            }
+            </div>
+
+            <div class="flex flex-col gap-2">
+              <label for="email" class="text-foreground text-sm font-medium">Email address</label>
+              <input
+                pInputText
+                pSize="small"
+                id="email"
+                type="email"
+                formControlName="email"
+                placeholder="you@example.com"
+                class="primary"
+              />
+              @if (
+                registerForm.controls.email.touched &&
+                registerForm.controls.email.invalid &&
+                registerForm.controls.email.errors
+              ) {
+                @if (registerForm.controls.email.errors['required']) {
+                  <p-message
+                    severity="error"
+                    size="small"
+                    variant="simple"
+                    class="text-xs text-red-500"
+                    >Email is required</p-message
+                  >
+                } @else {
+                  <p-message
+                    severity="error"
+                    size="small"
+                    variant="simple"
+                    class="text-xs text-red-500"
+                    >Invalid email address</p-message
+                  >
+                }
+              }
+            </div>
+
+            <div class="flex flex-col gap-2">
+              <label for="password" class="text-foreground text-sm font-medium">Password</label>
+              <input
+                pInputText
+                pSize="small"
+                id="password"
+                type="password"
+                formControlName="password"
+                placeholder="••••••••"
+                class="primary"
+              />
+              @if (
+                registerForm.controls.password.touched &&
+                registerForm.controls.password.invalid &&
+                registerForm.controls.password.errors
+              ) {
+                @if (registerForm.controls.password.errors['required']) {
+                  <p-message
+                    severity="error"
+                    size="small"
+                    variant="simple"
+                    class="text-xs text-red-500"
+                    >Password is required</p-message
+                  >
+                } @else if (registerForm.controls.password.errors['tooShort']) {
+                  <p-message
+                    severity="error"
+                    size="small"
+                    variant="simple"
+                    class="text-xs text-red-500"
+                  >
+                    Minimum length is
+                    {{ registerForm.controls.password.errors['tooShort'].requiredLength }}
+                    characters
+                  </p-message>
+                } @else if (registerForm.controls.password.errors['tooLong']) {
+                  <p-message
+                    severity="error"
+                    size="small"
+                    variant="simple"
+                    class="text-xs text-red-500"
+                  >
+                    Maximum length is
+                    {{ registerForm.controls.password.errors['tooLong'].requiredLength }}
+                    characters
+                  </p-message>
+                } @else if (registerForm.controls.password.errors['missingUppercase']) {
+                  <p-message
+                    severity="error"
+                    size="small"
+                    variant="simple"
+                    class="text-xs text-red-500"
+                    >Must include at least one uppercase letter</p-message
+                  >
+                } @else if (registerForm.controls.password.errors['missingLowercase']) {
+                  <p-message
+                    severity="error"
+                    size="small"
+                    variant="simple"
+                    class="text-xs text-red-500"
+                    >Must include at least one lowercase letter</p-message
+                  >
+                } @else if (registerForm.controls.password.errors['missingNumber']) {
+                  <p-message
+                    severity="error"
+                    size="small"
+                    variant="simple"
+                    class="text-xs text-red-500"
+                    >Must include at least one number</p-message
+                  >
+                } @else if (registerForm.controls.password.errors['missingSpecial']) {
+                  <p-message
+                    severity="error"
+                    size="small"
+                    variant="simple"
+                    class="text-xs text-red-500"
+                  >
+                    Must include at least one special character
+                    {{ registerForm.controls.password.errors['missingSpecial'].allowed }}
+                  </p-message>
+                }
+              }
+            </div>
+
+            <div class="flex flex-col gap-2">
+              <label for="confirm-password" class="text-foreground text-sm font-medium"
+                >Confirm password</label
+              >
+              <input
+                pInputText
+                pSize="small"
+                id="confirm-password"
+                type="password"
+                formControlName="confirmPassword"
+                placeholder="••••••••"
+                class="primary"
+              />
+              @if (
+                registerForm.controls.confirmPassword.touched &&
+                (registerForm.controls.confirmPassword.invalid || registerForm.invalid)
+              ) {
+                @if (
+                  registerForm.controls.confirmPassword.errors &&
+                  registerForm.controls.confirmPassword.errors['required']
+                ) {
+                  <p-message
+                    severity="error"
+                    size="small"
+                    variant="simple"
+                    class="text-xs text-red-500"
+                    >Confirm password is required</p-message
+                  >
+                } @else if (registerForm.errors && registerForm.errors['passwordMismatch']) {
+                  <p-message
+                    severity="error"
+                    size="small"
+                    variant="simple"
+                    class="text-xs text-red-500"
+                    >Passwords do not match</p-message
+                  >
+                }
+              }
+            </div>
+
+            <button pButton [disabled]="registerForm.invalid" type="submit" class="w-full">
+              Create account
+            </button>
+          </form>
+
+          <div class="mt-6 text-center">
+            <div class="relative mb-6">
+              <div class="absolute inset-0 flex items-center">
+                <div class="border-border w-full border-t"></div>
+              </div>
+              <div class="relative flex justify-center text-sm">
+                <span class="bg-card text-muted-foreground px-4">Have an account?</span>
+              </div>
+            </div>
+
+            <button pButton type="button" severity="secondary" fluid routerLink="/login">
+              <i-lucide [img]="logIn" class="h-4.5 w-4.5"></i-lucide>
+              <span pButtonLabel>Log in</span>
+            </button>
           </div>
-
-          <button pButton [disabled]="registerForm.invalid" type="submit" class="w-full">
-            Create account
-          </button>
-        </form>
-
-        <div class="mt-6 text-center">
-          <p class="text-sm text-neutral-600">
-            Already have an account?
-            <a
-              routerLink="/login"
-              class="text-emerald-600 transition-colors hover:text-emerald-700"
-            >
-              Log in
-            </a>
-          </p>
         </div>
+        <p class="text-foreground mt-8 text-center text-xs">
+          By creating an account, you agree to our Terms of Service and Privacy Policy
+        </p>
       </div>
-      <p class="mt-8 text-center text-xs text-neutral-400">
-        By creating an account, you agree to our Terms of Service and Privacy Policy
-      </p>
     </div>
   </div>
 </div>

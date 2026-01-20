@@ -1,34 +1,4 @@
-<div class="p-6">
-  <h1 class="mb-4 text-2xl font-bold">Dashboard</h1>
-  <p>Welcome to your dashboard! Here you can find an overview of your activities and statistics.</p>
-
-  <div class="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3">
-    <div
-      pAnimateOnScroll
-      enterClass="animate-enter fade-in-10 slide-in-from-l-8 animate-duration-1000"
-      leaveClass="animate-leave fade-out-0"
-      class="rounded bg-white p-4 shadow"
-    >
-      <h2 class="mb-2 text-lg font-semibold">Activity Summary</h2>
-      <p>You have completed 15 tasks this week.</p>
-    </div>
-    <div
-      pAnimateOnScroll
-      enterClass="animate-enter fade-in-10 animate-duration-1000"
-      leaveClass="animate-leave fade-out-0"
-      class="rounded bg-white p-4 shadow"
-    >
-      <h2 class="mb-2 text-lg font-semibold">Notifications</h2>
-      <p>You have 3 new notifications.</p>
-    </div>
-    <div
-      pAnimateOnScroll
-      enterClass="animate-enter fade-in-10 slide-in-from-r-8 animate-duration-1000"
-      leaveClass="animate-leave fade-out-0"
-      class="rounded bg-white p-4 shadow"
-    >
-      <h2 class="mb-2 text-lg font-semibold">Upcoming Events</h2>
-      <p>Your next event is scheduled for tomorrow at 10 AM.</p>
-    </div>
-  </div>
+<div class="p-4">
+  <h1>Daily Ledger</h1>
+  <p class="text-muted-foreground">{{ today | date: 'fullDate' }}</p>
 </div>

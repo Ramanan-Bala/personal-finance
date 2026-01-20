@@ -32,8 +32,8 @@
 }
 
 .shape {
-  position: absolute;
-  border: 2px solid rgba(255, 255, 255, 0.2);
+  @apply absolute border-2;
+  border-color: var(--color-border);
 }
 
 .square {
@@ -59,7 +59,7 @@
   right: 25%;
   width: 4rem;
   height: 4rem;
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--color-border);
   border-radius: 0.75rem;
   animation: blurFloat 6s ease-in-out infinite 1s;
   border: none;

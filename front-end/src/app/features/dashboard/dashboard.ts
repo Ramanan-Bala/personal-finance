@@ -1,10 +1,12 @@
+import { DatePipe } from '@angular/common';
 import { Component } from '@angular/core';
-import { AnimateOnScroll } from 'primeng/animateonscroll';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [AnimateOnScroll],
+  imports: [DatePipe],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css',
 })
-export class Dashboard {}
+export class Dashboard {
+  today: Date = new Date();
+}

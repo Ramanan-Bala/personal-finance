@@ -11,6 +11,7 @@ import {
   Settings,
 } from 'lucide-angular';
 import { CashlyLogo } from '../../logo/logo';
+import { ThemeSwitcher } from '../theme-switcher/theme-switcher';
 
 interface MenuItem {
   icon: LucideIconData;
@@ -20,7 +21,7 @@ interface MenuItem {
 
 @Component({
   selector: 'app-base-layout',
-  imports: [CommonModule, CashlyLogo, LucideAngularModule, RouterOutlet],
+  imports: [CommonModule, CashlyLogo, LucideAngularModule, RouterOutlet, ThemeSwitcher],
   templateUrl: './base-layout.html',
   styleUrl: './base-layout.css',
 })

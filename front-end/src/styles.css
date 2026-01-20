@@ -1,40 +1,132 @@
-/* You can add global styles to this file, and also import other style files */
-
+/* Global imports */
 @import url('./styles/animation.css');
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap');
+
 @import 'tailwindcss';
 @import 'tailwindcss-primeui';
 
-/* input {
-  &[type='text'],
-  &[type='email'],
-  &[type='password'] {
-    @apply flex h-11 w-full min-w-0 rounded-md border border-gray-300 px-3 py-1 text-base transition-all outline-none file:inline-flex file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:ring disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm;
+@custom-variant dark (&:where(.dark, .dark *));
 
-    &.primary {
-      @apply border-neutral-200 bg-neutral-50 focus:border-emerald-500 focus:ring-emerald-500;
+@layer base {
+  :root {
+    @theme {
+      /* ---------- COLORS ---------- */
+      --color-border: #e5e7eb;
+
+      --color-background: #fafaf9;
+      --color-foreground: #1f2937;
+
+      --color-primary: #10b981;
+      --color-primary-foreground: #ffffff;
+
+      --color-secondary: #374151;
+      --color-secondary-foreground: #ffffff;
+
+      --color-muted: #f3f4f6;
+      --color-muted-foreground: #6b7280;
+
+      --color-card: #ffffff; /* white */
+      --color-card-foreground: #1f2937; /* gray-800 */
+
+      /* ---------- TYPOGRAPHY ---------- */
+      --font-heading: 'Outfit', sans-serif;
+      --font-body: 'Source Sans 3', sans-serif;
+      --font-caption: 'Inter', sans-serif;
+      --font-data: 'JetBrains Mono', monospace;
+    }
+
+    .nav-bg {
+      background-color: rgba(255, 255, 255, 0.95);
+    }
+    /* ------------------------------------------------------
+       Dark Mode Tokens
+    ------------------------------------------------------ */
+    .dark {
+      --color-border: #52525b;
+
+      --color-background: #0f172a;
+      --color-foreground: #e2e8f0;
+
+      --color-primary: #34d399;
+      --color-primary-foreground: #0f172a;
+
+      --color-secondary: #1e293b;
+      --color-secondary-foreground: #e2e8f0;
+
+      --color-muted: #334155;
+      --color-muted-foreground: #94a3b8;
+
+      --color-card: #1e293b;
+
+      .nav-bg {
+        background-color: rgba(30, 41, 59, 0.95);
+      }
+    }
+  }
+
+  /* ------------------------------------------------------
+     Base Styles
+  ------------------------------------------------------ */
+  * {
+    border-color: var(--color-border);
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-heading);
+  }
+
+  h1 {
+    @apply text-4xl leading-tight font-semibold;
+  }
+  h2 {
+    @apply text-3xl leading-tight font-semibold;
+  }
+  h3 {
+    @apply text-2xl leading-snug font-medium;
+  }
+  h4 {
+    @apply text-xl leading-snug font-medium;
+  }
+  h5 {
+    @apply text-lg font-medium;
+  }
+
+  .caption {
+    font-family: var(--font-caption);
+    font-size: 0.875rem;
+    line-height: 1.4;
+    letter-spacing: -0.01em;
+  }
+
+  .data-text {
+    font-family: var(--font-data);
+    font-variant-numeric: tabular-nums;
+  }
+
+  button {
+    @apply cursor-pointer;
+  }
+
+  @media (max-width: 640px) {
+    body {
+      font-size: 15px;
     }
   }
 }
-
-label {
-  @apply flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50;
-}
-
-button {
-  &.btn {
-    @apply relative cursor-pointer focus-visible:ring disabled:cursor-not-allowed disabled:opacity-50;
-    @apply inline-flex h-11 shrink-0 items-center justify-center gap-4 rounded-md;
-  }
-
-  &.default {
-    @apply bg-emerald-600 px-4 py-2 text-sm font-medium whitespace-nowrap text-white transition-all outline-none hover:bg-emerald-700 focus:border-emerald-500 focus:ring-emerald-500;
-  }
-
-  &.outline {
-    @apply border border-neutral-300 bg-white px-4 py-2 text-sm font-medium whitespace-nowrap text-neutral-700 transition-all outline-none hover:bg-neutral-100 focus:border-emerald-500 focus:ring-emerald-500;
-  }
-
-  &.block {
-    @apply w-full;
-  }
-} */

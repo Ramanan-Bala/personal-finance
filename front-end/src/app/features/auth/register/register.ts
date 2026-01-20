@@ -9,8 +9,8 @@ import {
   Validators,
 } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { CashlyLogo, passwordValidator } from '@shared';
-import { ChartLine, ChartPie, DollarSign, LucideAngularModule } from 'lucide-angular';
+import { CashlyLogo, passwordValidator, ThemeSwitcher } from '@shared';
+import { ChartLine, ChartPie, DollarSign, LogIn, LucideAngularModule } from 'lucide-angular';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { MessageModule } from 'primeng/message';
@@ -25,6 +25,7 @@ import { MessageModule } from 'primeng/message';
     InputTextModule,
     ButtonModule,
     MessageModule,
+    ThemeSwitcher,
   ],
   templateUrl: './register.html',
   styleUrl: './register.css',
@@ -33,6 +34,7 @@ export class Register {
   readonly pieChart = ChartPie;
   readonly lineChart = ChartLine;
   readonly dollarSign = DollarSign;
+  readonly logIn = LogIn;
 
   passwordMatchValidator: ValidatorFn = (group: AbstractControl) => {
     const password = group.get('password')?.value;

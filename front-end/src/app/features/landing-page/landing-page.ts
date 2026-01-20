@@ -1,20 +1,24 @@
 import { CommonModule } from '@angular/common';
-import { Component, HostListener, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { CashlyLogo } from '@shared';
+import { CashlyLogo, ThemeSwitcher } from '@shared';
 import {
   ArrowRight,
+  BadgeCheck,
   ChartColumn,
   ChartPie,
   CircleCheck,
   Github,
   Linkedin,
+  Lock,
   LucideAngularModule,
   Shield,
+  ShieldCheck,
   TrendingUp,
   Twitter,
   Wallet,
 } from 'lucide-angular';
+import { AnimateOnScrollModule } from 'primeng/animateonscroll';
 import { ButtonModule } from 'primeng/button';
 
 interface Feature {
@@ -38,7 +42,14 @@ interface Stat {
 
 @Component({
   selector: 'app-landing-page',
-  imports: [CommonModule, LucideAngularModule, CashlyLogo, ButtonModule],
+  imports: [
+    CommonModule,
+    LucideAngularModule,
+    CashlyLogo,
+    ButtonModule,
+    ThemeSwitcher,
+    AnimateOnScrollModule,
+  ],
   templateUrl: './landing-page.html',
   styleUrl: './landing-page.css',
 })
@@ -55,7 +66,6 @@ export class LandingPage {
 
   router = inject(Router);
 
-  isScrolled = false;
   isMobileMenuOpen = false;
 
   features: Feature[] = [
@@ -120,10 +130,49 @@ export class LandingPage {
     { value: '99.9%', label: 'Uptime' },
   ];
 
-  @HostListener('window:scroll')
-  onWindowScroll() {
-    this.isScrolled = window.scrollY > 20;
-  }
+  footerLinks = {
+    product: [
+      { label: 'Features', href: '/landing-page' },
+      { label: 'Dashboard', href: '/dashboard' },
+      { label: 'Pricing', href: '/landing-page' },
+    ],
+    company: [
+      { label: 'About Us', href: '/landing-page' },
+      { label: 'Contact', href: '/landing-page' },
+      { label: 'Careers', href: '/landing-page' },
+    ],
+    legal: [
+      { label: 'Privacy Policy', href: '/landing-page' },
+      { label: 'Terms of Service', href: '/landing-page' },
+      { label: 'Security', href: '/landing-page' },
+    ],
+  };
+
+  badges = [
+    {
+      icon: ShieldCheck,
+      title: 'Bank-Level Security',
+      description: '256-bit SSL encryption protects your data',
+    },
+    {
+      icon: Lock,
+      title: 'Privacy First',
+      description: 'Your financial data never leaves our secure servers',
+    },
+    {
+      icon: BadgeCheck,
+      title: 'GDPR Compliant',
+      description: 'Full compliance with data protection regulations',
+    },
+  ];
+
+  socialLinks = [
+    { icon: Twitter, href: '#', label: 'Twitter' },
+    { icon: Github, href: '#', label: 'GitHub' },
+    { icon: Linkedin, href: '#', label: 'LinkedIn' },
+  ];
+
+  animationDelay = [100, 200, 300, 400];
 
   toggleMobileMenu() {
     this.isMobileMenuOpen = !this.isMobileMenuOpen;
