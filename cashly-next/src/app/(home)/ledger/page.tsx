@@ -63,17 +63,16 @@ export default function LedgerPage() {
   const filteredTransactions = useMemo(() => {
     const query = searchQuery.toLowerCase();
 
-    return transactions;
+    const filtered: { [key: string]: LedgerTransaction } = {};
 
-    const filtered = Object.entries({ ...transactions }).map(([date, item]) => {
-      const filtered = item.transactions.filter((transaction) =>
+    Object.entries({ ...transactions }).map(([date, item]) => {
+      const filteredTransactions = item.transactions.filter((transaction) =>
         transaction.notes?.toLowerCase().includes(query),
       );
 
-      return { [date]: { ...item, transactions: filtered } };
-    })[0];
-
-    console.log(filtered);
+      if (filteredTransactions.length > 0)
+        filtered[date] = { ...item, transactions: filteredTransactions };
+    });
 
     return filtered ?? {};
   }, [transactions, searchQuery]);
@@ -126,7 +125,7 @@ export default function LedgerPage() {
     const Icon = ICON_MAP[iconName];
     return Icon ? (
       <Icon
-        className={`w-4 h-4 ${transactionType === TransactionType.INCOME ? "text-green-600" : "text-red-600"}`}
+        className={`w-4 h-4 ${transactionType === TransactionType.INCOME ? "text-primary" : "text-red-600"}`}
       />
     ) : null;
   };
@@ -187,112 +186,136 @@ export default function LedgerPage() {
         </Flex>
       ) : (
         <div className="flex-1 overflow-y-auto relative space-y-5 rounded-lg">
-          {Object.entries(filteredTransactions).map(([date, item]) => (
-            <Flex key={date} direction="column">
-              <Flex
-                justify="between"
-                align="center"
-                className="sticky top-0 z-10 backdrop-blur-lg"
-                my="3"
+          <AnimatePresence mode="popLayout">
+            {Object.entries(filteredTransactions).map(([date, item]) => (
+              <motion.div
+                key={date}
+                layout="position"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ duration: 0.3 }}
               >
-                <Flex gap="4">
-                  <Button variant="soft" className="py-6 rounded-lg">
-                    <Calendar />
-                  </Button>
-                  <Box>
-                    <Heading size="3">{date}</Heading>
+                <Flex direction="column">
+                  <Flex
+                    justify="between"
+                    align="center"
+                    className="sticky top-0 z-10 backdrop-blur-lg"
+                    my="3"
+                  >
                     <Flex gap="4">
-                      <Text color="green" className="flex items-center gap-1">
-                        <ArrowUpRight size="14" /> ₹{item.totalIncome}
-                      </Text>
-                      <Text color="red" className="flex items-center gap-1">
-                        <ArrowDownRight size="14" /> ₹{item.totalExpense}
-                      </Text>
-                    </Flex>
-                  </Box>
-                </Flex>
-                <h5
-                  className={
-                    "text-lg font-semibold " +
-                    (item.totalIncome - item.totalExpense > 0
-                      ? "text-primary"
-                      : "text-red-400")
-                  }
-                >
-                  ₹{item.totalIncome - item.totalExpense}
-                </h5>
-              </Flex>
-              <Card asChild className="p-0 sticky top-0 z-0" variant="classic">
-                <motion.div
-                  layout
-                  variants={staggerContainerVariants.variants}
-                  initial="hidden"
-                  whileInView="visible"
-                  viewport={{ amount: 0.2, once: true }}
-                >
-                  <AnimatePresence mode="popLayout">
-                    {item.transactions.map((transaction, index) => (
-                      <motion.div
-                        key={transaction.id}
-                        layout="position"
-                        variants={leftToRightVariants.variants}
-                        initial="hidden"
-                        exit={{ opacity: 0, scale: 0.9 }}
-                        whileInView="visible"
-                        {...viewPortOnce}
-                        className="flex items-center justify-between p-4 hover:bg-muted/30 transition-colors pl-6"
-                      >
-                        <Flex align="center" gap="4" className="relative">
-                          <span
-                            className={
-                              "absolute -left-3 top-1/2 -translate-y-1/2 w-1 h-full rounded-full " +
-                              (transaction.type === TransactionType.INCOME
-                                ? "bg-primary"
-                                : "bg-red-400")
-                            }
-                          ></span>
-                          <div
-                            className={
-                              "p-2.5 rounded-lg " +
-                              (transaction.type === TransactionType.INCOME
-                                ? "bg-primary/20"
-                                : "bg-red-400/20")
-                            }
+                      <Button variant="soft" className="py-6 rounded-lg">
+                        <Calendar />
+                      </Button>
+                      <Box>
+                        <Heading size="3">{date}</Heading>
+                        <Flex gap="4">
+                          <Text
+                            color="green"
+                            className="flex items-center gap-1"
                           >
-                            {getIconForCategory(
-                              transaction.type,
-                              transaction.category?.icon,
-                            ) || (
-                              <ArrowUpRight className="w-4 h-4 text-green-600" />
-                            )}
-                          </div>
-                          <div>
-                            <Text weight="medium" as="div">
-                              {transaction.notes || "No description"}
-                            </Text>
-                            <Flex align="center" gap="2">
-                              <Text size="1" color="gray">
-                                {transaction.category?.name}
-                              </Text>
-                              <Text size="1" color="gray">
-                                •
-                              </Text>
-                              <Text size="1" color="gray">
-                                {format(transaction.transactionDate, "p")}
-                              </Text>
-                            </Flex>
-                          </div>
+                            <ArrowUpRight size="14" /> ₹{item.totalIncome}
+                          </Text>
+                          <Text color="red" className="flex items-center gap-1">
+                            <ArrowDownRight size="14" /> ₹{item.totalExpense}
+                          </Text>
                         </Flex>
-                        <Text weight="bold" color="green" as="div">
-                          +₹{(Number(transaction.amount) || 0).toLocaleString()}
-                        </Text>
-                      </motion.div>
-                    ))}
-                  </AnimatePresence>
-                </motion.div>
-              </Card>
-            </Flex>
-          ))}
+                      </Box>
+                    </Flex>
+                    <Heading size="3">
+                      ₹{item.totalIncome - item.totalExpense}
+                    </Heading>
+                    <h5
+                      className={
+                        "text-lg font-semibold " +
+                        (item.totalIncome - item.totalExpense > 0
+                          ? "text-primary"
+                          : "text-red-400")
+                      }
+                    >
+                      ₹{item.totalIncome - item.totalExpense}
+                    </h5>
+                  </Flex>
+                  <Card
+                    asChild
+                    className="p-0 sticky top-0 z-0"
+                    variant="classic"
+                  >
+                    <motion.div
+                      layout
+                      variants={staggerContainerVariants.variants}
+                      initial="hidden"
+                      whileInView="visible"
+                      viewport={{ amount: 0.2, once: true }}
+                    >
+                      <AnimatePresence mode="popLayout">
+                        {item.transactions.map((transaction, index) => (
+                          <motion.div
+                            key={transaction.id}
+                            layout="position"
+                            variants={leftToRightVariants.variants}
+                            initial="hidden"
+                            exit={{ opacity: 0, scale: 0.9 }}
+                            whileInView="visible"
+                            {...viewPortOnce}
+                            className="flex items-center justify-between p-4 hover:bg-muted/30 transition-colors pl-6"
+                          >
+                            <Flex align="center" gap="4" className="relative">
+                              <span
+                                className={
+                                  "absolute -left-3 top-1/2 -translate-y-1/2 w-1 h-full rounded-full " +
+                                  (transaction.type === TransactionType.INCOME
+                                    ? "bg-primary"
+                                    : "bg-red-400")
+                                }
+                              ></span>
+                              <div
+                                className={
+                                  "p-2.5 rounded-lg " +
+                                  (transaction.type === TransactionType.INCOME
+                                    ? "bg-primary/20"
+                                    : "bg-red-400/20")
+                                }
+                              >
+                                {getIconForCategory(
+                                  transaction.type,
+                                  transaction.category?.icon,
+                                ) || (
+                                  <ArrowUpRight className="w-4 h-4 text-green-600" />
+                                )}
+                              </div>
+                              <div>
+                                <Text weight="medium" as="div">
+                                  {transaction.notes || "No description"}
+                                </Text>
+                                <Flex align="center" gap="2">
+                                  <Text size="1" color="gray">
+                                    {transaction.category?.name}
+                                  </Text>
+                                  <Text size="1" color="gray">
+                                    •
+                                  </Text>
+                                  <Text size="1" color="gray">
+                                    {format(transaction.transactionDate, "p")}
+                                  </Text>
+                                </Flex>
+                              </div>
+                            </Flex>
+                            <Text weight="bold" color="green" as="div">
+                              +₹
+                              {(
+                                Number(transaction.amount) || 0
+                              ).toLocaleString()}
+                            </Text>
+                          </motion.div>
+                        ))}
+                      </AnimatePresence>
+                    </motion.div>
+                  </Card>
+                </Flex>
+              </motion.div>
+            ))}
+          </AnimatePresence>
         </div>
       )}
     </div>
