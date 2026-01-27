@@ -1,12 +1,23 @@
 "use client";
-import { PageTransition, Sidebar } from "@/shared";
+import { PageTransition, Sidebar, useAuth } from "@/shared";
 import { Flex } from "@radix-ui/themes";
+import { redirect } from "next/navigation";
 
 export default function HomeLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const { isAuthenticated, user, isLoading } = useAuth();
+
+  if (isLoading) {
+    return null;
+  }
+
+  if (!isAuthenticated) {
+    redirect("/login");
+  }
+
   return (
     <Flex>
       <Sidebar />

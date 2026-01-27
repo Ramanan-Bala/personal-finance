@@ -27,7 +27,7 @@ interface MenuItem {
 export const Sidebar = () => {
   const { logout, user } = useAuth();
   const avatar = user?.name
-    .split(" ")
+    ?.split(" ")
     .map((name) => name[0])
     .join("");
   const router = useRouter();

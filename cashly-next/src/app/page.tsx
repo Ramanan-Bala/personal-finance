@@ -41,8 +41,10 @@ interface Stat {
 }
 
 export default function Home() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
+
+  const isNavigatingToDashboard = isAuthenticated && !isLoading;
 
   const features: Feature[] = [
     {
@@ -141,7 +143,11 @@ export default function Home() {
             <div className="hidden items-center gap-8 md:flex">
               <ThemeSwitcher />
               <Button size="3" onClick={onGetStartedClick}>
-                {isAuthenticated ? "Dashboard" : "Get Started"}
+                {isLoading
+                  ? "..."
+                  : isAuthenticated
+                    ? "Dashboard"
+                    : "Get Started"}
               </Button>
             </div>
           </div>
@@ -190,7 +196,11 @@ export default function Home() {
                 className="flex flex-wrap gap-4"
               >
                 <Button size="4" onClick={onGetStartedClick}>
-                  {isAuthenticated ? "Dashboard" : "Get Started"}
+                  {isLoading
+                    ? "Loading..."
+                    : isAuthenticated
+                      ? "Dashboard"
+                      : "Get Started"}
                   <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
                 </Button>
               </motion.div>
@@ -374,7 +384,11 @@ export default function Home() {
             viewport={{ amount: 0.5 }}
           >
             <Button onClick={onGetStartedClick} size="4">
-              Get Started Free
+              {isLoading
+                ? "Loading..."
+                : isAuthenticated
+                  ? "Dashboard"
+                  : "Get Started Free"}
               <ArrowRight className="h-5 w-5 transition group-hover:translate-x-1" />
             </Button>
           </motion.div>

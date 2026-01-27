@@ -3,7 +3,13 @@
 import { toastStore } from "@/lib/store/toast-store";
 import api from "@/lib/utils/axios";
 import { redirect } from "next/navigation";
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 
 interface LoginDTO {
   email: string;
@@ -39,6 +45,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     "accessToken" | "refreshToken"
   > | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  const isAuthenticated = useMemo(() => !!user, [user]);
 
   useEffect(() => {
     const initializeAuth = async () => {
@@ -119,7 +127,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     <AuthContext.Provider
       value={{
         user,
-        isAuthenticated: !!user,
+        isAuthenticated,
         isLoading,
         login,
         logout,
