@@ -222,19 +222,16 @@ export default function LedgerPage() {
                         </Flex>
                       </Box>
                     </Flex>
-                    <Heading size="3">
-                      ₹{item.totalIncome - item.totalExpense}
-                    </Heading>
-                    <h5
-                      className={
-                        "text-lg font-semibold " +
-                        (item.totalIncome - item.totalExpense > 0
-                          ? "text-primary"
-                          : "text-red-400")
+                    <Heading
+                      size="4"
+                      color={
+                        item.totalIncome - item.totalExpense > 0
+                          ? "green"
+                          : "red"
                       }
                     >
                       ₹{item.totalIncome - item.totalExpense}
-                    </h5>
+                    </Heading>
                   </Flex>
                   <Card
                     asChild

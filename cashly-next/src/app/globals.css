@@ -28,10 +28,10 @@
       --color-card: #ffffff; /* white */
 
       /* ---------- TYPOGRAPHY ---------- */
-      --font-heading: "Outfit", sans-serif;
+      /* --font-heading: "Outfit", sans-serif; */
       --font-body: "Source Sans 3", sans-serif;
-      --font-caption: "Inter", sans-serif;
-      --font-data: "JetBrains Mono", monospace;
+      /* --font-caption: "Inter", sans-serif;
+      --font-data: "JetBrains Mono", monospace; */
     }
 
     .nav-bg {
@@ -74,14 +74,14 @@
     line-height: 1.6;
   }
 
-  h1,
+  /* h1,
   h2,
   h3,
   h4,
   h5,
   h6 {
     font-family: var(--font-heading);
-  }
+  } */
 
   h1 {
     @apply text-4xl leading-tight font-semibold;
@@ -99,7 +99,7 @@
     @apply text-lg font-medium;
   }
 
-  .caption {
+  /* .caption {
     font-family: var(--font-caption);
     font-size: 0.875rem;
     line-height: 1.4;
@@ -109,7 +109,7 @@
   .data-text {
     font-family: var(--font-data);
     font-variant-numeric: tabular-nums;
-  }
+  } */
 
   button {
     @apply cursor-pointer!;
