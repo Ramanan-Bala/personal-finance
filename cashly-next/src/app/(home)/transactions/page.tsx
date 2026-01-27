@@ -10,6 +10,7 @@ import {
 import api from "@/lib/utils/axios";
 import {
   DateRangePicker,
+  EmptyState,
   PageHeader,
   StatsCard,
   Tabs,
@@ -393,11 +394,10 @@ const Transactions = () => {
                   ))}
 
                   {incomeData.length === 0 && (
-                    <Flex justify="center" align="center" p="4">
-                      <Text size="4" color="gray">
-                        No income transactions found
-                      </Text>
-                    </Flex>
+                    <EmptyState
+                      title="No income recorded"
+                      description="You haven't added any income transactions for this period."
+                    />
                   )}
                 </TabsContent>
               ) : (
@@ -450,11 +450,10 @@ const Transactions = () => {
                     ))}
 
                     {expenseData.length === 0 && (
-                      <Flex justify="center" align="center" p="4">
-                        <Text size="4" color="gray">
-                          No expense transactions found
-                        </Text>
-                      </Flex>
+                      <EmptyState
+                        title="No expenses recorded"
+                        description="You haven't added any expense transactions for this period."
+                      />
                     )}
                   </div>
                 </TabsContent>
@@ -462,9 +461,10 @@ const Transactions = () => {
             </motion.div>
           </Card>
         ) : (
-          <Flex align="center" justify="center" p="8">
-            <Text color="gray">No transactions found</Text>
-          </Flex>
+          <EmptyState
+            title="No transactions found"
+            description="You haven't recorded any transactions for this period."
+          />
         )}
       </Tabs>
     </>

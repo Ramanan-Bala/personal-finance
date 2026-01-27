@@ -2,7 +2,7 @@
 
 import { AccountGroup, CreateAccountDTO } from "@/lib";
 import api from "@/lib/utils/axios";
-import { AccountForm, PageHeader } from "@/shared";
+import { AccountForm, EmptyState, PageHeader } from "@/shared";
 import {
   Badge,
   Button,
@@ -175,16 +175,15 @@ export default function AccountsPage() {
           <div className="space-y-10">
             <AnimatePresence mode="popLayout">
               {filteredGroups.length === 0 ? (
-                <motion.div
-                  initial={{ opacity: 0, y: 10, scale: 0.9 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                  className="py-20 text-center"
-                >
-                  <Text color="gray" size="3">
-                    No accounts found matching your search.
-                  </Text>
-                </motion.div>
+                <EmptyState
+                  title="No accounts found"
+                  description="Try adjusting your search query or create a new account to get started."
+                  action={
+                    <Button onClick={() => setIsDialogOpen(true)} color="green">
+                      <Plus size={18} /> Add Account
+                    </Button>
+                  }
+                />
               ) : (
                 filteredGroups.map((group) => (
                   <motion.section key={group.id} layout className="space-y-4">

@@ -1,5 +1,6 @@
 export * from "./components/accounts/account-form";
 export * from "./components/categories/category-form";
+export * from "./components/empty-state/index";
 export * from "./components/logo/index";
 export * from "./components/page-transition/index";
 export * from "./components/sidebar/index";

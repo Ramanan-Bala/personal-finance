@@ -9,7 +9,7 @@ import {
   viewPortOnce,
 } from "@/lib";
 import api from "@/lib/utils/axios";
-import { PageHeader } from "@/shared";
+import { EmptyState, PageHeader } from "@/shared";
 import {
   Box,
   Button,
@@ -181,9 +181,10 @@ export default function LedgerPage() {
           <Skeleton className="w-full h-10" />
         </Flex>
       ) : Object.entries(filteredTransactions).length === 0 ? (
-        <Flex direction="column" gap="4">
-          <Text>No transactions found</Text>
-        </Flex>
+        <EmptyState
+          title="No transactions found"
+          description="Try adjusting your filters or search query to find what you're looking for."
+        />
       ) : (
         <div className="flex-1 overflow-y-auto relative space-y-5 rounded-lg">
           <AnimatePresence mode="popLayout">
