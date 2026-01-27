@@ -1,15 +1,18 @@
 "use client";
 
-import { CashlyLogo, useAuth } from "@/shared";
+import { useUIStore } from "@/lib";
+import { CashlyLogo, ThemeSwitcher, useAuth } from "@/shared";
+import { Avatar, Button, Flex, Text } from "@radix-ui/themes";
 import {
-  ArrowLeftRight,
+  ArrowUpDown,
   BookOpen,
-  HandCoins,
   LayoutDashboard,
   LogOut,
   PanelLeftClose,
   PanelRightClose,
   Settings,
+  Tags,
+  Wallet,
 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { usePathname, useRouter } from "next/navigation";
@@ -22,20 +25,22 @@ interface MenuItem {
 }
 
 export const Sidebar = () => {
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
+  const avatar = user?.name
+    .split(" ")
+    .map((name) => name[0])
+    .join("");
   const router = useRouter();
+  const { isSidebarOpen: isOpen, toggleSidebar } = useUIStore();
   const [currentPage, setCurrentPage] = useState(usePathname());
-  const [isOpen, setIsOpen] = useState(true);
 
   const menuItems: MenuItem[] = [
     { icon: LayoutDashboard, label: "Dashboard", url: "/dashboard" },
     { icon: BookOpen, label: "Ledger", url: "/ledger" },
-    {
-      icon: ArrowLeftRight,
-      label: "Income & Expenses",
-      url: "/income-expenses",
-    },
-    { icon: HandCoins, label: "Lend/Debt", url: "/lend-debt" },
+    { icon: ArrowUpDown, label: "Transactions", url: "/transactions" },
+    { icon: Tags, label: "Categories", url: "/categories" },
+    // { icon: HandCoins, label: "Lend/Debt", url: "/lend-debt" },
+    { icon: Wallet, label: "Accounts", url: "/accounts" },
   ];
 
   const handleNavigate = (page: MenuItem) => {
@@ -45,7 +50,7 @@ export const Sidebar = () => {
 
   return (
     <div
-      className={`border-border/40 bg-card min-h-screen border-r flex flex-col transition-all duration-300 ${
+      className={`border-border/40 bg-card min-h-screen max-h-screen border-r flex flex-col transition-all duration-300 ${
         isOpen ? "w-64" : "w-15"
       }`}
     >
@@ -56,12 +61,18 @@ export const Sidebar = () => {
         >
           <CashlyLogo showWordMark={isOpen} />
         </motion.div>
-        <button
-          onClick={() => setIsOpen(!isOpen)}
-          className="text-muted-foreground hover:text-foreground transition-colors p-2"
+        <Button
+          variant="ghost"
+          color="gray"
+          onClick={toggleSidebar}
+          className="py-2 mr-1"
         >
-          {isOpen ? <PanelLeftClose /> : <PanelRightClose />}
-        </button>
+          {isOpen ? (
+            <PanelLeftClose size={20} />
+          ) : (
+            <PanelRightClose size={20} />
+          )}
+        </Button>
       </div>
 
       <motion.nav layout className="flex-1 space-y-2 p-2">
@@ -71,7 +82,7 @@ export const Sidebar = () => {
             <button
               key={item.url}
               onClick={() => handleNavigate(item)}
-              className={`text-foreground hover:bg-card mb-1 flex w-full items-center gap-2 rounded-lg transition-colors duration-300 p-3 leading-5 ${
+              className={`text-foreground hover:bg-primary/10 mb-1 flex w-full items-center gap-2 rounded-lg transition-colors duration-300 p-3 leading-5 ${
                 currentPage
                   .toLocaleLowerCase()
                   .includes(item.label.toLocaleLowerCase())
@@ -97,41 +108,59 @@ export const Sidebar = () => {
           );
         })}
       </motion.nav>
-      {/* <div className="border-border border-t"> */}
-      <button
-        onClick={() => logout()}
-        className="text-muted-foreground hover:text-foreground w-full flex items-center gap-3 rounded-lg p-4 leading-1 transition-colors"
-      >
-        <LogOut className="min-h-5 min-w-5 max-h-5 max-w-5" />
-        <AnimatePresence>
-          {isOpen && (
-            <motion.span
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.2 }}
-              exit={{ opacity: 0, x: -20 }}
-            >
-              Logout
-            </motion.span>
-          )}
-        </AnimatePresence>
-      </button>
-      <button className="text-muted-foreground hover:text-foreground w-full flex items-center gap-3 rounded-lg p-4 leading-1 transition-colors">
-        <Settings className="min-h-5 min-w-5 max-h-5 max-w-5" />
-        <AnimatePresence>
-          {isOpen && (
-            <motion.span
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.2 }}
-              exit={{ opacity: 0, x: -20 }}
-            >
-              Settings
-            </motion.span>
-          )}
-        </AnimatePresence>
-      </button>
-      {/* </div> */}
+
+      <Flex p="4" direction="column" gap="4">
+        <Flex gap="2" direction={isOpen ? "row" : "column"}>
+          <Button
+            variant="ghost"
+            color="red"
+            onClick={() => logout()}
+            className="grow p-2"
+          >
+            <LogOut className="min-h-5 min-w-5 max-h-5 max-w-5" />
+            {isOpen && <span>Logout</span>}
+          </Button>
+          <Button variant="ghost" color="gray" className="grow p-2">
+            <Settings className="min-h-5 min-w-5 max-h-5 max-w-5" />
+            {isOpen && <span>Settings</span>}
+          </Button>
+        </Flex>
+      </Flex>
+      <div className="px-2 mb-4">
+        <ThemeSwitcher isTabStyle={isOpen} />
+      </div>
+      <div className="m-2 mt-0 border-t border-border pt-2">
+        <Flex gap="3" align="center">
+          <Avatar size="3" radius="full" fallback={avatar ? avatar : "USER"} />
+          <AnimatePresence>
+            {isOpen && (
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.2 }}
+                exit={{ opacity: 0, x: -20 }}
+              >
+                <Text
+                  as="div"
+                  size="2"
+                  weight="bold"
+                  className="text-ellipsis overflow-hidden whitespace-nowrap"
+                >
+                  {user?.name}
+                </Text>
+                <Text
+                  as="div"
+                  size="2"
+                  color="gray"
+                  className="text-ellipsis overflow-hidden whitespace-nowrap"
+                >
+                  {user?.email}
+                </Text>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </Flex>
+      </div>
     </div>
   );
 };

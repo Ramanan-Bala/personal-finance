@@ -1,6 +1,6 @@
 # Cashly - Personal Finance Backend
 
-A production-ready backend for a personal finance application built with NestJS, TypeScript, PostgreSQL, and Prisma.
+A production-ready backend for a personal finance application built with **ExpressJS**, **TypeScript**, **PostgreSQL**, and **Drizzle ORM**.
 
 ## Features
 
@@ -9,41 +9,37 @@ A production-ready backend for a personal finance application built with NestJS,
 - ✅ **Accounts Module** - Manage financial accounts with groups
 - ✅ **Categories Module** - Income and expense categories
 - ✅ **Transactions Module** - Create, read, update transactions with type safety
-- ✅ **Ledger Module** - Daily summaries and account balances
 - ✅ **Lend/Debt Tracking** - Track borrowed/lent money with payments
-- ✅ **Clean Architecture** - Repository pattern, service layer isolation
-- ✅ **Type Safety** - Full TypeScript with strict mode
+- ✅ **Clean Architecture** - Modular structure with Services and Controllers
+- ✅ **Type Safety** - Full TypeScript with Zod validation
 - ✅ **Decimal Precision** - NUMERIC fields for money values
 - ✅ **User Scoping** - All data scoped by userId
 
 ## Tech Stack
 
-- **Framework**: NestJS 10
+- **Framework**: ExpressJS
 - **Language**: TypeScript 5
 - **Database**: PostgreSQL
-- **ORM**: Prisma 5
-- **Authentication**: JWT with Passport
-- **Validation**: class-validator
-- **Security**: bcrypt for password hashing
+- **ORM**: Drizzle ORM
+- **Authentication**: JWT, Passport
+- **Validation**: Zod
+- **Security**: bcrypt, helmet, cors
 
 ## Project Structure
 
 ```
 src/
-├── auth/                 # Authentication (registration, login, JWT)
-├── users/                # User profile management
-├── accounts/             # Account and account group management
-├── categories/           # Income/expense categories
-├── transactions/         # Transaction handling (INCOME, EXPENSE, TRANSFER)
-├── ledger/               # Daily summaries and balance queries
-├── lend-debt/            # Lend/debt tracking with partial payments
-├── common/               # Shared utilities
-│   ├── guards/          # JWT auth guard
-│   ├── decorators/      # CurrentUser decorator
-│   ├── filters/         # Global exception filter
-│   └── exceptions/      # Custom exceptions
-├── prisma/              # Database schema and migrations
-└── main.ts              # Application entry point
+├── db/                   # Drizzle schema and connection
+├── middleware/           # Auth and validation middleware
+├── modules/              # Feature modules
+│   ├── auth/             # Authentication
+│   ├── users/            # User profile
+│   ├── accounts/         # Accounts and Groups
+│   ├── categories/       # Categories
+│   ├── transactions/     # Transactions
+│   └── lend-debt/        # Lend/Debt
+├── index.ts              # Application entry point
+└── routes.ts             # Main router
 ```
 
 ## Prerequisites
@@ -68,16 +64,11 @@ cp .env.example .env
 
 2. Update `.env` with your PostgreSQL connection string
 
-3. Run Prisma migrations:
+3. Generate and run Drizzle migrations:
 
 ```bash
-npm run prisma:migrate
-```
-
-4. (Optional) Seed sample data:
-
-```bash
-npm run prisma:seed
+npm run db:generate
+npm run db:migrate
 ```
 
 ## Running the Application
@@ -99,171 +90,74 @@ npm start
 
 ### Authentication
 
-- `POST /auth/register` - Create new account
-- `POST /auth/login` - Login with credentials
-- `POST /auth/refresh` - Refresh access token
-- `POST /auth/logout` - Logout and revoke tokens
+- `POST /api/auth/register` - Create new account
+- `POST /api/auth/login` - Login with credentials
+- `POST /api/auth/refresh` - Refresh access token
+- `POST /api/auth/logout` - Logout and revoke tokens
 
 ### Users
 
-- `GET /users/profile` - Get user profile
-- `PATCH /users/profile` - Update profile
+- `GET /api/users/profile` - Get user profile
+- `PATCH /api/users/profile` - Update profile
 
 ### Accounts
 
-- `POST /accounts` - Create account
-- `GET /accounts` - List all accounts
-- `GET /accounts/:accountId` - Get specific account
-- `PATCH /accounts/:accountId` - Update account
-- `DELETE /accounts/:accountId` - Delete account
+- `POST /api/accounts` - Create account
+- `GET /api/accounts` - List all accounts
+- `GET /api/accounts/:accountId` - Get specific account
+- `PATCH /api/accounts/:accountId` - Update account
+- `DELETE /api/accounts/:accountId` - Delete account
 
-- `POST /accounts/groups` - Create account group
-- `GET /accounts/groups` - List groups
-- `PATCH /accounts/groups/:groupId` - Update group
-- `DELETE /accounts/groups/:groupId` - Delete group
-
-### Categories
-
-- `POST /categories` - Create category
-- `GET /categories` - List categories
-- `GET /categories?type=INCOME` - Filter by type
-- `PATCH /categories/:categoryId` - Update category
-- `DELETE /categories/:categoryId` - Delete category
-
-### Transactions
-
-- `POST /transactions` - Create transaction
-- `GET /transactions?accountId=...` - Get by account
-- `GET /transactions?from=...&to=...` - Get by date range
-- `PATCH /transactions/:id` - Update transaction
-- `DELETE /transactions/:id` - Delete transaction
-
-### Ledger
-
-- `GET /ledger/daily-summary?from=...&to=...` - Daily summaries
-- `GET /ledger/account/:accountId/balance` - Account balance
-- `GET /ledger/accounts/balances` - All account balances
-
-### Lend/Debt
-
-- `POST /lend-debt` - Create lend/debt
-- `GET /lend-debt` - List all
-- `PATCH /lend-debt/:id` - Update
-- `DELETE /lend-debt/:id` - Delete
-
-- `POST /lend-debt/payments` - Add payment
-- `PATCH /lend-debt/payments/:paymentId` - Update payment
-- `DELETE /lend-debt/payments/:paymentId` - Delete payment
-
-## Database Schema Highlights
-
-### Money Handling
-
-- All monetary values use `NUMERIC(19, 2)` for precision
-- No floating-point arithmetic
-- Decimal type from Prisma client runtime
-
-### User Scoping
-
-- Every table has a `userId` field
-- All queries filtered by userId for data isolation
-- Proper indexes on userId for performance
-
-### Transactions
-
-- Atomic database transactions for consistency
-- Support for INCOME, EXPENSE, and TRANSFER types
-- All writes wrapped in DB transactions
+- `POST /api/accounts/groups` - Create account group
+- `GET /api/accounts/groups` - List groups
+- `PATCH /api/accounts/groups/:groupId` - Update group
+- `DELETE /api/accounts/groups/:groupId` - Delete group
 
 ### Categories
 
-- Scoped by userId and type (INCOME/EXPENSE)
-- Cannot delete categories used in transactions
+- `POST /api/categories` - Create category
+- `GET /api/categories` - List categories
+- `GET /api/categories?type=INCOME` - Filter by type
+- `PATCH /api/categories/:categoryId` - Update category
+- `DELETE /api/categories/:categoryId` - Delete category
+
+### Transactions
+
+- `POST /api/transactions` - Create transaction
+- `GET /api/transactions?accountId=...` - Get by account
+- `GET /api/transactions?from=...&to=...` - Get by date range
+- `PATCH /api/transactions/:transactionId` - Update transaction
+- `DELETE /api/transactions/:transactionId` - Delete transaction
 
 ### Lend/Debt
 
-- Track LEND and DEBT separately
-- Support partial payments
-- Auto-settlement when fully paid
+- `POST /api/lend-debt` - Create lend/debt
+- `GET /api/lend-debt` - List all
+- `PATCH /api/lend-debt/:id` - Update
+- `DELETE /api/lend-debt/:id` - Delete
 
-## Security Features
+- `POST /api/lend-debt/payments` - Add payment
+- `GET /api/lend-debt/payments/:paymentId` - Get payment
+- `PATCH /api/lend-debt/payments/:paymentId` - Update payment
+- `DELETE /api/lend-debt/payments/:paymentId` - Delete payment
 
-- ✅ Password hashing with bcrypt (10 rounds)
-- ✅ JWT access tokens (15min default)
-- ✅ Refresh token rotation
-- ✅ Token revocation support
-- ✅ CORS configured
-- ✅ All inputs validated with class-validator
-- ✅ User-scoped data access
+## Development Scripts
 
-## Error Handling
+### Database Management
 
-- Centralized exception filter
-- Consistent error response format
-- Meaningful HTTP status codes
-- Request logging
+```bash
+# Generate migrations based on schema changes
+npm run db:generate
 
-## Development
+# Apply migrations to database
+npm run db:migrate
 
-### Lint
+# Open Drizzle Studio to view data
+npm run db:studio
+```
+
+### Linting
 
 ```bash
 npm run lint
 ```
-
-### Database Studio (Visual Inspection)
-
-```bash
-npm run prisma:studio
-```
-
-### Type Checking
-
-```bash
-npx tsc --noEmit
-```
-
-## Environment Variables
-
-| Variable           | Description            | Default                          |
-| ------------------ | ---------------------- | -------------------------------- |
-| NODE_ENV           | Environment            | development                      |
-| PORT               | Server port            | 3000                             |
-| DATABASE_URL       | PostgreSQL connection  | postgres://localhost:5432/cashly |
-| JWT_SECRET         | JWT signing key        | -                                |
-| JWT_EXPIRY         | Access token lifetime  | 15m                              |
-| JWT_REFRESH_SECRET | Refresh token key      | -                                |
-| JWT_REFRESH_EXPIRY | Refresh token lifetime | 7d                               |
-
-## Next Steps
-
-1. **Setup PostgreSQL** locally or use cloud provider (AWS RDS, Supabase, etc.)
-2. **Update `.env`** with database credentials
-3. **Run migrations** with `npm run prisma:migrate`
-4. **Start development** with `npm run dev`
-5. **Test endpoints** with Postman or similar tool
-6. **Connect frontend** application to the API
-
-## Production Deployment
-
-1. Generate optimized build: `npm run build:prod`
-2. Set secure environment variables
-3. Run migrations: `npm run prisma:migrate:prod`
-4. Start with: `npm start`
-
-## Future Enhancements
-
-- [ ] Budget management with alerts
-- [ ] Recurring transactions
-- [ ] Multi-currency support
-- [ ] Advanced reporting and analytics
-- [ ] Export to CSV/PDF
-- [ ] Mobile app integration
-- [ ] Two-factor authentication
-- [ ] Integration with banking APIs
-- [ ] Split into microservices
-- [ ] Real-time notifications
-
-## License
-
-ISC

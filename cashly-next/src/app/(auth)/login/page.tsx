@@ -1,13 +1,8 @@
 "use client";
 
-import {
-  CashlyLogo,
-  fadeScaleInVariants,
-  leftToRightVariants,
-  ThemeSwitcher,
-  useAuth,
-} from "@/shared";
-import { Button } from "@radix-ui/themes";
+import { fadeScaleInVariants, leftToRightVariants } from "@/lib";
+import { CashlyLogo, ThemeSwitcher, useAuth } from "@/shared";
+import { Button, Heading } from "@radix-ui/themes";
 import {
   ChartPie,
   Fingerprint,
@@ -20,7 +15,7 @@ import {
 } from "lucide-react";
 import { motion } from "motion/react";
 import Link from "next/link";
-import { FormEvent, useState } from "react";
+import { FormEvent, useMemo, useState } from "react";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -29,6 +24,10 @@ export default function LoginPage() {
   const [touched, setTouched] = useState<Record<string, boolean>>({});
 
   const { login } = useAuth();
+
+  const isValid = useMemo<boolean>(() => {
+    return Object.values(errors).every((error) => !error);
+  }, [errors]);
 
   const validateEmail = (value: string) => {
     if (!value) return "Email is required";
@@ -121,8 +120,8 @@ export default function LoginPage() {
       </div>
 
       {/* Right Panel */}
-      <div className="flex flex-1 flex-col">
-        <div className="flex justify-end p-5">
+      <div className="flex flex-1 flex-col relative">
+        <div className="flex justify-end p-5 sm:block absolute top-5 right-5">
           <ThemeSwitcher />
         </div>
 
@@ -137,8 +136,9 @@ export default function LoginPage() {
 
             <div className="border-border bg-card rounded-2xl border p-8 shadow-lg">
               <div className="mb-8">
-                <h2 className="text-foreground mb-2">Log in to your account</h2>
-                <p className="text-muted-foreground text-sm">
+                <Heading mb="2">Log in to your account</Heading>
+                {/* <h2 className="text-foreground mb-2"></h2> */}
+                <p className="text-muted-foreground sm:text-sm text-xs">
                   Enter your credentials to access your dashboard
                 </p>
               </div>
@@ -201,7 +201,12 @@ export default function LoginPage() {
                   </Link>
                 </div>
 
-                <Button className="w-full" size="3" type="submit">
+                <Button
+                  className="w-full"
+                  size="3"
+                  type="submit"
+                  disabled={!isValid}
+                >
                   <LogIn className="h-4 w-4" />
                   Sign In
                 </Button>

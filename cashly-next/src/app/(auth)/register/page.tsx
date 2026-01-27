@@ -1,13 +1,13 @@
 "use client";
 
 import {
-  CashlyLogo,
   fadeScaleInVariants,
   leftToRightVariants,
   staggerContainerVariants,
-  ThemeSwitcher,
-} from "@/shared";
+} from "@/lib";
+import { CashlyLogo, ThemeSwitcher, useAuth } from "@/shared";
 import { passwordValidator } from "@/shared/validators/password";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@radix-ui/themes";
 import {
   ChartLine,
@@ -19,145 +19,95 @@ import {
 } from "lucide-react";
 import { motion } from "motion/react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { FormEvent, useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
-interface FormErrors {
-  fullName?: string;
-  email?: string;
-  password?: string;
-  confirmPassword?: string;
-  passwordMismatch?: string;
-}
-
-export default function RegisterPage() {
-  const router = useRouter();
-  const [formData, setFormData] = useState({
-    fullName: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-  });
-  const [errors, setErrors] = useState<FormErrors>({});
-  const [touched, setTouched] = useState<Record<string, boolean>>({});
-
-  const validateField = (field: string, value: string) => {
-    let error = "";
-
-    switch (field) {
-      case "fullName":
-        if (!value) error = "Full name is required";
-        else if (value.length < 2) error = "Minimum length is 2 characters";
-        else if (value.length > 50) error = "Maximum length is 50 characters";
-        break;
-
-      case "email":
-        if (!value) error = "Email is required";
-        else if (!value.includes("@")) error = "Please enter a valid email";
-        break;
-
-      case "password":
-        if (!value) {
-          error = "Password is required";
-        } else {
-          const passErrors = passwordValidator(value);
-          if (Object.keys(passErrors).length > 0) {
-            // Return first error message
-            if ("tooShort" in passErrors) {
-              const e = passErrors.tooShort as Record<string, boolean | object>;
-              error = `Minimum length is ${e.requiredLength} characters`;
-            } else if ("missingUppercase" in passErrors) {
-              error = "Must include at least one uppercase letter";
-            } else if ("missingLowercase" in passErrors) {
-              error = "Must include at least one lowercase letter";
-            } else if ("missingNumber" in passErrors) {
-              error = "Must include at least one number";
-            } else if ("missingSpecial" in passErrors) {
-              error = "Must include at least one special character (@$!%*?&)";
-            }
+const registerSchema = z
+  .object({
+    name: z
+      .string()
+      .min(1, "Full name is required")
+      .min(2, "Minimum length is 2 characters")
+      .max(50, "Maximum length is 50 characters"),
+    email: z
+      .string()
+      .min(1, "Email is required")
+      .email("Please enter a valid email"),
+    password: z
+      .string()
+      .min(1, "Password is required")
+      .superRefine((val, ctx) => {
+        const passErrors = passwordValidator(val);
+        if (Object.keys(passErrors).length > 0) {
+          if ("tooShort" in passErrors) {
+            const e = passErrors.tooShort as Record<string, any>;
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: `Minimum length is ${e.requiredLength} characters`,
+            });
+          } else if ("missingUppercase" in passErrors) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: "Must include at least one uppercase letter",
+            });
+          } else if ("missingLowercase" in passErrors) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: "Must include at least one lowercase letter",
+            });
+          } else if ("missingNumber" in passErrors) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: "Must include at least one number",
+            });
+          } else if ("missingSpecial" in passErrors) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: "Must include at least one special character (@$!%*?&)",
+            });
           }
         }
-        break;
+      }),
+    confirmPassword: z.string().min(1, "Confirm password is required"),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["passwordMismatch"],
+  });
 
-      case "confirmPassword":
-        if (!value) error = "Confirm password is required";
-        break;
-    }
+type RegisterFormData = z.infer<typeof registerSchema>;
 
-    return error;
-  };
+const info = [
+  {
+    title: "Track All Your Accounts",
+    description: "Connect and monitor all your financial accounts in one place",
+  },
+  {
+    title: "Smart Analytics",
+    description:
+      "Get insights into your spending patterns and financial health",
+  },
+  {
+    title: "Secure & Private",
+    description: "Bank-level encryption keeps your financial data safe",
+  },
+];
 
-  const handleBlur = (field: string, value: string) => {
-    setTouched({ ...touched, [field]: true });
-    const error = validateField(field, value);
-    setErrors({ ...errors, [field]: error });
-  };
+export default function RegisterPage() {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isValid, isSubmitting },
+  } = useForm<RegisterFormData>({
+    resolver: zodResolver(registerSchema),
+    mode: "onChange",
+  });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+  const { register: registerUser } = useAuth();
 
-    if (touched[name]) {
-      const error = validateField(name, value);
-      setErrors({ ...errors, [name]: error });
-    }
-  };
-
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
-
-    const newErrors: FormErrors = {};
-    let isValid = true;
-
-    // Validate all fields
-    Object.entries(formData).forEach(([field, value]) => {
-      const error = validateField(field, value);
-      if (error) {
-        newErrors[field as keyof FormErrors] = error;
-        isValid = false;
-      }
-    });
-
-    // Check password match
-    if (
-      formData.password !== formData.confirmPassword &&
-      formData.password &&
-      formData.confirmPassword
-    ) {
-      newErrors.passwordMismatch = "Passwords do not match";
-      isValid = false;
-    }
-
-    setErrors(newErrors);
-    setTouched({
-      fullName: true,
-      email: true,
-      password: true,
-      confirmPassword: true,
-    });
-
-    if (isValid && !newErrors.passwordMismatch) {
-      console.log("Form Submitted", formData);
-      router.push("/app/dashboard");
-    }
-  };
-
-  const info = [
-    {
-      title: "Track All Your Accounts",
-      description:
-        "Connect and monitor all your financial accounts in one place",
-    },
-    {
-      title: "Smart Analytics",
-      description:
-        "Get insights into your spending patterns and financial health",
-    },
-    {
-      title: "Secure & Private",
-      description: "Bank-level encryption keeps your financial data safe",
-    },
-  ];
+  // Find the password mismatch error from root schema refinement
+  // In react-hook-form with zodResolver, root errors might be under "root" or a specific path
+  const passwordMismatchError = (errors as any).passwordMismatch?.message;
 
   return (
     <div className="bg-bg flex min-h-screen">
@@ -235,7 +185,7 @@ export default function RegisterPage() {
                 </p>
               </div>
 
-              <form onSubmit={handleSubmit} className="space-y-5">
+              <form onSubmit={handleSubmit(registerUser)} className="space-y-5">
                 <div className="flex flex-col gap-2">
                   <label
                     htmlFor="fullName"
@@ -245,16 +195,15 @@ export default function RegisterPage() {
                   </label>
                   <input
                     id="fullName"
-                    name="fullName"
                     type="text"
                     placeholder="John Doe"
                     className="text-foreground placeholder-muted-foreground border-border bg-bg rounded-lg border px-4 py-2 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-primary"
-                    value={formData.fullName}
-                    onChange={handleChange}
-                    onBlur={(e) => handleBlur("fullName", e.target.value)}
+                    {...register("name")}
                   />
-                  {touched.fullName && errors.fullName && (
-                    <p className="text-xs text-red-500">{errors.fullName}</p>
+                  {errors.name && (
+                    <p className="text-xs text-red-500">
+                      {errors.name.message}
+                    </p>
                   )}
                 </div>
 
@@ -267,16 +216,15 @@ export default function RegisterPage() {
                   </label>
                   <input
                     id="email"
-                    name="email"
                     type="email"
                     placeholder="you@example.com"
                     className="text-foreground placeholder-muted-foreground border-border bg-bg rounded-lg border px-4 py-2 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-primary"
-                    value={formData.email}
-                    onChange={handleChange}
-                    onBlur={(e) => handleBlur("email", e.target.value)}
+                    {...register("email")}
                   />
-                  {touched.email && errors.email && (
-                    <p className="text-xs text-red-500">{errors.email}</p>
+                  {errors.email && (
+                    <p className="text-xs text-red-500">
+                      {errors.email.message}
+                    </p>
                   )}
                 </div>
 
@@ -289,16 +237,15 @@ export default function RegisterPage() {
                   </label>
                   <input
                     id="password"
-                    name="password"
                     type="password"
                     placeholder="••••••••"
                     className="text-foreground placeholder-muted-foreground border-border bg-bg rounded-lg border px-4 py-2 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-primary"
-                    value={formData.password}
-                    onChange={handleChange}
-                    onBlur={(e) => handleBlur("password", e.target.value)}
+                    {...register("password")}
                   />
-                  {touched.password && errors.password && (
-                    <p className="text-xs text-red-500">{errors.password}</p>
+                  {errors.password && (
+                    <p className="text-xs text-red-500">
+                      {errors.password.message}
+                    </p>
                   )}
                 </div>
 
@@ -311,35 +258,26 @@ export default function RegisterPage() {
                   </label>
                   <input
                     id="confirmPassword"
-                    name="confirmPassword"
                     type="password"
                     placeholder="••••••••"
                     className="text-foreground placeholder-muted-foreground border-border bg-bg rounded-lg border px-4 py-2 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-primary"
-                    value={formData.confirmPassword}
-                    onChange={handleChange}
-                    onBlur={(e) =>
-                      handleBlur("confirmPassword", e.target.value)
-                    }
+                    {...register("confirmPassword")}
                   />
-                  {touched.confirmPassword &&
-                    (errors.confirmPassword || errors.passwordMismatch) && (
-                      <p className="text-xs text-red-500">
-                        {errors.confirmPassword || errors.passwordMismatch}
-                      </p>
-                    )}
+                  {(errors.confirmPassword || passwordMismatchError) && (
+                    <p className="text-xs text-red-500">
+                      {errors.confirmPassword?.message || passwordMismatchError}
+                    </p>
+                  )}
                 </div>
 
                 <Button
                   type="submit"
                   className="w-full"
                   size="3"
-                  disabled={
-                    Object.keys(errors).length > 0 &&
-                    Object.keys(touched).length > 0
-                  }
+                  disabled={!isValid || isSubmitting}
                 >
                   <UserPlus className="h-4 w-4" />
-                  Create account
+                  {isSubmitting ? "Creating account..." : "Create account"}
                 </Button>
               </form>
 

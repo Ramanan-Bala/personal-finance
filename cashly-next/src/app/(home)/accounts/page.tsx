@@ -1,0 +1,258 @@
+"use client";
+
+import { AccountGroup, CreateAccountDTO, toastStore } from "@/lib";
+import api from "@/lib/utils/axios";
+import { AccountForm, PageHeader } from "@/shared";
+import {
+  Badge,
+  Button,
+  Card,
+  Dialog,
+  Flex,
+  Grid,
+  Heading,
+  IconButton,
+  Skeleton,
+  Text,
+  TextField,
+} from "@radix-ui/themes";
+import { Plus, Search, X } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
+import { useEffect, useMemo, useState } from "react";
+
+export default function AccountsPage() {
+  const [groups, setGroups] = useState<AccountGroup[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [, setError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
+
+  useEffect(() => {
+    fetchGroups();
+  }, []);
+
+  const fetchGroups = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await api.get<AccountGroup[]>("/accounts/groups");
+      setGroups(response.data);
+    } catch (err) {
+      setError("Failed to load account groups");
+      console.error("Error fetching account groups:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCreateAccount = async (data: CreateAccountDTO) => {
+    try {
+      setIsCreating(true);
+      await api.post("/accounts", data);
+      toastStore.getState().addToast({
+        title: "Success",
+        description: "Account created successfully",
+        type: "success",
+      });
+
+      await fetchGroups();
+      setIsDialogOpen(false);
+    } catch (err) {
+      console.error("Error creating account:", err);
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
+  const filteredGroups = useMemo(() => {
+    if (!searchQuery.trim()) return groups;
+
+    const query = searchQuery.toLowerCase();
+    return groups
+      .map((group) => ({
+        ...group,
+        accounts: group.accounts.filter(
+          (acc) =>
+            acc.name.toLowerCase().includes(query) ||
+            acc.description?.toLowerCase().includes(query),
+        ),
+      }))
+      .filter(
+        (group) =>
+          group.accounts.length > 0 || group.name.toLowerCase().includes(query),
+      );
+  }, [groups, searchQuery]);
+
+  const totalBalance = useMemo(() => {
+    return groups.reduce(
+      (sum, group) =>
+        sum +
+        group.accounts.reduce(
+          (accSum, acc) => Number(accSum) + Number(acc.openingBalance),
+          0,
+        ),
+      0,
+    );
+  }, [groups]);
+
+  return (
+    <div className="space-y-6">
+      <PageHeader
+        title="Accounts"
+        description="Manage your financial accounts and groups"
+        actions={
+          <Dialog.Root open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <Dialog.Trigger>
+              <Button variant="solid" color="green">
+                <Plus size={18} />
+                <span>Add Account</span>
+              </Button>
+            </Dialog.Trigger>
+
+            <Dialog.Content
+              onEscapeKeyDown={(e) => e.preventDefault()}
+              onPointerDownOutside={(e) => e.preventDefault()}
+              maxWidth="450px"
+            >
+              <Flex direction="column" justify="between" mb="4">
+                <Flex justify="between">
+                  <Dialog.Title mb="0">Create New Account</Dialog.Title>
+                  <Dialog.Close>
+                    <IconButton variant="ghost">
+                      <X size={18} />
+                    </IconButton>
+                  </Dialog.Close>
+                </Flex>
+                <Dialog.Description size="2">
+                  Add a new account to manage your financial transactions.
+                </Dialog.Description>
+              </Flex>
+
+              <AccountForm
+                groups={groups.map((g) => ({ id: g.id, name: g.name }))}
+                onSubmit={handleCreateAccount}
+                isLoading={isCreating}
+              />
+            </Dialog.Content>
+          </Dialog.Root>
+        }
+      />
+
+      {loading ? (
+        <>
+          <Flex direction="column" gap="4">
+            <Skeleton width="300px" height="40px" />
+            <Skeleton width="400px" height="30px" />
+          </Flex>
+          <Grid columns={{ initial: "1", md: "2", lg: "3" }} gap="4">
+            {[1, 2, 3].map((i) => (
+              <Skeleton key={i} height="100px" />
+            ))}
+          </Grid>
+        </>
+      ) : (
+        <Flex direction="column" gap="4">
+          <TextField.Root
+            size="3"
+            placeholder="Search accounts..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full md:w-80"
+          >
+            <TextField.Slot>
+              <Search size={16} />
+            </TextField.Slot>
+            {searchQuery && (
+              <TextField.Slot>
+                <IconButton
+                  variant="ghost"
+                  size="1"
+                  onClick={() => setSearchQuery("")}
+                >
+                  <X size={14} />
+                </IconButton>
+              </TextField.Slot>
+            )}
+          </TextField.Root>
+
+          {/* Groups and Accounts List */}
+          <div className="space-y-10">
+            <AnimatePresence mode="popLayout">
+              {filteredGroups.length === 0 ? (
+                <motion.div
+                  initial={{ opacity: 0, y: 10, scale: 0.9 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  className="py-20 text-center"
+                >
+                  <Text color="gray" size="3">
+                    No accounts found matching your search.
+                  </Text>
+                </motion.div>
+              ) : (
+                filteredGroups.map((group) => (
+                  <motion.section key={group.id} layout className="space-y-4">
+                    <Flex align="center" gap="2">
+                      <Heading size="4" weight="bold">
+                        {group.name}
+                      </Heading>
+                      <Badge variant="soft" color="gray">
+                        {group.accounts.length}
+                      </Badge>
+                      {group.description && (
+                        <Text size="1" color="gray" ml="2">
+                          {group.description}
+                        </Text>
+                      )}
+                    </Flex>
+
+                    <Grid columns={{ initial: "1", md: "2", lg: "3" }} gap="4">
+                      <AnimatePresence mode="popLayout">
+                        {group.accounts.map((account) => (
+                          <motion.div
+                            key={account.id}
+                            layout="position"
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.9 }}
+                            whileHover={{ y: -4 }}
+                          >
+                            <Card
+                              variant="classic"
+                              style={{ cursor: "pointer" }}
+                            >
+                              <Flex direction="column" gap="3">
+                                <div>
+                                  <Heading size="3">{account.name}</Heading>
+                                  <Text size="1" color="gray">
+                                    {account.description || "No description"}
+                                  </Text>
+                                </div>
+                                <Flex justify="between" align="end">
+                                  <Badge color="green" size="1">
+                                    Active
+                                  </Badge>
+                                  <Heading size="5" color="green">
+                                    ₹
+                                    {Number(
+                                      account.openingBalance,
+                                    ).toLocaleString()}
+                                  </Heading>
+                                </Flex>
+                              </Flex>
+                            </Card>
+                          </motion.div>
+                        ))}
+                      </AnimatePresence>
+                    </Grid>
+                  </motion.section>
+                ))
+              )}
+            </AnimatePresence>
+          </div>
+        </Flex>
+      )}
+    </div>
+  );
+}

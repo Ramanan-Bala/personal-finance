@@ -1,8 +1,8 @@
 "use client";
 
 import * as ToastPrimitives from "@radix-ui/react-toast";
-import { motion } from "framer-motion";
 import { X } from "lucide-react";
+import { motion } from "motion/react";
 import * as React from "react";
 
 const ToastProvider = ToastPrimitives.Provider;

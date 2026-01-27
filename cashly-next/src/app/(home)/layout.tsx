@@ -1,4 +1,6 @@
-import { PageTransition, Sidebar, ThemeSwitcher } from "@/shared";
+"use client";
+import { PageTransition, Sidebar } from "@/shared";
+import { Flex } from "@radix-ui/themes";
 
 export default function HomeLayout({
   children,
@@ -6,17 +8,17 @@ export default function HomeLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex">
+    <Flex>
       <Sidebar />
 
-      <div className="flex flex-1 flex-col bg-bg">
-        <div className="absolute right-3 top-3">
-          <ThemeSwitcher />
-        </div>
-        <div className="flex-1 overflow-auto p-8">
+      <Flex
+        direction="column"
+        className="flex-1 bg-bg transition-all duration-300 relative"
+      >
+        <div className="flex-1 overflow-auto p-6">
           <PageTransition>{children}</PageTransition>
         </div>
-      </div>
-    </div>
+      </Flex>
+    </Flex>
   );
 }

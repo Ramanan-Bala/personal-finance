@@ -2,7 +2,7 @@
 /* @import url("./styles/animation.css"); */
 
 @import url("https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700;800&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap");
 
@@ -17,20 +17,15 @@
       /* ---------- COLORS ---------- */
       --color-border: #e5e7eb;
 
-      --color-bg: #fafaf9;
+      --color-bg: #f5f5f5;
       --color-foreground: #1f2937;
 
       --color-primary: #10b981;
-      --color-primary-foreground: #ffffff;
-
-      --color-secondary: #374151;
-      --color-secondary-foreground: #ffffff;
 
       --color-muted: #f3f4f6;
       --color-muted-foreground: #6b7280;
 
       --color-card: #ffffff; /* white */
-      --color-card-foreground: #1f2937; /* gray-800 */
 
       /* ---------- TYPOGRAPHY ---------- */
       --font-heading: "Outfit", sans-serif;
@@ -52,10 +47,6 @@
       --color-foreground: #e2e8f0;
 
       --color-primary: #34d399;
-      --color-primary-foreground: #0f172a;
-
-      --color-secondary: #1e293b;
-      --color-secondary-foreground: #e2e8f0;
 
       --color-muted: #334155;
       --color-muted-foreground: #94a3b8;
@@ -122,6 +113,22 @@
 
   button {
     @apply cursor-pointer!;
+  }
+
+  .day-picker {
+    .day-today:not(.day-selected) {
+      @apply rounded-lg!;
+    }
+
+    tr {
+      td:first-child {
+        @apply rounded-l-lg!;
+      }
+
+      td:last-child {
+        @apply rounded-r-lg!;
+      }
+    }
   }
 
   @media (max-width: 640px) {
@@ -201,10 +208,6 @@
     }
   }
 }
-
-/* .radix-themes {
-  --cursor-button: pointer;
-} */
 
 .dark,
 .dark-theme {
@@ -348,4 +351,8 @@
       --green-track: oklch(77.3% 0.1535 163.2);
     }
   }
+}
+
+.radix-themes {
+  --default-font-family: "Source Sans 3", sans-serif;
 }

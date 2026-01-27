@@ -89,7 +89,7 @@ export default function DashboardPage() {
           return (
             <div
               key={i}
-              className="border border-border bg-card p-4 rounded-xl space-y-6 flex-1"
+              className="border border-border bg-card p-4 rounded-lg space-y-6 flex-1"
             >
               <div className="flex justify-between items-center">
                 <IconButton size="3" variant="soft">
@@ -117,7 +117,7 @@ export default function DashboardPage() {
             return (
               <div
                 key={i}
-                className="border border-border bg-card p-4 rounded-xl space-y-2 flex-1 flex flex-col"
+                className="border border-border bg-card p-4 rounded-lg space-y-2 flex-1 flex flex-col"
               >
                 <IconButton size="3" color={item.color as never}>
                   {item.icon}

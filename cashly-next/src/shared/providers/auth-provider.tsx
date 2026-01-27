@@ -1,13 +1,17 @@
 "use client";
 
-import api from "@/lib/axios";
 import { toastStore } from "@/lib/store/toast-store";
+import api from "@/lib/utils/axios";
 import { redirect } from "next/navigation";
 import React, { createContext, useContext, useEffect, useState } from "react";
 
 interface LoginDTO {
   email: string;
   password: string;
+}
+
+interface RegisterDTO extends LoginDTO {
+  name: string;
 }
 
 interface LoginResponse {
@@ -22,6 +26,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (userData: LoginDTO) => Promise<void>;
+  register: (userData: RegisterDTO) => Promise<void>;
   logout: () => void;
   updateUser: (userData: Partial<LoginResponse>) => void;
 }
@@ -75,6 +80,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     redirect("/dashboard");
   };
 
+  const register = async (formData: RegisterDTO) => {
+    const response = await api.post<LoginResponse>("/auth/register", formData);
+    const userData = {
+      email: response.data.email,
+      name: response.data.name,
+    };
+    setUser(userData);
+    localStorage.setItem("accessToken", response.data.accessToken);
+    localStorage.setItem("refreshToken", response.data.refreshToken);
+    localStorage.setItem("user", JSON.stringify(userData));
+    toastStore.getState().addToast({
+      title: "Login",
+      description: "Login successful",
+      type: "success",
+    });
+    redirect("/dashboard");
+  };
+
   const logout = () => {
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
@@ -101,6 +124,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         login,
         logout,
         updateUser,
+        register,
       }}
     >
       {children}

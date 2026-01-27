@@ -1,16 +1,15 @@
 "use client";
 
+import { CashlyLogo, ThemeSwitcher, useAuth } from "@/shared";
+
 import {
   bottomToTopVariants,
-  CashlyLogo,
   fadeInVariants,
   leftToRightVariants,
   staggerContainerVariants,
-  ThemeSwitcher,
-  useAuth,
   viewPortComplete,
   viewPortOnce,
-} from "@/shared";
+} from "@/lib";
 import { Button } from "@radix-ui/themes";
 import {
   ArrowRight,
@@ -225,7 +224,7 @@ export default function Home() {
             >
               <div className="mb-6 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-700">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-700">
                     <Wallet className="h-6 w-6 text-emerald-600 dark:text-emerald-100" />
                   </div>
                   <div>
@@ -246,7 +245,7 @@ export default function Home() {
                 ].map((item, i) => (
                   <div
                     key={i}
-                    className="bg-card flex items-center justify-between rounded-xl p-3"
+                    className="bg-card flex items-center justify-between rounded-lg p-3"
                   >
                     <span className="text-foreground">{item.name}</span>
                     <span
@@ -254,8 +253,8 @@ export default function Home() {
                         item.color === "emerald"
                           ? "text-emerald-600 dark:text-emerald-400"
                           : item.color === "red"
-                          ? "text-red-600 dark:text-red-400"
-                          : "text-blue-600 dark:text-blue-400"
+                            ? "text-red-600 dark:text-red-400"
+                            : "text-blue-600 dark:text-blue-400"
                       }
                     >
                       {item.amount}
@@ -325,7 +324,7 @@ export default function Home() {
                   whileHover={{ y: -10 }}
                   className="group border-border bg-card cursor-pointer rounded-2xl border p-6 hover:shadow-xl"
                 >
-                  <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-linear-to-br from-emerald-100 to-emerald-200 transition-all group-hover:from-emerald-500 group-hover:to-emerald-600">
+                  <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-lg bg-linear-to-br from-emerald-100 to-emerald-200 transition-all group-hover:from-emerald-500 group-hover:to-emerald-600">
                     <Icon className="h-7 w-7 text-emerald-600 transition-colors group-hover:text-white" />
                   </div>
                   <h3 className="text-foreground mb-2 text-lg font-semibold">

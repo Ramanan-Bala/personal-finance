@@ -1,9 +1,10 @@
 "use client";
 
+import { Tabs, TabsList, TabsTrigger } from "@/shared";
 import { Moon, Sun } from "lucide-react";
 import { useEffect, useState } from "react";
 
-export function ThemeSwitcher() {
+export function ThemeSwitcher({ isTabStyle }: { isTabStyle?: boolean }) {
   const [theme, setTheme] = useState<"light" | "dark">("light");
   const [mounted, setMounted] = useState(false);
 
@@ -17,7 +18,7 @@ export function ThemeSwitcher() {
     } else {
       // Check system preference
       const prefersDark = window.matchMedia(
-        "(prefers-color-scheme: dark)"
+        "(prefers-color-scheme: dark)",
       ).matches;
       setTheme(prefersDark ? "dark" : "light");
     }
@@ -44,6 +45,22 @@ export function ThemeSwitcher() {
   };
 
   if (!mounted) return null;
+
+  if (isTabStyle)
+    return (
+      <Tabs value={theme} onValueChange={toggleTheme}>
+        <TabsList className="w-full">
+          <TabsTrigger value="light" className="bg-primary" key={"light"}>
+            <Sun size={16} />
+            Light
+          </TabsTrigger>
+          <TabsTrigger value="dark" className="bg-red-400!" key={"dark"}>
+            <Moon size={16} />
+            Dark
+          </TabsTrigger>
+        </TabsList>
+      </Tabs>
+    );
 
   return (
     <button
