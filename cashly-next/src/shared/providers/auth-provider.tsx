@@ -111,7 +111,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.removeItem("refreshToken");
     localStorage.removeItem("user");
     setUser(null);
-    redirect("/");
   };
 
   const updateUser = (userData: Partial<LoginResponse>) => {

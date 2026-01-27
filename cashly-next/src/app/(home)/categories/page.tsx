@@ -1,6 +1,6 @@
 "use client";
 
-import { Category, ICON_MAP, toastStore, TransactionType } from "@/lib";
+import { Category, ICON_MAP, TransactionType } from "@/lib";
 import api from "@/lib/utils/axios";
 import {
   CategoryForm,
@@ -60,11 +60,6 @@ export default function CategoriesPage() {
       setCategories(response.data);
     } catch (err) {
       console.error("Error fetching categories:", err);
-      toastStore.getState().addToast({
-        title: "Error",
-        description: "Failed to load categories",
-        type: "error",
-      });
     } finally {
       setLoading(false);
     }
@@ -73,12 +68,7 @@ export default function CategoriesPage() {
   const createCategory = async (data: any) => {
     try {
       setIsCreating(true);
-      await api.post("/categories", data);
-      toastStore.getState().addToast({
-        title: "Success",
-        description: "Category created successfully",
-        type: "success",
-      });
+      await api.post("/categories", data, { showSuccessToast: true });
       await fetchCategories();
       setIsAddDialogOpen(false);
     } catch (err) {
@@ -92,7 +82,9 @@ export default function CategoriesPage() {
     try {
       const id = data.id;
       setLoading(true);
-      const response = await api.patch<Category>(`/categories/${id}`, data);
+      const response = await api.patch<Category>(`/categories/${id}`, data, {
+        showSuccessToast: true,
+      });
       setCategories((prev) =>
         prev.map((item) => (item.id === id ? response.data : item)),
       );

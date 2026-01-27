@@ -1,6 +1,12 @@
 import { toastStore } from "@/lib/store/toast-store";
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 
+declare module "axios" {
+  export interface AxiosRequestConfig {
+    showSuccessToast?: boolean;
+  }
+}
+
 const api = axios.create({
   baseURL: "http://localhost:8080/api",
   headers: {
@@ -57,9 +63,13 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => {
     const method = response.config.method?.toLowerCase();
+    const showSuccessToast = response.config.showSuccessToast ?? false;
 
     // Only for mutating requests
-    if (method === "post" || method === "patch" || method === "put") {
+    if (
+      showSuccessToast &&
+      (method === "post" || method === "patch" || method === "put")
+    ) {
       const pathname = new URL(response.request.responseURL).pathname;
       const source = apiMap[pathname.split("/")[2]];
 

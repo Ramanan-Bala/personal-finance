@@ -5,5 +5,4 @@ export * from "./types/account";
 export * from "./types/transactions";
 export * from "./utils/axios";
 export * from "./utils/motion.variants";
-export * from "./utils/string-extension";
 export * from "./utils/tailwindMerger";

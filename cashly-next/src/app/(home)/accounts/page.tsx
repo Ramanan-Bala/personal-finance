@@ -1,6 +1,6 @@
 "use client";
 
-import { AccountGroup, CreateAccountDTO, toastStore } from "@/lib";
+import { AccountGroup, CreateAccountDTO } from "@/lib";
 import api from "@/lib/utils/axios";
 import { AccountForm, PageHeader } from "@/shared";
 import {
@@ -49,12 +49,7 @@ export default function AccountsPage() {
   const handleCreateAccount = async (data: CreateAccountDTO) => {
     try {
       setIsCreating(true);
-      await api.post("/accounts", data);
-      toastStore.getState().addToast({
-        title: "Success",
-        description: "Account created successfully",
-        type: "success",
-      });
+      await api.post("/accounts", data, { showSuccessToast: true });
 
       await fetchGroups();
       setIsDialogOpen(false);

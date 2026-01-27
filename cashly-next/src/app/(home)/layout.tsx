@@ -8,14 +8,14 @@ export default function HomeLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { isAuthenticated, user, isLoading } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) {
     return null;
   }
 
   if (!isAuthenticated) {
-    redirect("/login");
+    redirect("/");
   }
 
   return (

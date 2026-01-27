@@ -122,7 +122,9 @@ const Transactions = () => {
   const createTransaction = async (data: any) => {
     try {
       setLoading(true);
-      const response = await api.post<Transaction>("/transactions", data);
+      const response = await api.post<Transaction>("/transactions", data, {
+        showSuccessToast: true,
+      });
       response.data.amount = Number(response.data.amount);
       response.data.transactionDate = new Date(response.data.transactionDate);
       if (response.data.type === TransactionType.INCOME) setActiveTab("income");
@@ -145,6 +147,7 @@ const Transactions = () => {
       const response = await api.patch<Transaction>(
         `/transactions/${id}`,
         data,
+        { showSuccessToast: true },
       );
       response.data.amount = Number(response.data.amount);
       response.data.transactionDate = new Date(response.data.transactionDate);
