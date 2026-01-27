@@ -1,15 +1,16 @@
 "use client";
 
-import { CashlyLogo, ThemeSwitcher, useAuth } from "@/shared";
-
 import {
   bottomToTopVariants,
+  CashlyLogo,
   fadeInVariants,
   leftToRightVariants,
   staggerContainerVariants,
+  ThemeSwitcher,
+  useAuth,
   viewPortComplete,
   viewPortOnce,
-} from "@/lib";
+} from "@/shared";
 import { Button } from "@radix-ui/themes";
 import {
   ArrowRight,

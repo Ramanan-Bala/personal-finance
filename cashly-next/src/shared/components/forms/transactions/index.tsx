@@ -1,7 +1,6 @@
 "use client";
 
-import { Account, Category } from "@/lib";
-import { createTransactionSchema } from "@/lib/validators/transaction";
+import { createTransactionSchema } from "@/shared/validators/transaction";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Button,
@@ -14,7 +13,7 @@ import {
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
-import { DatePicker } from "@/shared";
+import { Account, Category, DatePicker } from "@/shared";
 
 type TransactionFormOutput = z.infer<typeof createTransactionSchema>;
 type TransactionFormInput = z.input<typeof createTransactionSchema>;

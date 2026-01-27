@@ -1,15 +1,16 @@
 "use client";
 
+import api from "@/lib/api/axios";
 import {
+  EmptyState,
   ICON_MAP,
   leftToRightVariants,
+  PageHeader,
   staggerContainerVariants,
   Transaction,
   TransactionType,
   viewPortOnce,
-} from "@/lib";
-import api from "@/lib/utils/axios";
-import { EmptyState, PageHeader } from "@/shared";
+} from "@/shared";
 import {
   Box,
   Button,
@@ -104,10 +105,6 @@ export default function LedgerPage() {
           },
           {} as { [key: string]: LedgerTransaction },
         );
-
-        // groupedTransactions["January 26, 2026"] = {
-        //   ...groupedTransactions["January 25, 2026"],
-        // };
 
         setTransactions(groupedTransactions);
       } finally {

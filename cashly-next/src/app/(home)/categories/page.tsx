@@ -1,13 +1,15 @@
 "use client";
 
-import { Category, ICON_MAP, TransactionType } from "@/lib";
-import api from "@/lib/utils/axios";
+import api from "@/lib/api/axios";
 import {
+  Category,
   CategoryForm,
+  ICON_MAP,
   PageHeader,
   Tabs,
   TabsList,
   TabsTrigger,
+  TransactionType,
 } from "@/shared";
 import {
   Badge,

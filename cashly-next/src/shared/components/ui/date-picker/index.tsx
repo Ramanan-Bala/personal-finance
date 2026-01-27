@@ -1,6 +1,6 @@
 "use client";
 
-import { cn } from "@/lib/utils/tailwindMerger";
+import { cn } from "@/shared/utils/tailwind-merger";
 import { Button, Popover } from "@radix-ui/themes";
 import { format, startOfDay } from "date-fns";
 import {

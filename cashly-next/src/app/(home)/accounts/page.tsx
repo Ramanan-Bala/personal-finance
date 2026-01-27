@@ -1,8 +1,13 @@
 "use client";
 
-import { AccountGroup, CreateAccountDTO } from "@/lib";
-import api from "@/lib/utils/axios";
-import { AccountForm, EmptyState, PageHeader } from "@/shared";
+import api from "@/lib/api/axios";
+import {
+  AccountForm,
+  AccountGroup,
+  CreateAccountDTO,
+  EmptyState,
+  PageHeader,
+} from "@/shared";
 import {
   Badge,
   Button,
@@ -178,11 +183,6 @@ export default function AccountsPage() {
                 <EmptyState
                   title="No accounts found"
                   description="Try adjusting your search query or create a new account to get started."
-                  action={
-                    <Button onClick={() => setIsDialogOpen(true)} color="green">
-                      <Plus size={18} /> Add Account
-                    </Button>
-                  }
                 />
               ) : (
                 filteredGroups.map((group) => (

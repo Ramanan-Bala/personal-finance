@@ -1,11 +1,13 @@
 "use client";
 
 import {
+  CashlyLogo,
   fadeScaleInVariants,
   leftToRightVariants,
   staggerContainerVariants,
-} from "@/lib";
-import { CashlyLogo, ThemeSwitcher, useAuth } from "@/shared";
+  ThemeSwitcher,
+  useAuth,
+} from "@/shared";
 import { passwordValidator } from "@/shared/validators/password";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@radix-ui/themes";

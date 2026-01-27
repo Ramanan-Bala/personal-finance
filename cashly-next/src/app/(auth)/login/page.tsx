@@ -1,7 +1,12 @@
 "use client";
 
-import { fadeScaleInVariants, leftToRightVariants } from "@/lib";
-import { CashlyLogo, ThemeSwitcher, useAuth } from "@/shared";
+import {
+  CashlyLogo,
+  fadeScaleInVariants,
+  leftToRightVariants,
+  ThemeSwitcher,
+  useAuth,
+} from "@/shared";
 import { Button, Heading } from "@radix-ui/themes";
 import {
   ChartPie,

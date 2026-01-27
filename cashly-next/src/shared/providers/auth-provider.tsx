@@ -1,7 +1,7 @@
 "use client";
 
 import { toastStore } from "@/lib/store/toast-store";
-import api from "@/lib/utils/axios";
+import api from "@/lib/api/axios";
 import { redirect } from "next/navigation";
 import React, {
   createContext,

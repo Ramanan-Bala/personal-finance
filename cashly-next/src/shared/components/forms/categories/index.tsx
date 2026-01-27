@@ -1,7 +1,7 @@
 "use client";
 
-import { TransactionType } from "@/lib";
-import { createCategorySchema } from "@/lib/validators/category";
+import { TransactionType } from "@/shared";
+import { createCategorySchema } from "@/shared/validators/category";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Button,

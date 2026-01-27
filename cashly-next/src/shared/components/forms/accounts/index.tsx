@@ -1,6 +1,6 @@
 "use client";
 
-import { createAccountSchema } from "@/lib/validators/account";
+import { createAccountSchema } from "@/shared/validators/account";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Button,
