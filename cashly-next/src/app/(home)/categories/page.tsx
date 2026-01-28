@@ -242,12 +242,14 @@ export default function CategoriesPage() {
             {/* Income Column */}
             {(filterType === "ALL" || filterType === "INCOME") && (
               <div className="space-y-4">
-                <Flex align="center" gap="2" mb="2">
-                  <TrendingUp className="text-green-500" />
-                  <Heading size="4">Income Categories</Heading>
-                  <Badge color="green" variant="soft">
-                    {incomeCategories.length}
-                  </Badge>
+                <Flex asChild align="center" gap="2" mb="2">
+                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                    <TrendingUp className="text-green-500" />
+                    <Heading size="4">Income Categories</Heading>
+                    <Badge color="green" variant="soft">
+                      {incomeCategories.length}
+                    </Badge>
+                  </motion.div>
                 </Flex>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <AnimatePresence mode="popLayout">
@@ -285,12 +287,18 @@ export default function CategoriesPage() {
             {/* Expense Column */}
             {(filterType === "ALL" || filterType === "EXPENSE") && (
               <div className="space-y-4">
-                <Flex align="center" gap="2" mb="2">
-                  <TrendingDown className="text-red-500" />
-                  <Heading size="4">Expense Categories</Heading>
-                  <Badge color="red" variant="soft">
-                    {expenseCategories.length}
-                  </Badge>
+                <Flex asChild align="center" gap="2" mb="2">
+                  <motion.div
+                    layout="position"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                  >
+                    <TrendingDown className="text-red-500" />
+                    <Heading size="4">Expense Categories</Heading>
+                    <Badge color="red" variant="soft">
+                      {expenseCategories.length}
+                    </Badge>
+                  </motion.div>
                 </Flex>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <AnimatePresence mode="popLayout">
@@ -348,49 +356,51 @@ function CategoryCard({
 
   return (
     <motion.div
-      layout="position"
+      layout
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.9 }}
       whileHover={{ y: -4 }}
     >
-      <Card variant="classic">
-        <Flex justify="between" align="center" gap="2">
-          <Flex direction="column" justify="between" align="start" gap="2">
-            <Flex align="center" gap="3">
-              <div
-                className={`rounded-lg p-2 ${category.type === "INCOME" ? "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600" : "bg-red-100 dark:bg-red-900/30 text-red-600"}`}
-              >
-                <Icon size={18} />
-              </div>
-              <Heading size="3">{category.name}</Heading>
+      <Card asChild variant="classic" style={{ height: "100%" }}>
+        <motion.div layout className="w-full h-full">
+          <Flex justify="between" align="center" gap="2">
+            <Flex direction="column" justify="between" align="start" gap="2">
+              <motion.div layout className="flex items-center gap-3">
+                <div
+                  className={`rounded-lg p-2 ${category.type === "INCOME" ? "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600" : "bg-red-100 dark:bg-red-900/30 text-red-600"}`}
+                >
+                  <Icon size={18} />
+                </div>
+                <Heading size="3">{category.name}</Heading>
+              </motion.div>
+              {category.description && (
+                <Text
+                  size="1"
+                  color="gray"
+                  className="line-clamp-1 text-ellipsis max-w-max"
+                  asChild
+                >
+                  <motion.div layout>{category.description}</motion.div>
+                </Text>
+              )}
             </Flex>
-            {category.description && (
-              <Text
-                size="1"
-                color="gray"
-                className="line-clamp-1 text-ellipsis max-w-max"
-              >
-                {category.description}
-              </Text>
-            )}
+            <Flex asChild justify="between" align="center">
+              <motion.div layout>
+                {editClicked && (
+                  <Button
+                    variant="ghost"
+                    color="gray"
+                    onClick={() => editClicked(category)}
+                    className="mr-1 py-2"
+                  >
+                    <Pencil size={16} />
+                  </Button>
+                )}
+              </motion.div>
+            </Flex>
           </Flex>
-          <Flex justify="between" align="center">
-            {editClicked && (
-              <Button
-                variant="ghost"
-                color="gray"
-                onClick={() => editClicked(category)}
-                className="mr-1 py-2"
-              >
-                <Pencil size={16} />
-              </Button>
-            )}
-            {/* <Button variant="ghost" color="gray" onClick={() => deleteClicked(category.id)}>
-              <Trash size={16} />
-            </Button> */}
-          </Flex>
-        </Flex>
+        </motion.div>
       </Card>
     </motion.div>
   );

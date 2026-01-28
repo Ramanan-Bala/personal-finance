@@ -58,7 +58,7 @@ export function ThemeSwitcher({ isTabStyle }: { isTabStyle?: boolean }) {
             <Sun size={16} className="text-foreground" />
             <span className="text-foreground">Light</span>
           </TabsTrigger>
-          <TabsTrigger value="dark" className="bg-gray-400" key={"dark"}>
+          <TabsTrigger value="dark" className="bg-gray-300" key={"dark"}>
             <Moon size={16} />
             Dark
           </TabsTrigger>
