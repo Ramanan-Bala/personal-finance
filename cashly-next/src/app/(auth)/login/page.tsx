@@ -11,6 +11,7 @@ import { Button, Heading } from "@radix-ui/themes";
 import {
   ChartPie,
   Fingerprint,
+  Loader2,
   Lock,
   LogIn,
   PiggyBank,
@@ -27,6 +28,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
+  const [isLoading, setIsLoading] = useState(false);
 
   const { login } = useAuth();
 
@@ -68,9 +70,12 @@ export default function LoginPage() {
       setErrors({ email: emailError, password: passwordError });
       return;
     }
-
-    console.log("Form Submitted", { email, password });
-    await login({ email, password });
+    setIsLoading(true);
+    try {
+      await login({ email, password });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const securityFeatures = [
@@ -191,29 +196,23 @@ export default function LoginPage() {
                   )}
                 </div>
 
-                <div className="flex items-center justify-between">
-                  <label className="flex items-center gap-2">
-                    <input type="checkbox" className="rounded border-border" />
-                    <span className="text-muted-foreground text-sm">
-                      Remember me
-                    </span>
-                  </label>
-                  <Link
-                    href="#"
-                    className="text-primary text-sm font-medium hover:underline"
-                  >
-                    Forgot password?
-                  </Link>
-                </div>
-
                 <Button
                   className="w-full"
                   size="3"
                   type="submit"
-                  disabled={!isValid}
+                  disabled={!isValid || isLoading}
                 >
-                  <LogIn className="h-4 w-4" />
-                  Sign In
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Signing In...
+                    </>
+                  ) : (
+                    <>
+                      <LogIn className="h-4 w-4" />
+                      Sign In
+                    </>
+                  )}
                 </Button>
               </form>
 

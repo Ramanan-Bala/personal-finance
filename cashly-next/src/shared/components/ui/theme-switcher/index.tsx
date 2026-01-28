@@ -49,12 +49,16 @@ export function ThemeSwitcher({ isTabStyle }: { isTabStyle?: boolean }) {
   if (isTabStyle)
     return (
       <Tabs value={theme} onValueChange={toggleTheme}>
-        <TabsList className="w-full">
-          <TabsTrigger value="light" className="bg-primary" key={"light"}>
-            <Sun size={16} />
-            Light
+        <TabsList className="w-full dark:bg-bg bg-bg">
+          <TabsTrigger
+            value="light"
+            className="bg-white shadow-md"
+            key={"light"}
+          >
+            <Sun size={16} className="text-foreground" />
+            <span className="text-foreground">Light</span>
           </TabsTrigger>
-          <TabsTrigger value="dark" className="bg-red-400!" key={"dark"}>
+          <TabsTrigger value="dark" className="bg-gray-400" key={"dark"}>
             <Moon size={16} />
             Dark
           </TabsTrigger>

@@ -16,6 +16,7 @@ import {
   ChartPie,
   Check,
   DollarSign,
+  Loader2,
   LogIn,
   UserPlus,
 } from "lucide-react";
@@ -278,8 +279,17 @@ export default function RegisterPage() {
                   size="3"
                   disabled={!isValid || isSubmitting}
                 >
-                  <UserPlus className="h-4 w-4" />
-                  {isSubmitting ? "Creating account..." : "Create account"}
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Creating account...
+                    </>
+                  ) : (
+                    <>
+                      <UserPlus className="h-4 w-4" />
+                      Create account
+                    </>
+                  )}
                 </Button>
               </form>
 
