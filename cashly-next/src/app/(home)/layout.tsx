@@ -24,9 +24,9 @@ export default function HomeLayout({
 
       <Flex
         direction="column"
-        className="flex-1 bg-bg transition-all duration-300 relative"
+        className="flex-1 bg-bg transition-all duration-300 relative h-screen"
       >
-        <div className="flex-1 overflow-auto p-6">
+        <div className="flex-1 overflow-auto p-6 pb-28 md:pb-6">
           <PageTransition>{children}</PageTransition>
         </div>
       </Flex>

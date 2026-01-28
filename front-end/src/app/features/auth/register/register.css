@@ -1,5 +1,0 @@
-@reference 'tailwindcss';
-
-.p-message-text {
-  @apply text-xs!;
-}
