@@ -116,7 +116,7 @@ export function TransactionForm({
             Date
           </Text>
           <DatePicker
-            className="w-full"
+            className="w-full block"
             selected={new Date(defaultValues?.transactionDate || new Date())}
             onChange={(date) =>
               setValue(

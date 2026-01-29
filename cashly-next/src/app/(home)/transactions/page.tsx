@@ -16,6 +16,7 @@ import {
   Transaction,
   TransactionForm,
   TransactionType,
+  useFormatter,
 } from "@/shared";
 import {
   Button,
@@ -62,6 +63,7 @@ const Transactions = () => {
     fetchData();
   }, [dateRange]);
 
+  const { formatCurrency, formatDate } = useFormatter();
   const fetchData = async () => {
     try {
       setLoading(true);
@@ -259,7 +261,7 @@ const Transactions = () => {
       <Grid columns={{ initial: "1", md: "2" }} gap="4" mb="6">
         <StatsCard
           label="Total Income"
-          value={`₹${totalIncome.toLocaleString()}`}
+          value={formatCurrency(totalIncome)}
           icon={<TrendingUp size={20} />}
           color="green"
           description={
@@ -270,7 +272,7 @@ const Transactions = () => {
         />
         <StatsCard
           label="Total Expenses"
-          value={`₹${totalExpense.toLocaleString()}`}
+          value={formatCurrency(totalExpense)}
           icon={<TrendingDown size={20} />}
           color="red"
           description={
@@ -363,11 +365,12 @@ const Transactions = () => {
                       <Flex align="center" gap="2">
                         <div className="text-right">
                           <Text weight="bold" color="green" as="div">
-                            +₹{(Number(item.amount) || 0).toLocaleString()}
+                            +{formatCurrency(item.amount)}
                           </Text>
                           <Text size="1" color="gray">
-                            {item.transactionDate?.toLocaleDateString() ||
-                              "No date"}
+                            {item.transactionDate
+                              ? formatDate(item.transactionDate)
+                              : "No date"}
                           </Text>
                         </div>
                         <Button
@@ -437,11 +440,12 @@ const Transactions = () => {
                         </Flex>
                         <div className="text-right">
                           <Text weight="bold" color="red" as="div">
-                            -₹{(Number(item.amount) || 0).toLocaleString()}
+                            -{formatCurrency(item.amount)}
                           </Text>
                           <Text size="1" color="gray">
-                            {item.transactionDate?.toLocaleDateString() ||
-                              "No date"}
+                            {item.transactionDate
+                              ? formatDate(item.transactionDate)
+                              : "No date"}
                           </Text>
                         </div>
                       </motion.div>

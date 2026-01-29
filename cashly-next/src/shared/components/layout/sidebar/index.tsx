@@ -114,7 +114,7 @@ export const Sidebar = () => {
               className="grow p-2"
             >
               <LogOut className="min-h-5 min-w-5 max-h-5 max-w-5" />
-              {isOpen && <span>Logout</span>}
+              {isOpen && <span>Sign Out</span>}
             </Button>
             <Button
               variant="ghost"

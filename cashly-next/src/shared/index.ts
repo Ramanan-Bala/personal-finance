@@ -19,6 +19,7 @@ export * from "./providers/auth-provider";
 export * from "./providers/theme-provider";
 export * from "./types/account";
 export * from "./types/transactions";
+export * from "./utils/formatters";
 export * from "./utils/motion-variants";
 export * from "./utils/tailwind-merger";
 export * from "./validators/account";

@@ -38,7 +38,11 @@ export function DatePicker({ selected, onChange, className }: DatePickerProps) {
     <div className={cn("inline-block", className)}>
       <Popover.Root open={open} onOpenChange={setOpen}>
         <Popover.Trigger>
-          <Button variant="outline" color="gray" className="justify-start">
+          <Button
+            variant="outline"
+            color="gray"
+            className="justify-start w-full"
+          >
             <div className="flex items-center gap-3">
               <CalendarIcon className="h-4 w-4" />
               {selectedDate ? (
@@ -55,7 +59,8 @@ export function DatePicker({ selected, onChange, className }: DatePickerProps) {
           onInteractOutside={() => setOpen(false)}
           align="start"
           sideOffset={8}
-          className="p-0 border-none bg-transparent max-w-62!"
+          className="p-0 border-none bg-transparent"
+          style={{ minWidth: "max-content" }}
           maxWidth="250px"
         >
           <div className="flex flex-col sm:flex-row border border-border shadow-xl rounded-lg max-w-max overflow-hidden bg-(--color-panel-solid) text-foreground">

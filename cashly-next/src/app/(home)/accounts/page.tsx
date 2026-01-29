@@ -7,6 +7,7 @@ import {
   CreateAccountDTO,
   EmptyState,
   PageHeader,
+  useFormatter,
 } from "@/shared";
 import {
   Badge,
@@ -26,6 +27,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useMemo, useState } from "react";
 
 export default function AccountsPage() {
+  const { formatCurrency } = useFormatter();
   const [groups, setGroups] = useState<AccountGroup[]>([]);
   const [loading, setLoading] = useState(true);
   const [, setError] = useState<string | null>(null);
@@ -228,10 +230,7 @@ export default function AccountsPage() {
                                     Active
                                   </Badge>
                                   <Heading size="5" color="green">
-                                    ₹
-                                    {Number(
-                                      account.openingBalance,
-                                    ).toLocaleString()}
+                                    {formatCurrency(account.openingBalance)}
                                   </Heading>
                                 </Flex>
                               </Flex>

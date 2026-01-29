@@ -1,5 +1,12 @@
 import { relations } from 'drizzle-orm';
-import { decimal, pgEnum, pgTable, text, timestamp } from 'drizzle-orm/pg-core';
+import {
+  boolean,
+  decimal,
+  pgEnum,
+  pgTable,
+  text,
+  timestamp,
+} from 'drizzle-orm/pg-core';
 
 // Enums
 export const categoryTypeEnum = pgEnum('CategoryType', ['INCOME', 'EXPENSE']);
@@ -10,7 +17,8 @@ export const transactionTypeEnum = pgEnum('TransactionType', [
 ]);
 export const lendDebtTypeEnum = pgEnum('LendDebtType', ['LEND', 'DEBT']);
 export const lendDebtStatusEnum = pgEnum('LendDebtStatus', ['OPEN', 'SETTLED']);
-
+// back-end/src/db/schema.ts
+export type User = typeof users.$inferSelect;
 // Users
 export const users = pgTable('users', {
   id: text('id')
@@ -18,7 +26,13 @@ export const users = pgTable('users', {
     .$defaultFn(() => crypto.randomUUID()),
   email: text('email').unique().notNull(),
   name: text('name'),
+  phone: text('phone'),
   passwordHash: text('passwordHash').notNull(),
+  is2faEnabled: boolean('is2faEnabled').default(false).notNull(),
+  otp: text('otp'),
+  otpExpiry: timestamp('otpExpiry'),
+  currency: text('currency').default('INR').notNull(),
+  dateFormat: text('dateFormat').default('MM-DD-YYYY').notNull(),
   createdAt: timestamp('createdAt').defaultNow().notNull(),
   updatedAt: timestamp('updatedAt').defaultNow().notNull(),
 });

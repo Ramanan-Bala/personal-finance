@@ -22,6 +22,20 @@
       "when": 1769263979038,
       "tag": "0002_wonderful_frog_thor",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1769623700013,
+      "tag": "0003_living_mad_thinker",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1769703734381,
+      "tag": "0004_volatile_rattler",
+      "breakpoints": true
     }
   ]
 }

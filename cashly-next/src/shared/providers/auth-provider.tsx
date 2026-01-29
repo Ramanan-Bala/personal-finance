@@ -2,7 +2,7 @@
 
 import api from "@/lib/api/axios";
 import { toastStore } from "@/lib/store/toast-store";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 import React, {
   createContext,
   useContext,
@@ -20,31 +20,62 @@ interface RegisterDTO extends LoginDTO {
   name: string;
 }
 
+interface Verify2faDTO {
+  email: string;
+  otp: string;
+}
+
+interface ResetPasswordDTO {
+  email: string;
+  otp: string;
+  newPassword: string;
+}
+
+interface User {
+  email: string;
+  name: string;
+  phone?: string;
+  is2faEnabled?: boolean;
+  currency?: string;
+  dateFormat?: string;
+}
+
 interface LoginResponse {
   accessToken: string;
   refreshToken: string;
   email: string;
   name: string;
+  phone?: string;
+  is2faEnabled?: boolean;
+  currency?: string;
+  dateFormat?: string;
+}
+
+interface LoginAcceptResponse {
+  twoFactorRequired: boolean;
+  email: string;
 }
 
 interface AuthContextType {
-  user: Omit<LoginResponse, "accessToken" | "refreshToken"> | null;
+  user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (userData: LoginDTO) => Promise<void>;
+  login: (userData: LoginDTO) => Promise<LoginResponse | LoginAcceptResponse>;
   register: (userData: RegisterDTO) => Promise<void>;
   logout: () => void;
-  updateUser: (userData: Partial<LoginResponse>) => void;
+  updateUser: (userData: Partial<User>) => void;
+  updateProfile: (userData: Partial<User>) => Promise<void>;
+  verify2fa: (data: Verify2faDTO) => Promise<void>;
+  forgotPassword: (email: string) => Promise<void>;
+  resetPassword: (data: ResetPasswordDTO) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<Omit<
-    LoginResponse,
-    "accessToken" | "refreshToken"
-  > | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
 
   const isAuthenticated = useMemo(() => !!user, [user]);
 
@@ -70,11 +101,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     initializeAuth();
   }, []);
 
-  const login = async (formData: LoginDTO) => {
-    const response = await api.post<LoginResponse>("/auth/login", formData);
-    const userData = {
+  const handleLoginSuccess = (response: { data: LoginResponse }) => {
+    const userData: User = {
       email: response.data.email,
       name: response.data.name,
+      phone: response.data.phone,
+      is2faEnabled: response.data.is2faEnabled,
+      currency: response.data.currency,
+      dateFormat: response.data.dateFormat,
     };
     setUser(userData);
     localStorage.setItem("accessToken", response.data.accessToken);
@@ -85,25 +119,37 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       description: "Login successful",
       type: "success",
     });
-    redirect("/dashboard");
+    router.push("/dashboard");
+    return response.data;
+  };
+
+  const login = async (formData: LoginDTO) => {
+    const response = await api.post<LoginResponse | LoginAcceptResponse>(
+      "/auth/login",
+      formData,
+    );
+    if (response.status === 202) {
+      return response.data; // twoFactorRequired
+    }
+    return handleLoginSuccess(response as { data: LoginResponse });
+  };
+
+  const verify2fa = async (data: Verify2faDTO) => {
+    const response = await api.post<LoginResponse>("/auth/verify-2fa", data);
+    handleLoginSuccess(response);
   };
 
   const register = async (formData: RegisterDTO) => {
     const response = await api.post<LoginResponse>("/auth/register", formData);
-    const userData = {
-      email: response.data.email,
-      name: response.data.name,
-    };
-    setUser(userData);
-    localStorage.setItem("accessToken", response.data.accessToken);
-    localStorage.setItem("refreshToken", response.data.refreshToken);
-    localStorage.setItem("user", JSON.stringify(userData));
-    toastStore.getState().addToast({
-      title: "Login",
-      description: "Login successful",
-      type: "success",
-    });
-    redirect("/dashboard");
+    handleLoginSuccess(response);
+  };
+
+  const forgotPassword = async (email: string) => {
+    await api.post("/auth/forgot-password", { email });
+  };
+
+  const resetPassword = async (data: ResetPasswordDTO) => {
+    await api.post("/auth/reset-password", data);
   };
 
   const logout = () => {
@@ -113,13 +159,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null);
   };
 
-  const updateUser = (userData: Partial<LoginResponse>) => {
+  const updateUser = (userData: Partial<User>) => {
     setUser((prev) => {
       if (!prev) return null;
       const updated = { ...prev, ...userData };
       localStorage.setItem("user", JSON.stringify(updated));
       return updated;
     });
+  };
+
+  const updateProfile = async (userData: Partial<User>) => {
+    const response = await api.patch<User>("/users/profile", userData, {
+      showSuccessToast: true,
+    });
+    updateUser(response.data);
   };
 
   return (
@@ -132,6 +185,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         logout,
         updateUser,
         register,
+        updateProfile,
+        verify2fa,
+        forgotPassword,
+        resetPassword,
       }}
     >
       {children}

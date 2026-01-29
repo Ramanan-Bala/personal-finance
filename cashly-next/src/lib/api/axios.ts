@@ -42,6 +42,8 @@ const apiMap: any = {
   transactions: "Transaction",
   accounts: "Account",
   categories: "Category",
+  profile: "Profile",
+  users: "User profile",
 };
 
 api.interceptors.request.use(
@@ -72,6 +74,8 @@ api.interceptors.response.use(
     ) {
       const pathname = new URL(response.request.responseURL).pathname;
       const source = apiMap[pathname.split("/")[2]];
+
+      console.log(pathname);
 
       const message =
         (response.data as any)?.message ||

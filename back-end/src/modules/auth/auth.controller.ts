@@ -17,10 +17,50 @@ export class AuthController {
 
   async login(req: Request, res: Response) {
     try {
-      const tokens = await authService.login(req.body);
-      return res.json(tokens);
+      const result = await authService.login(req.body);
+      if ('twoFactorRequired' in result) {
+        return res.status(202).json(result);
+      }
+      return res.json(result);
     } catch (error: any) {
       if (error.message === 'Invalid email or password') {
+        return res.status(400).json({ message: error.message });
+      }
+      console.error(error);
+      return res.status(500).json({ message: 'Internal server error' });
+    }
+  }
+
+  async verify2fa(req: Request, res: Response) {
+    try {
+      const { email, otp } = req.body;
+      const tokens = await authService.verify2fa(email, otp);
+      return res.json(tokens);
+    } catch (error: any) {
+      if (error.message === 'Invalid or expired OTP') {
+        return res.status(400).json({ message: error.message });
+      }
+      console.error(error);
+      return res.status(500).json({ message: 'Internal server error' });
+    }
+  }
+
+  async forgotPassword(req: Request, res: Response) {
+    try {
+      await authService.forgotPassword(req.body.email);
+      return res.json({ message: 'If the email exists, an OTP has been sent' });
+    } catch (error: any) {
+      console.error(error);
+      return res.status(500).json({ message: 'Internal server error' });
+    }
+  }
+
+  async resetPassword(req: Request, res: Response) {
+    try {
+      await authService.resetPassword(req.body);
+      return res.json({ message: 'Password has been reset successfully' });
+    } catch (error: any) {
+      if (error.message === 'Invalid or expired OTP') {
         return res.status(400).json({ message: error.message });
       }
       console.error(error);

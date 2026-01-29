@@ -1,6 +1,6 @@
 "use client";
 
-import { useAuth } from "@/shared";
+import { useAuth, useFormatter } from "@/shared";
 import { IconButton } from "@radix-ui/themes";
 import {
   ArrowUpRight,
@@ -14,29 +14,31 @@ import {
 
 export default function DashboardPage() {
   const { user } = useAuth();
+  const { formatCurrency } = useFormatter();
+
   const amountInfo = [
     {
       icon: <Wallet />,
       percent: 12,
-      amount: "₹1,27,300",
+      amount: 127300,
       type: "Total Balance",
     },
     {
       icon: <TrendingUp />,
       percent: 12,
-      amount: "₹90,300",
+      amount: 90300,
       type: "Monthly Income",
     },
     {
       icon: <TrendingDown />,
       percent: 12,
-      amount: "₹42,900",
+      amount: 42900,
       type: "Monthly Expenses",
     },
     {
       icon: <PiggyBank />,
       percent: 12,
-      amount: "₹37,700",
+      amount: 37700,
       type: "Net Savings",
     },
   ];
@@ -46,28 +48,28 @@ export default function DashboardPage() {
       icon: <Wallet />,
       color: "green",
       percent: 12,
-      amount: "₹1,27,300",
+      amount: 127300,
       type: "Cash",
     },
     {
       icon: <PiggyBank />,
       color: "blue",
       percent: 12,
-      amount: "₹90,300",
+      amount: 90300,
       type: "Savings",
     },
     {
       icon: <CreditCard />,
       color: "plum",
       percent: 12,
-      amount: "₹42,900",
+      amount: 42900,
       type: "Credit Card",
     },
     {
       icon: <Building2 />,
       color: "amber",
       percent: 12,
-      amount: "₹37,700",
+      amount: 37700,
       type: "Business",
     },
   ];
@@ -101,7 +103,7 @@ export default function DashboardPage() {
                 </div>
               </div>
               <div>
-                <h3>{item.amount}</h3>
+                <h3>{formatCurrency(item.amount)}</h3>
                 <h6 className="text-muted-foreground">{item.type}</h6>
               </div>
             </div>
@@ -111,7 +113,7 @@ export default function DashboardPage() {
 
       {/* Your Accounts */}
       <div className="space-y-3">
-        <h3>Your Accounts</h3>
+        <h3 className="font-semibold text-lg">Your Accounts</h3>
         <div className="flex gap-3">
           {accountInfo.map((item, i) => {
             return (
@@ -125,7 +127,7 @@ export default function DashboardPage() {
                 <span className="text-sm text-muted-foreground font-medium">
                   {item.type}
                 </span>
-                <h3>{item.amount}</h3>
+                <h3>{formatCurrency(item.amount)}</h3>
                 <div className="flex items-center gap-1 mt-2 text-green-400 font-medium text-xs">
                   <ArrowUpRight className="h-4 w-4" />
                   {item.percent}%{" "}

@@ -1,15 +1,17 @@
 import * as bcrypt from 'bcrypt';
 import { eq } from 'drizzle-orm';
 import jwt from 'jsonwebtoken';
+import { mailService } from '../../common/mail.service';
 import { db } from '../../db';
 import {
   accountGroups,
   accounts,
   categories,
   refreshTokens,
+  User,
   users,
 } from '../../db/schema';
-import { LoginInput, RegisterInput } from './auth.schema';
+import { LoginInput, RegisterInput, ResetPasswordInput } from './auth.schema';
 
 export class AuthService {
   async register(input: RegisterInput) {
@@ -72,7 +74,7 @@ export class AuthService {
       description: 'Transport expenses',
     });
 
-    return this.generateTokens(user.id, user.name || '', user.email);
+    return this.generateTokens(user);
   }
 
   async login(input: LoginInput) {
@@ -93,7 +95,92 @@ export class AuthService {
       throw new Error('Invalid email or password');
     }
 
-    return this.generateTokens(user.id, user.name || '', user.email);
+    if (user.is2faEnabled) {
+      const otp = Math.floor(100000 + Math.random() * 900000).toString();
+      const otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // 10 mins
+
+      await db
+        .update(users)
+        .set({ otp, otpExpiry, updatedAt: new Date() })
+        .where(eq(users.id, user.id));
+
+      await mailService.sendOTP(user.email, otp);
+      return { twoFactorRequired: true, email: user.email };
+    }
+
+    return this.generateTokens(user);
+  }
+
+  async verify2fa(email: string, otp: string) {
+    const user = await db.query.users.findFirst({
+      where: eq(users.email, email),
+    });
+
+    if (
+      !user ||
+      user.otp !== otp ||
+      !user.otpExpiry ||
+      user.otpExpiry < new Date()
+    ) {
+      throw new Error('Invalid or expired OTP');
+    }
+
+    // Clear OTP after successful verify
+    await db
+      .update(users)
+      .set({ otp: null, otpExpiry: null, updatedAt: new Date() })
+      .where(eq(users.id, user.id));
+
+    return this.generateTokens(user);
+  }
+
+  async forgotPassword(email: string) {
+    const user = await db.query.users.findFirst({
+      where: eq(users.email, email),
+    });
+
+    if (!user) {
+      // Don't leak user existence? Actually in internal apps it's fine, but better to be generic.
+      // For now we just return for simplicity.
+      return;
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // 10 mins
+
+    await db
+      .update(users)
+      .set({ otp, otpExpiry, updatedAt: new Date() })
+      .where(eq(users.id, user.id));
+
+    await mailService.sendPasswordResetOTP(email, otp);
+  }
+
+  async resetPassword(input: ResetPasswordInput) {
+    const user = await db.query.users.findFirst({
+      where: eq(users.email, input.email),
+    });
+
+    if (
+      !user ||
+      user.otp !== input.otp ||
+      !user.otpExpiry ||
+      user.otpExpiry < new Date()
+    ) {
+      throw new Error('Invalid or expired OTP');
+    }
+
+    const passwordHash = await bcrypt.hash(input.newPassword, 10);
+
+    await db
+      .update(users)
+      .set({
+        passwordHash,
+        otp: null,
+        otpExpiry: null,
+        updatedAt: new Date(),
+      })
+      .where(eq(users.id, user.id));
   }
 
   async refreshToken(token: string) {
@@ -129,7 +216,7 @@ export class AuthService {
 
     if (!user) throw new Error('User not found');
 
-    return this.generateTokens(user.id, user.name || '', user.email);
+    return this.generateTokens(user);
   }
 
   async logout(userId: string | undefined, token?: string) {
@@ -153,14 +240,14 @@ export class AuthService {
     }
   }
 
-  private async generateTokens(userId: string, name: string, email: string) {
-    const accessToken = jwt.sign({ sub: userId }, process.env.JWT_SECRET!, {
+  private async generateTokens(user: User) {
+    const accessToken = jwt.sign({ sub: user.id }, process.env.JWT_SECRET!, {
       expiresIn: process.env.JWT_EXPIRY || '15m',
     } as jwt.SignOptions);
 
     const refreshExpiresIn = process.env.JWT_REFRESH_EXPIRY || '7d';
     const refreshToken = jwt.sign(
-      { sub: userId },
+      { sub: user.id },
       process.env.JWT_REFRESH_SECRET!,
       { expiresIn: refreshExpiresIn } as jwt.SignOptions,
     );
@@ -169,7 +256,7 @@ export class AuthService {
     const expiresAt = new Date(Date.now() + expiresAtValue);
 
     await db.insert(refreshTokens).values({
-      userId,
+      userId: user.id,
       token: refreshToken,
       expiresAt,
       updatedAt: new Date(),
@@ -178,8 +265,12 @@ export class AuthService {
     return {
       accessToken,
       refreshToken,
-      name,
-      email,
+      name: user.name,
+      email: user.email,
+      is2faEnabled: user.is2faEnabled,
+      phone: user.phone,
+      currency: user.currency,
+      dateFormat: user.dateFormat,
     };
   }
 

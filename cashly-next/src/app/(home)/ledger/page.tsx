@@ -9,6 +9,7 @@ import {
   staggerContainerVariants,
   Transaction,
   TransactionType,
+  useFormatter,
   viewPortOnce,
 } from "@/shared";
 import {
@@ -46,6 +47,7 @@ interface LedgerTransaction {
 }
 
 export default function LedgerPage() {
+  const { formatDate, formatCurrency } = useFormatter();
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [loading, setLoading] = useState(false);
   const handlePrevMonth = () => setCurrentMonth((prev) => subMonths(prev, 1));
@@ -91,10 +93,13 @@ export default function LedgerPage() {
         });
         var groupedTransactions = response.data.reduce(
           (acc, transaction) => {
-            const date = format(transaction.transactionDate, "MMMM dd, yyyy");
+            const date = format(transaction.transactionDate, "yyyy-MM-dd"); // Stable grouping key
+            const displayDate = formatDate(transaction.transactionDate);
             if (!acc[date]) {
               acc[date] = { totalIncome: 0, totalExpense: 0, transactions: [] };
             }
+            // Store the display date so we use it in the UI
+            (acc[date] as any).displayDate = displayDate;
             acc[date].transactions.push(transaction);
             if (transaction.type === TransactionType.INCOME) {
               acc[date].totalIncome += Number(transaction.amount);
@@ -206,16 +211,20 @@ export default function LedgerPage() {
                         <Calendar />
                       </Button>
                       <Box>
-                        <Heading size="3">{date}</Heading>
+                        <Heading size="3">
+                          {(item as any).displayDate || date}
+                        </Heading>
                         <Flex gap="4">
                           <Text
                             color="green"
                             className="flex items-center gap-1"
                           >
-                            <ArrowUpRight size="14" /> ₹{item.totalIncome}
+                            <ArrowUpRight size="14" />{" "}
+                            {formatCurrency(item.totalIncome)}
                           </Text>
                           <Text color="red" className="flex items-center gap-1">
-                            <ArrowDownRight size="14" /> ₹{item.totalExpense}
+                            <ArrowDownRight size="14" />{" "}
+                            {formatCurrency(item.totalExpense)}
                           </Text>
                         </Flex>
                       </Box>
@@ -228,7 +237,7 @@ export default function LedgerPage() {
                           : "red"
                       }
                     >
-                      ₹{item.totalIncome - item.totalExpense}
+                      {formatCurrency(item.totalIncome - item.totalExpense)}
                     </Heading>
                   </Flex>
                   <Card
@@ -296,11 +305,19 @@ export default function LedgerPage() {
                                 </Flex>
                               </div>
                             </Flex>
-                            <Text weight="bold" color="green" as="div">
-                              +₹
-                              {(
-                                Number(transaction.amount) || 0
-                              ).toLocaleString()}
+                            <Text
+                              weight="bold"
+                              color={
+                                transaction.type === TransactionType.INCOME
+                                  ? "green"
+                                  : "red"
+                              }
+                              as="div"
+                            >
+                              {transaction.type === TransactionType.INCOME
+                                ? "+"
+                                : "-"}
+                              {formatCurrency(transaction.amount)}
                             </Text>
                           </motion.div>
                         ))}

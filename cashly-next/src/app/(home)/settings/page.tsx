@@ -1,79 +1,150 @@
 "use client";
 
 import { PageHeader, ThemeSwitcher, useAuth } from "@/shared";
-import { Avatar, Button, Card, Flex, Section, Text } from "@radix-ui/themes";
 import {
-  Bell,
+  Avatar,
+  Badge,
+  Button,
+  Card,
+  Dialog,
+  Flex,
+  IconButton,
+  Section,
+  Select,
+  Switch,
+  Text,
+  TextField,
+  Tooltip,
+} from "@radix-ui/themes";
+import { format } from "date-fns";
+import {
+  Check,
   ChevronRight,
   Globe,
+  Info,
   LogOut,
+  Mail,
   Palette,
+  Phone,
   ShieldCheck,
   Tags,
-  User,
 } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
+interface SettingRowProps {
+  icon: any;
+  label: string;
+  description?: string;
+  action?: React.ReactNode;
+  onClick?: () => void;
+}
+
+const SettingRow = ({
+  icon: Icon,
+  label,
+  description,
+  action,
+  onClick,
+}: SettingRowProps) => (
+  <div
+    onClick={onClick}
+    role={onClick ? "button" : undefined}
+    tabIndex={onClick ? 0 : undefined}
+    onKeyDown={(e) => {
+      if (onClick && (e.key === "Enter" || e.key === " ")) {
+        e.preventDefault();
+        onClick();
+      }
+    }}
+    className={`w-full flex items-center justify-between p-3 rounded-xl hover:bg-gray-100 dark:hover:bg-white/5 transition-colors text-left group ${
+      onClick ? "cursor-pointer" : "cursor-default"
+    }`}
+  >
+    <Flex gap="4" align="center">
+      <Flex className="h-10 w-10 rounded-xl items-center justify-center bg-gray-100 dark:bg-white/5 group-hover:bg-white dark:group-hover:bg-white/10 transition-colors shadow-sm">
+        <Icon className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+      </Flex>
+      <Flex direction="column" gap="0">
+        <Text size="2" weight="bold">
+          {label}
+        </Text>
+        {description && (
+          <Text size="1" color="gray">
+            {description}
+          </Text>
+        )}
+      </Flex>
+    </Flex>
+    {action ? (
+      action
+    ) : (
+      <ChevronRight
+        className={`h-4 w-4 text-gray-400 group-hover:translate-x-1 transition-transform ${!onClick && "opacity-0"}`}
+      />
+    )}
+  </div>
+);
 
 export default function SettingsPage() {
-  const { user, logout } = useAuth();
-  const router = useRouter();
+  const { user, logout, updateProfile } = useAuth();
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
+
+  const presets = [
+    "MM/dd/yyyy",
+    "dd/MM/yyyy",
+    "yyyy-MM-dd",
+    "MMMM dd, yyyy",
+    "MMM dd, yyyy",
+    "EEEE, MMMM dd, yyyy",
+  ];
+
+  const currentDateFormat = user?.dateFormat || "MM/dd/yyyy";
+  const isCustom = !presets.includes(currentDateFormat);
+
+  const [dateSelection, setDateSelection] = useState(
+    isCustom ? "custom" : currentDateFormat,
+  );
+  const [customFormat, setCustomFormat] = useState(
+    isCustom ? currentDateFormat : "",
+  );
+
+  useEffect(() => {
+    if (user?.dateFormat) {
+      const isCustomNow = !presets.includes(user.dateFormat);
+      setDateSelection(isCustomNow ? "custom" : user.dateFormat);
+      if (isCustomNow) setCustomFormat(user.dateFormat);
+    }
+  }, [user?.dateFormat]);
+
+  // Form state
+  const [editName, setEditName] = useState(user?.name || "");
+  const [editPhone, setEditPhone] = useState(user?.phone || "");
+
   const avatarFallback = user?.name
     ?.split(" ")
     .map((name) => name[0])
     .join("");
 
-  // Dummy state for toggles
-  const [notifications, setNotifications] = useState(true);
-  const [emailReports, setEmailReports] = useState(true);
-  const [reminders, setReminders] = useState(true);
-  const [budgetAlerts, setBudgetAlerts] = useState(false);
-
-  const navigateTo = (path: string) => {
-    router.push(path);
+  const handleUpdateProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsUpdating(true);
+    try {
+      await updateProfile({ name: editName, phone: editPhone });
+      setIsEditModalOpen(false);
+    } finally {
+      setIsUpdating(false);
+    }
   };
 
-  const SettingRow = ({
-    icon: Icon,
-    label,
-    description,
-    action,
-    color = "gray",
-  }: {
-    icon: any;
-    label: string;
-    description?: string;
-    action?: React.ReactNode;
-    color?: string;
-  }) => (
-    <div
-      className={`w-full flex items-center justify-between p-3 rounded-xl hover:bg-gray-100 dark:hover:bg-white/5 transition-colors text-left group`}
-    >
-      <Flex gap="4" align="center">
-        <Flex
-          className={`h-10 w-10 rounded-xl items-center justify-center bg-gray-100 dark:bg-white/5 group-hover:bg-white dark:group-hover:bg-white/10 transition-colors shadow-sm`}
-        >
-          <Icon className="h-5 w-5 text-gray-600 dark:text-gray-400" />
-        </Flex>
-        <Flex direction="column" gap="0">
-          <Text size="2" weight="bold">
-            {label}
-          </Text>
-          {description && (
-            <Text size="1" color="gray">
-              {description}
-            </Text>
-          )}
-        </Flex>
-      </Flex>
-      {action ? (
-        action
-      ) : (
-        <ChevronRight className="h-4 w-4 text-gray-400 group-hover:translate-x-1 transition-transform" />
-      )}
-    </div>
-  );
+  const handleToggle2FA = async (enabled: boolean) => {
+    try {
+      await updateProfile({ is2faEnabled: enabled });
+    } catch (err) {
+      // Revert UI if failed (Auth Provider handles toast)
+    }
+  };
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
@@ -82,71 +153,14 @@ export default function SettingsPage() {
         description="Manage your account and preferences"
       />
 
-      {/* Quick Actions Bar */}
-      {/* <Flex
-        gap="3"
-        align="center"
-        overflow="auto"
-        className="pb-2 scrollbar-hide"
-      >
-        <Text
-          size="1"
-          weight="bold"
-          color="gray"
-          className="whitespace-nowrap mr-2"
-        >
-          Quick Actions |
-        </Text>
-        <Button
-          variant="soft"
-          color="green"
-          size="1"
-          radius="full"
-          className="px-3"
-        >
-          <Plus size={14} /> Add Income
-        </Button>
-        <Button
-          variant="soft"
-          color="red"
-          size="1"
-          radius="full"
-          className="px-3"
-        >
-          <ArrowDown size={14} /> Add Expense
-        </Button>
-        <Button
-          variant="soft"
-          color="blue"
-          size="1"
-          radius="full"
-          className="px-3"
-        >
-          <RefreshCw size={14} /> Transfer
-        </Button>
-        <Button
-          variant="soft"
-          color="orange"
-          size="1"
-          radius="full"
-          className="px-3"
-        >
-          <Calculator size={14} /> Calculator
-        </Button>
-        <Button
-          variant="soft"
-          color="iris"
-          size="1"
-          radius="full"
-          className="px-3"
-        >
-          <PieChart size={14} /> Reports
-        </Button>
-      </Flex> */}
-
       {/* Profile Card */}
       <Card size="3" className="overflow-hidden">
-        <Flex justify="between" align="center">
+        <Flex
+          justify="between"
+          align="center"
+          direction={{ initial: "column", sm: "row" }}
+          gap="4"
+        >
           <Flex gap="4" align="center">
             <Avatar
               size="6"
@@ -158,97 +172,80 @@ export default function SettingsPage() {
               <Text size="4" weight="bold">
                 {user?.name || "User Name"}
               </Text>
-              <Text size="2" color="gray">
-                {user?.email || "user@example.com"}
+              <Text
+                size="2"
+                color="gray"
+                className="flex items-center gap-2 tracking-wide"
+              >
+                <Mail size={10} /> {user?.email || "user@example.com"}
               </Text>
-              <Text size="1" color="gray" mt="1">
-                Member since January 2025
-              </Text>
+              {user?.phone && (
+                <Text
+                  size="1"
+                  color="gray"
+                  className="flex items-center gap-2 tracking-wider"
+                >
+                  <Phone size={10} /> {user.phone}
+                </Text>
+              )}
             </Flex>
           </Flex>
-          <Button variant="outline" onClick={() => {}}>
+          <Button variant="outline" onClick={() => setIsEditModalOpen(true)}>
             Edit Profile
           </Button>
         </Flex>
       </Card>
 
-      {/* Quick Settings */}
-      {/* <div className="space-y-4">
-        <Heading size="3" weight="bold">
-          Quick Settings
-        </Heading>
-        <Card size="2">
-          <Flex direction="column" gap="4">
-            <Flex justify="between" align="center">
-              <Flex direction="column">
-                <Text size="2" weight="bold">
-                  Push Notifications
+      {/* Edit Profile Modal */}
+      <Dialog.Root open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+        <Dialog.Content maxWidth="450px">
+          <Dialog.Title>Edit Profile</Dialog.Title>
+          <Dialog.Description size="2" mb="4">
+            Update your personal information below.
+          </Dialog.Description>
+
+          <form onSubmit={handleUpdateProfile}>
+            <Flex direction="column" gap="3">
+              <label>
+                <Text as="div" size="2" mb="1" weight="bold">
+                  Full Name
                 </Text>
-                <Text size="1" color="gray">
-                  Receive alerts for transactions
+                <TextField.Root
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  placeholder="Enter your full name"
+                  required
+                />
+              </label>
+              <label>
+                <Text as="div" size="2" mb="1" weight="bold">
+                  Phone Number
                 </Text>
-              </Flex>
-              <Switch
-                checked={notifications}
-                onCheckedChange={setNotifications}
-                color="green"
-              />
+                <TextField.Root
+                  value={editPhone}
+                  onChange={(e) => setEditPhone(e.target.value)}
+                  placeholder="+1 (555) 000-0000"
+                />
+              </label>
             </Flex>
 
-            <Flex justify="between" align="center">
-              <Flex direction="column">
-                <Text size="2" weight="bold">
-                  Email Reports
-                </Text>
-                <Text size="1" color="gray">
-                  Weekly spending summaries
-                </Text>
-              </Flex>
-              <Switch
-                checked={emailReports}
-                onCheckedChange={setEmailReports}
-                color="green"
-              />
+            <Flex gap="3" mt="4" justify="end">
+              <Dialog.Close>
+                <Button variant="soft" color="gray">
+                  Cancel
+                </Button>
+              </Dialog.Close>
+              <Button type="submit" loading={isUpdating}>
+                Save Changes
+              </Button>
             </Flex>
-
-            <Flex justify="between" align="center">
-              <Flex direction="column">
-                <Text size="2" weight="bold">
-                  Due Date Reminders
-                </Text>
-                <Text size="1" color="gray">
-                  Get reminded about pending debts
-                </Text>
-              </Flex>
-              <Switch
-                checked={reminders}
-                onCheckedChange={setReminders}
-                color="green"
-              />
-            </Flex>
-
-            <Flex justify="between" align="center">
-              <Flex direction="column">
-                <Text size="2" weight="bold">
-                  Budget Alerts
-                </Text>
-                <Text size="1" color="gray">
-                  Notify when nearing budget limits
-                </Text>
-              </Flex>
-              <Switch
-                checked={budgetAlerts}
-                onCheckedChange={setBudgetAlerts}
-                color="green"
-              />
-            </Flex>
-          </Flex>
-        </Card>
-      </div> */}
+          </form>
+        </Dialog.Content>
+      </Dialog.Root>
 
       {/* Main Settings Sections */}
       <Flex direction="column" gap="6">
-        {/* Account Section */}
+        {/* Account & Security Section */}
         <div className="space-y-3">
           <Text
             size="2"
@@ -256,25 +253,29 @@ export default function SettingsPage() {
             color="gray"
             className="uppercase tracking-wider"
           >
-            Account
+            Account & Security
           </Text>
           <Card size="1" className="p-0 overflow-hidden">
             <Flex direction="column">
               <SettingRow
-                icon={User}
-                label="Profile Settings"
-                description="Update your personal information"
-              />
-              <SettingRow
                 icon={ShieldCheck}
-                label="Security"
-                description="Password, 2FA, and login activity"
+                label="Two-Factor Authentication"
+                description="Secure your account with email codes"
+                action={
+                  <Switch
+                    checked={user?.is2faEnabled}
+                    onCheckedChange={handleToggle2FA}
+                    color="green"
+                  />
+                }
               />
-              {/* <SettingRow
-                icon={CreditCard}
-                label="Payment Methods"
-                description="Manage your linked accounts"
-              /> */}
+              <Link href="/forgot-password">
+                <SettingRow
+                  icon={ShieldCheck}
+                  label="Reset Password"
+                  description="Change your login credentials"
+                />
+              </Link>
             </Flex>
           </Card>
         </div>
@@ -292,11 +293,6 @@ export default function SettingsPage() {
           <Card size="1" className="p-0 overflow-hidden">
             <Flex direction="column">
               <SettingRow
-                icon={Bell}
-                label="Notifications"
-                description="Email and push notification settings"
-              />
-              <SettingRow
                 icon={Palette}
                 label="Appearance"
                 description="Theme and display preferences"
@@ -304,8 +300,119 @@ export default function SettingsPage() {
               />
               <SettingRow
                 icon={Globe}
-                label="Language & Region"
-                description="Currency and date formats"
+                label="Currency"
+                description="Select your preferred currency"
+                action={
+                  <Select.Root
+                    value={user?.currency || "INR"}
+                    onValueChange={(val) => updateProfile({ currency: val })}
+                  >
+                    <Select.Trigger variant="soft" />
+                    <Select.Content position="popper" align="end">
+                      <Select.Item value="INR">INR (₹)</Select.Item>
+                      <Select.Item value="USD">USD ($)</Select.Item>
+                      <Select.Item value="EUR">EUR (€)</Select.Item>
+                      <Select.Item value="GBP">GBP (£)</Select.Item>
+                    </Select.Content>
+                  </Select.Root>
+                }
+              />
+              <SettingRow
+                icon={Globe}
+                label="Date Format"
+                description="How dates appear across the app"
+                action={
+                  <Flex gap="2" align="center" className="w-full sm:w-auto">
+                    <Select.Root
+                      value={dateSelection}
+                      onValueChange={(val) => {
+                        setDateSelection(val);
+                        if (val !== "custom") {
+                          updateProfile({ dateFormat: val });
+                        }
+                      }}
+                    >
+                      <Select.Trigger variant="soft" />
+                      <Select.Content position="popper" align="end">
+                        <Select.Group>
+                          <Select.Label>Presets</Select.Label>
+                          {presets.map((p) => (
+                            <Select.Item key={p} value={p}>
+                              {p}
+                            </Select.Item>
+                          ))}
+                        </Select.Group>
+                        <Select.Separator />
+                        <Select.Item value="custom">
+                          Custom Format...
+                        </Select.Item>
+                      </Select.Content>
+                    </Select.Root>
+
+                    {dateSelection === "custom" && (
+                      <Flex gap="2" align="center">
+                        <TextField.Root
+                          placeholder="e.g. MMMM do, yyyy"
+                          value={customFormat}
+                          onChange={(e) => {
+                            setCustomFormat(e.target.value);
+                          }}
+                          color={(() => {
+                            if (!customFormat) return undefined;
+                            try {
+                              format(new Date(), customFormat);
+                              return undefined;
+                            } catch {
+                              return "red";
+                            }
+                          })()}
+                          className="w-48"
+                        >
+                          <TextField.Slot side="right">
+                            <IconButton
+                              size="1"
+                              variant="ghost"
+                              onClick={() => {
+                                if (customFormat.trim()) {
+                                  updateProfile({
+                                    dateFormat: customFormat,
+                                  });
+                                }
+                              }}
+                              disabled={(() => {
+                                try {
+                                  format(new Date(), customFormat);
+                                  return false;
+                                } catch {
+                                  return true;
+                                }
+                              })()}
+                            >
+                              <Check size={14} />
+                            </IconButton>
+                          </TextField.Slot>
+                        </TextField.Root>
+                        <Tooltip content="Tokens: yyyy, MM, dd, EEE, do...">
+                          <Info size={14} />
+                        </Tooltip>
+                      </Flex>
+                    )}
+
+                    <Badge variant="soft" color="iris" size="2">
+                      {(() => {
+                        const fmt =
+                          dateSelection === "custom"
+                            ? customFormat
+                            : dateSelection;
+                        try {
+                          return format(new Date(), fmt || "MM/dd/yyyy");
+                        } catch {
+                          return "Invalid format";
+                        }
+                      })()}
+                    </Badge>
+                  </Flex>
+                }
               />
               <Link href="/categories">
                 <SettingRow
@@ -317,32 +424,6 @@ export default function SettingsPage() {
             </Flex>
           </Card>
         </div>
-
-        {/* More Section */}
-        {/* <div className="space-y-3">
-          <Text
-            size="2"
-            weight="bold"
-            color="gray"
-            className="uppercase tracking-wider"
-          >
-            More
-          </Text>
-          <Card size="1" className="p-0 overflow-hidden">
-            <Flex direction="column">
-              <SettingRow
-                icon={Smartphone}
-                label="Mobile App"
-                description="Download our mobile application"
-              />
-              <SettingRow
-                icon={HelpCircle}
-                label="Help & Support"
-                description="FAQs and contact support"
-              />
-            </Flex>
-          </Card>
-        </div> */}
       </Flex>
 
       {/* Sign Out Footer */}
@@ -354,7 +435,7 @@ export default function SettingsPage() {
           <Flex justify="between" align="center">
             <Flex direction="column" gap="1">
               <Text size="2" weight="bold" color="red">
-                Sign Out
+                Log Out
               </Text>
               <Text size="1" color="gray">
                 Sign out of your account on this device

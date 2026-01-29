@@ -23,18 +23,27 @@ import { motion } from "motion/react";
 import Link from "next/link";
 import { FormEvent, useMemo, useState } from "react";
 
+type LoginStep = "LOGIN" | "VERIFY_2FA";
+
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [otp, setOtp] = useState("");
+  const [step, setStep] = useState<LoginStep>("LOGIN");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [isLoading, setIsLoading] = useState(false);
 
-  const { login } = useAuth();
+  const { login, verify2fa } = useAuth();
 
   const isValid = useMemo<boolean>(() => {
-    return Object.values(errors).every((error) => !error);
-  }, [errors]);
+    if (step === "LOGIN") {
+      return (
+        !!email && !!password && Object.values(errors).every((error) => !error)
+      );
+    }
+    return otp.length === 6;
+  }, [email, password, otp, step, errors]);
 
   const validateEmail = (value: string) => {
     if (!value) return "Email is required";
@@ -63,18 +72,30 @@ export default function LoginPage() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
-    const emailError = validateEmail(email);
-    const passwordError = validatePassword(password);
+    if (step === "LOGIN") {
+      const emailError = validateEmail(email);
+      const passwordError = validatePassword(password);
 
-    if (emailError || passwordError) {
-      setErrors({ email: emailError, password: passwordError });
-      return;
-    }
-    setIsLoading(true);
-    try {
-      await login({ email, password });
-    } finally {
-      setIsLoading(false);
+      if (emailError || passwordError) {
+        setErrors({ email: emailError, password: passwordError });
+        return;
+      }
+      setIsLoading(true);
+      try {
+        const result = await login({ email, password });
+        if (result && "twoFactorRequired" in result) {
+          setStep("VERIFY_2FA");
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    } else {
+      setIsLoading(true);
+      try {
+        await verify2fa({ email, otp });
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -145,101 +166,163 @@ export default function LoginPage() {
             </div>
 
             <div className="border-border bg-card rounded-2xl border p-8 shadow-lg">
-              <div className="mb-8">
-                <Heading mb="2">Log in to your account</Heading>
-                {/* <h2 className="text-foreground mb-2"></h2> */}
-                <p className="text-muted-foreground sm:text-sm text-xs">
-                  Enter your credentials to access your dashboard
-                </p>
-              </div>
-
-              <form onSubmit={handleSubmit} className="space-y-5">
-                <div className="flex flex-col gap-2">
-                  <label
-                    htmlFor="email"
-                    className="text-foreground text-sm font-medium"
-                  >
-                    Email address
-                  </label>
-                  <input
-                    id="email"
-                    type="email"
-                    placeholder="you@example.com"
-                    className="text-foreground placeholder-muted-foreground border-border bg-bg rounded-lg border px-4 py-2 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-primary"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    onBlur={(e) => handleBlur("email", e.target.value)}
-                  />
-                  {touched.email && errors.email && (
-                    <p className="text-xs text-red-500">{errors.email}</p>
-                  )}
-                </div>
-
-                <div className="flex flex-col gap-2">
-                  <label
-                    htmlFor="password"
-                    className="text-foreground text-sm font-medium"
-                  >
-                    Password
-                  </label>
-                  <input
-                    id="password"
-                    type="password"
-                    placeholder="••••••••"
-                    className="text-foreground placeholder-muted-foreground border-border bg-bg rounded-lg border px-4 py-2 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-primary"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    onBlur={(e) => handleBlur("password", e.target.value)}
-                  />
-                  {touched.password && errors.password && (
-                    <p className="text-xs text-red-500">{errors.password}</p>
-                  )}
-                </div>
-
-                <Button
-                  className="w-full"
-                  size="3"
-                  type="submit"
-                  disabled={!isValid || isLoading}
-                >
-                  {isLoading ? (
-                    <>
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      Signing In...
-                    </>
-                  ) : (
-                    <>
-                      <LogIn className="h-4 w-4" />
-                      Sign In
-                    </>
-                  )}
-                </Button>
-              </form>
-
-              <div className="mt-6">
-                <div className="relative mb-6">
-                  <div className="absolute inset-0 flex items-center">
-                    <div className="border-border w-full border-t"></div>
+              {step === "LOGIN" ? (
+                <>
+                  <div className="mb-8">
+                    <Heading mb="2">Log in to your account</Heading>
+                    <p className="text-muted-foreground sm:text-sm text-xs">
+                      Enter your credentials to access your dashboard
+                    </p>
                   </div>
-                  <div className="relative flex justify-center text-sm">
-                    <span className="bg-card text-muted-foreground px-4">
-                      New to Cashly?
-                    </span>
-                  </div>
-                </div>
 
-                <Link href="/register">
-                  <Button
-                    className="w-full text-primary"
-                    color="gray"
-                    variant="soft"
-                    size="3"
-                  >
-                    <UserPlus className="h-4 w-4" />
-                    Create Account
-                  </Button>
-                </Link>
-              </div>
+                  <form onSubmit={handleSubmit} className="space-y-5">
+                    <div className="flex flex-col gap-2">
+                      <label
+                        htmlFor="email"
+                        className="text-foreground text-sm font-medium"
+                      >
+                        Email address
+                      </label>
+                      <input
+                        id="email"
+                        type="email"
+                        placeholder="you@example.com"
+                        className="text-foreground placeholder-muted-foreground border-border bg-bg rounded-lg border px-4 py-2 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-primary"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        onBlur={(e) => handleBlur("email", e.target.value)}
+                      />
+                      {touched.email && errors.email && (
+                        <p className="text-xs text-red-500">{errors.email}</p>
+                      )}
+                    </div>
+
+                    <div className="flex flex-col gap-2">
+                      <div className="flex items-center justify-between">
+                        <label
+                          htmlFor="password"
+                          className="text-foreground text-sm font-medium"
+                        >
+                          Password
+                        </label>
+                        <Link
+                          href="/forgot-password"
+                          className="text-xs text-primary hover:underline"
+                        >
+                          Forgot password?
+                        </Link>
+                      </div>
+                      <input
+                        id="password"
+                        type="password"
+                        placeholder="••••••••"
+                        className="text-foreground placeholder-muted-foreground border-border bg-bg rounded-lg border px-4 py-2 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-primary"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        onBlur={(e) => handleBlur("password", e.target.value)}
+                      />
+                      {touched.password && errors.password && (
+                        <p className="text-xs text-red-500">
+                          {errors.password}
+                        </p>
+                      )}
+                    </div>
+
+                    <Button
+                      className="w-full"
+                      size="3"
+                      type="submit"
+                      disabled={!isValid || isLoading}
+                    >
+                      {isLoading ? (
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          Signing In...
+                        </>
+                      ) : (
+                        <>
+                          <LogIn className="h-4 w-4" />
+                          Sign In
+                        </>
+                      )}
+                    </Button>
+                  </form>
+                  <div className="mt-6">
+                    <div className="relative mb-6">
+                      <div className="absolute inset-0 flex items-center">
+                        <div className="border-border w-full border-t"></div>
+                      </div>
+                      <div className="relative flex justify-center text-sm">
+                        <span className="bg-card text-muted-foreground px-4">
+                          New to Cashly?
+                        </span>
+                      </div>
+                    </div>
+
+                    <Link href="/register">
+                      <Button
+                        className="w-full text-primary"
+                        color="gray"
+                        variant="soft"
+                        size="3"
+                      >
+                        <UserPlus className="h-4 w-4" />
+                        Create Account
+                      </Button>
+                    </Link>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="mb-8 text-center">
+                    <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30">
+                      <ShieldCheck className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
+                    </div>
+                    <Heading mb="2">Two-Factor Authentication</Heading>
+                    <p className="text-muted-foreground sm:text-sm text-xs">
+                      We've sent a 6-digit verification code to your email
+                    </p>
+                  </div>
+
+                  <form onSubmit={handleSubmit} className="space-y-6">
+                    <div className="flex flex-col gap-2">
+                      <label
+                        htmlFor="otp"
+                        className="text-foreground text-center text-sm font-medium"
+                      >
+                        Verification Code
+                      </label>
+                      <input
+                        id="otp"
+                        type="text"
+                        maxLength={6}
+                        placeholder="000000"
+                        className="text-foreground placeholder-muted-foreground border-border bg-bg rounded-lg border px-4 py-3 text-center text-2xl font-bold tracking-[0.5em] transition-colors focus:outline-none focus:ring-2 focus:ring-primary"
+                        value={otp}
+                        onChange={(e) =>
+                          setOtp(e.target.value.replace(/\D/g, ""))
+                        }
+                        autoFocus
+                      />
+                    </div>
+                    <Button
+                      className="w-full"
+                      size="3"
+                      type="submit"
+                      disabled={!isValid || isLoading}
+                    >
+                      {isLoading ? (
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          Verifying...
+                        </>
+                      ) : (
+                        "Verify & Continue"
+                      )}
+                    </Button>
+                  </form>
+                </>
+              )}
               {/* Security Features */}
               <div className="pt-8 flex flex-wrap items-center justify-center gap-6">
                 {securityFeatures.map((feature, index) => (
