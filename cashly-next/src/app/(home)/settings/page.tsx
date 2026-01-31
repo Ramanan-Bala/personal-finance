@@ -9,7 +9,6 @@ import {
   Dialog,
   Flex,
   IconButton,
-  Section,
   Select,
   Switch,
   Text,
@@ -22,7 +21,6 @@ import {
   ChevronRight,
   Globe,
   Info,
-  LogOut,
   Mail,
   Palette,
   Phone,
@@ -427,7 +425,7 @@ export default function SettingsPage() {
       </Flex>
 
       {/* Sign Out Footer */}
-      <Section size="1" p="0" mt="4">
+      {/* <Section size="1" p="0" mt="4">
         <Card
           size="2"
           className="bg-red-50/50 dark:bg-red-950/10 border-red-200 dark:border-red-900"
@@ -453,7 +451,7 @@ export default function SettingsPage() {
             </Button>
           </Flex>
         </Card>
-      </Section>
+      </Section> */}
 
       {/* Footer Info */}
       <Flex direction="column" align="center" gap="1" py="4">

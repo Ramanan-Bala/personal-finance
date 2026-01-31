@@ -10,7 +10,7 @@ import {
   Transaction,
   TransactionType,
   useFormatter,
-  viewPortOnce,
+  viewPortComplete,
 } from "@/shared";
 import {
   Box,
@@ -31,6 +31,8 @@ import {
 } from "date-fns";
 import {
   ArrowDownRight,
+  ArrowLeftRight,
+  ArrowRightFromLineIcon,
   ArrowUpRight,
   Calendar,
   ChevronLeft,
@@ -43,6 +45,7 @@ import { useEffect, useMemo, useState } from "react";
 interface LedgerTransaction {
   totalIncome: number;
   totalExpense: number;
+  totalTransfer: number;
   transactions: Transaction[];
 }
 
@@ -91,18 +94,26 @@ export default function LedgerPage() {
             withAdditional: true,
           },
         });
+
         var groupedTransactions = response.data.reduce(
           (acc, transaction) => {
             const date = format(transaction.transactionDate, "yyyy-MM-dd"); // Stable grouping key
             const displayDate = formatDate(transaction.transactionDate);
             if (!acc[date]) {
-              acc[date] = { totalIncome: 0, totalExpense: 0, transactions: [] };
+              acc[date] = {
+                totalIncome: 0,
+                totalExpense: 0,
+                totalTransfer: 0,
+                transactions: [],
+              };
             }
             // Store the display date so we use it in the UI
             (acc[date] as any).displayDate = displayDate;
             acc[date].transactions.push(transaction);
             if (transaction.type === TransactionType.INCOME) {
               acc[date].totalIncome += Number(transaction.amount);
+            } else if (transaction.type === TransactionType.TRANSFER) {
+              acc[date].totalTransfer += Number(transaction.amount);
             } else {
               acc[date].totalExpense += Number(transaction.amount);
             }
@@ -226,6 +237,13 @@ export default function LedgerPage() {
                             <ArrowDownRight size="14" />{" "}
                             {formatCurrency(item.totalExpense)}
                           </Text>
+                          <Text
+                            color="blue"
+                            className="flex items-center gap-1"
+                          >
+                            <ArrowLeftRight size="14" />{" "}
+                            {formatCurrency(item.totalTransfer)}
+                          </Text>
                         </Flex>
                       </Box>
                     </Flex>
@@ -234,7 +252,9 @@ export default function LedgerPage() {
                       color={
                         item.totalIncome - item.totalExpense > 0
                           ? "green"
-                          : "red"
+                          : item.totalIncome - item.totalExpense < 0
+                            ? "red"
+                            : "gray"
                       }
                     >
                       {formatCurrency(item.totalIncome - item.totalExpense)}
@@ -261,7 +281,7 @@ export default function LedgerPage() {
                             initial="hidden"
                             exit={{ opacity: 0, scale: 0.9 }}
                             whileInView="visible"
-                            {...viewPortOnce}
+                            {...viewPortComplete}
                             className="flex items-center justify-between p-4 hover:bg-muted/30 transition-colors pl-6"
                           >
                             <Flex align="center" gap="4" className="relative">
@@ -270,7 +290,10 @@ export default function LedgerPage() {
                                   "absolute -left-3 top-1/2 -translate-y-1/2 w-1 h-full rounded-full " +
                                   (transaction.type === TransactionType.INCOME
                                     ? "bg-primary"
-                                    : "bg-red-400")
+                                    : transaction.type ===
+                                        TransactionType.TRANSFER
+                                      ? "bg-blue-400"
+                                      : "bg-red-400")
                                 }
                               ></span>
                               <div
@@ -278,31 +301,61 @@ export default function LedgerPage() {
                                   "p-2.5 rounded-lg " +
                                   (transaction.type === TransactionType.INCOME
                                     ? "bg-primary/20"
-                                    : "bg-red-400/20")
+                                    : transaction.type ===
+                                        TransactionType.TRANSFER
+                                      ? "bg-blue-400/20"
+                                      : "bg-red-400/20")
                                 }
                               >
-                                {getIconForCategory(
-                                  transaction.type,
-                                  transaction.category?.icon,
-                                ) || (
-                                  <ArrowUpRight className="w-4 h-4 text-green-600" />
+                                {transaction.type !=
+                                TransactionType.TRANSFER ? (
+                                  getIconForCategory(
+                                    transaction.type,
+                                    transaction.category?.icon,
+                                  ) || (
+                                    <ArrowUpRight className="w-4 h-4 text-primary" />
+                                  )
+                                ) : (
+                                  <ArrowLeftRight className="w-4 h-4 text-blue-400" />
                                 )}
                               </div>
                               <div>
                                 <Text weight="medium" as="div">
                                   {transaction.notes || "No description"}
                                 </Text>
-                                <Flex align="center" gap="2">
-                                  <Text size="1" color="gray">
-                                    {transaction.category?.name}
-                                  </Text>
-                                  <Text size="1" color="gray">
-                                    •
-                                  </Text>
-                                  <Text size="1" color="gray">
-                                    {format(transaction.transactionDate, "p")}
-                                  </Text>
-                                </Flex>
+                                {transaction.type !=
+                                TransactionType.TRANSFER ? (
+                                  <Flex align="center" gap="2">
+                                    <Text size="1" color="gray">
+                                      {transaction.category?.name}
+                                    </Text>
+                                    <Text size="1" color="gray">
+                                      •
+                                    </Text>
+                                    <Text size="1" color="gray">
+                                      {transaction.account?.name}
+                                    </Text>
+                                    <Text size="1" color="gray">
+                                      {format(transaction.transactionDate, "p")}
+                                    </Text>
+                                  </Flex>
+                                ) : (
+                                  <Flex align="center" gap="2">
+                                    <Text size="1" color="gray">
+                                      {transaction.transferAccount?.name}
+                                    </Text>
+                                    <ArrowRightFromLineIcon
+                                      color="gray"
+                                      size="14"
+                                    />
+                                    <Text size="1" color="gray">
+                                      {transaction.account?.name}
+                                    </Text>
+                                    <Text size="1" color="gray">
+                                      {format(transaction.transactionDate, "p")}
+                                    </Text>
+                                  </Flex>
+                                )}
                               </div>
                             </Flex>
                             <Text
@@ -310,13 +363,18 @@ export default function LedgerPage() {
                               color={
                                 transaction.type === TransactionType.INCOME
                                   ? "green"
-                                  : "red"
+                                  : transaction.type ===
+                                      TransactionType.TRANSFER
+                                    ? "blue"
+                                    : "red"
                               }
                               as="div"
                             >
                               {transaction.type === TransactionType.INCOME
                                 ? "+"
-                                : "-"}
+                                : transaction.type === TransactionType.TRANSFER
+                                  ? ""
+                                  : "-"}
                               {formatCurrency(transaction.amount)}
                             </Text>
                           </motion.div>

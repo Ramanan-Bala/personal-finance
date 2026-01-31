@@ -5,6 +5,7 @@ import {
   Account,
   Category,
   DateRangePicker,
+  DeleteConfirmDialog,
   EmptyState,
   ICON_MAP,
   PageHeader,
@@ -32,10 +33,11 @@ import { motion } from "motion/react";
 import { endOfToday, startOfToday, subDays } from "date-fns";
 import {
   ArrowDownRight,
+  ArrowLeftRight,
+  ArrowRightFromLineIcon,
   ArrowUpRight,
   Pencil,
   Plus,
-  Trash2,
   TrendingDown,
   TrendingUp,
   X,
@@ -59,11 +61,8 @@ const Transactions = () => {
     to: endOfToday(),
   });
 
-  useEffect(() => {
-    fetchData();
-  }, [dateRange]);
-
   const { formatCurrency, formatDate } = useFormatter();
+
   const fetchData = async () => {
     try {
       setLoading(true);
@@ -92,8 +91,16 @@ const Transactions = () => {
         category: categoriesRes.data.find(
           (category) => category.id === item.categoryId,
         )!,
+        transferAccount:
+          item.transferToAccountId != null
+            ? accountsRes.data.find(
+                (account) => account.id === item.transferToAccountId,
+              )
+            : undefined,
       }));
 
+      console.log(transactionsRes);
+      console.log(updatedTransactions);
       setTransactions(updatedTransactions);
     } catch (err) {
       console.error("Error fetching transactions data:", err);
@@ -101,24 +108,6 @@ const Transactions = () => {
       setLoading(false);
     }
   };
-
-  const transactionsArray = Array.isArray(transactions) ? transactions : [];
-
-  const incomeData = transactionsArray.filter(
-    (item) => item.type === TransactionType.INCOME,
-  );
-  const expenseData = transactionsArray.filter(
-    (item) => item.type === TransactionType.EXPENSE,
-  );
-
-  const totalIncome = incomeData.reduce(
-    (sum, item) => sum + (Number(item.amount) || 0),
-    0,
-  );
-  const totalExpense = expenseData.reduce(
-    (sum, item) => sum + (Number(item.amount) || 0),
-    0,
-  );
 
   const createTransaction = async (data: any) => {
     try {
@@ -165,21 +154,19 @@ const Transactions = () => {
     }
   };
 
-  // if (loading && transactionsArray.length === 0) {
-  //   return (
-  //     <LayoutContainer>
-  //       <Flex justify="between" align="center" mb="6">
-  //         <Skeleton width="200px" height="40px" />
-  //         <Skeleton width="120px" height="40px" />
-  //       </Flex>
-  //       <Flex direction="column" gap="4">
-  //         {[1, 2, 3].map((i) => (
-  //           <Skeleton key={i} height="100px" />
-  //         ))}
-  //       </Flex>
-  //     </LayoutContainer>
-  //   );
-  // }
+  const deleteTransaction = async (id: string) => {
+    try {
+      setLoading(true);
+      await api.delete(`/transactions/${id}`, { showSuccessToast: true });
+      setTransactions((prev) => prev.filter((item) => item.id !== id));
+      // Re-fetch transactions to get updated and sorted list
+      fetchData();
+    } catch (err) {
+      console.error("Error deleting transaction:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const getIconForCategory = (
     transactionType: TransactionType,
@@ -193,6 +180,32 @@ const Transactions = () => {
       />
     ) : null;
   };
+
+  useEffect(() => {
+    fetchData();
+  }, [dateRange]);
+
+  const transactionsArray = Array.isArray(transactions) ? transactions : [];
+
+  const incomeData = transactionsArray.filter(
+    (item) => item.type === TransactionType.INCOME,
+  );
+  const expenseData = transactionsArray.filter(
+    (item) => item.type === TransactionType.EXPENSE,
+  );
+
+  const transferData = transactionsArray.filter(
+    (item) => item.type === TransactionType.TRANSFER,
+  );
+
+  const totalIncome = incomeData.reduce(
+    (sum, item) => sum + (Number(item.amount) || 0),
+    0,
+  );
+  const totalExpense = expenseData.reduce(
+    (sum, item) => sum + (Number(item.amount) || 0),
+    0,
+  );
 
   return (
     <>
@@ -300,6 +313,10 @@ const Transactions = () => {
               <ArrowDownRight className="w-4 h-4" />
               Expenses
             </TabsTrigger>
+            <TabsTrigger value="transfer" className="bg-blue-400">
+              <ArrowLeftRight className="w-4 h-4" />
+              Transfer
+            </TabsTrigger>
           </TabsList>
           <DateRangePicker
             value={dateRange}
@@ -383,13 +400,18 @@ const Transactions = () => {
                         >
                           <Pencil size={16} />
                         </Button>
-                        <Button
+                        {/* <Button
                           variant="soft"
                           color="red"
-                          // onClick={() => deleteTransaction(item.id)}
+                          onClick={() => deleteTransaction(item.id)}
                         >
                           <Trash2 size={16} />
-                        </Button>
+                        </Button> */}
+                        <DeleteConfirmDialog
+                          onConfirm={() => deleteTransaction(item.id)}
+                          title="Delete Transaction"
+                          description={`Delete ${item.type} of ${item.amount}? This will update your account balance.`}
+                        />
                       </Flex>
                     </motion.div>
                   ))}
@@ -401,7 +423,7 @@ const Transactions = () => {
                     />
                   )}
                 </TabsContent>
-              ) : (
+              ) : activeTab === "expense" ? (
                 <TabsContent value="expense" forceMount>
                   <div className="divide-y divide-border">
                     {expenseData.map((item, index) => (
@@ -438,9 +460,84 @@ const Transactions = () => {
                             </Flex>
                           </div>
                         </Flex>
+                        <Flex align="center" gap="2">
+                          <div className="text-right">
+                            <Text weight="bold" color="red" as="div">
+                              -{formatCurrency(item.amount)}
+                            </Text>
+                            <Text size="1" color="gray">
+                              {item.transactionDate
+                                ? formatDate(item.transactionDate)
+                                : "No date"}
+                            </Text>
+                          </div>
+                          <Button
+                            variant="soft"
+                            color="gray"
+                            onClick={() => {
+                              setIsEditModalOpen(true);
+                              setEditData(item);
+                            }}
+                          >
+                            <Pencil size={16} />
+                          </Button>
+                          {/* <Button
+                            variant="soft"
+                            color="red"
+                            onClick={() => deleteTransaction(item.id)}
+                          >
+                            <Trash2 size={16} />
+                          </Button> */}
+                          <DeleteConfirmDialog
+                            onConfirm={() => deleteTransaction(item.id)}
+                            title="Delete Transaction"
+                            description={`Delete ${item.type} of ${item.amount}? This will update your account balance.`}
+                          />
+                        </Flex>
+                      </motion.div>
+                    ))}
+
+                    {expenseData.length === 0 && (
+                      <EmptyState
+                        title="No expenses recorded"
+                        description="You haven't added any expense transactions for this period."
+                      />
+                    )}
+                  </div>
+                </TabsContent>
+              ) : (
+                <TabsContent value="transfer" forceMount>
+                  <div className="divide-y divide-border">
+                    {transferData.map((item, index) => (
+                      <motion.div
+                        key={item.id}
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: index * 0.05 }}
+                        className="flex items-center justify-between p-3 hover:bg-muted/30 transition-colors cursor-pointer"
+                      >
+                        <Flex align="center" gap="4">
+                          <div className="p-2.5 rounded-lg bg-blue-100 dark:bg-blue-900/30">
+                            <ArrowLeftRight className="w-4 h-4 text-blue-600" />
+                          </div>
+                          <div>
+                            <Text weight="medium" as="div">
+                              {item.notes}
+                            </Text>
+                            <Flex align="center" gap="2">
+                              <Text size="1" color="gray">
+                                {item.transferAccount?.name}
+                              </Text>
+                              <ArrowRightFromLineIcon color="gray" size="14" />
+                              <Text size="1" color="gray">
+                                {item.account?.name}
+                              </Text>
+                            </Flex>
+                          </div>
+                        </Flex>
                         <div className="text-right">
-                          <Text weight="bold" color="red" as="div">
-                            -{formatCurrency(item.amount)}
+                          <Text weight="bold" color="blue" as="div">
+                            {formatCurrency(item.amount)}
                           </Text>
                           <Text size="1" color="gray">
                             {item.transactionDate
@@ -451,10 +548,10 @@ const Transactions = () => {
                       </motion.div>
                     ))}
 
-                    {expenseData.length === 0 && (
+                    {transferData.length === 0 && (
                       <EmptyState
-                        title="No expenses recorded"
-                        description="You haven't added any expense transactions for this period."
+                        title="No transfers recorded"
+                        description="You haven't added any transfer transactions for this period."
                       />
                     )}
                   </div>

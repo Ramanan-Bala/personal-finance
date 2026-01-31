@@ -162,16 +162,17 @@ export const transactions = pgTable('transactions', {
   accountId: text('accountId')
     .notNull()
     .references(() => accounts.id, { onDelete: 'cascade' }),
-  categoryId: text('categoryId')
-    .notNull()
-    .references(() => categories.id, {
-      onDelete: 'cascade',
-    }),
+  categoryId: text('categoryId').references(() => categories.id, {
+    onDelete: 'cascade',
+  }),
   type: transactionTypeEnum('type').notNull(),
   amount: decimal('amount', { precision: 12, scale: 2 }).notNull(),
   transactionDate: timestamp('transactionDate').notNull(),
   notes: text('notes'),
-  transferToAccountId: text('transferToAccountId'), // Manual relation handling for transfers might be needed
+  transferToAccountId: text('transferToAccountId').references(
+    () => accounts.id,
+    { onDelete: 'set null' },
+  ),
   createdAt: timestamp('createdAt').defaultNow().notNull(),
   updatedAt: timestamp('updatedAt').defaultNow().notNull(),
 });
@@ -188,6 +189,10 @@ export const transactionsRelations = relations(transactions, ({ one }) => ({
   category: one(categories, {
     fields: [transactions.categoryId],
     references: [categories.id],
+  }),
+  transferAccount: one(accounts, {
+    fields: [transactions.transferToAccountId],
+    references: [accounts.id],
   }),
 }));
 

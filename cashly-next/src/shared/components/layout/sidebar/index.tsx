@@ -105,10 +105,10 @@ export const Sidebar = () => {
           })}
         </motion.nav>
 
-        <Flex p="4" direction="column" gap="4">
+        <Flex p="2" direction="column" gap="4">
           <Flex gap="2" direction={isOpen ? "row" : "column"}>
             <Button
-              variant="ghost"
+              variant="soft"
               color="red"
               onClick={() => logout()}
               className="grow p-2"
@@ -117,8 +117,8 @@ export const Sidebar = () => {
               {isOpen && <span>Sign Out</span>}
             </Button>
             <Button
-              variant="ghost"
-              color="gray"
+              variant="soft"
+              color={pathname.startsWith("/settings") ? "green" : "gray"}
               className="grow p-2"
               onClick={() => handleNavigate("/settings")}
             >

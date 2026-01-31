@@ -9,6 +9,7 @@ export const validate =
     } catch (error) {
       if (error instanceof ZodError) {
         const message = error.issues.map(i => i.message).join(', ');
+        console.log(error);
         return res.status(400).json({
           message: `Validation failed: ${message}`,
         });

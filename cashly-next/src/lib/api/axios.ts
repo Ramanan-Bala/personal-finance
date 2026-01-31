@@ -70,7 +70,10 @@ api.interceptors.response.use(
     // Only for mutating requests
     if (
       showSuccessToast &&
-      (method === "post" || method === "patch" || method === "put")
+      (method === "post" ||
+        method === "patch" ||
+        method === "put" ||
+        method === "delete")
     ) {
       const pathname = new URL(response.request.responseURL).pathname;
       const source = apiMap[pathname.split("/")[2]];

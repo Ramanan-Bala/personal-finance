@@ -18,6 +18,8 @@ export interface Transaction {
   categoryId: string;
   category: Category;
   account: Account;
+  transferAccount?: Account;
+  transferToAccountId?: string;
 }
 
 export interface Category {

@@ -456,7 +456,7 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="border-muted border-t bg-gray-100 dark:bg-slate-900">
+      <footer className="border-muted border-t bg-card">
         <div className="container mx-auto px-6 py-12 lg:px-8">
           <div className="mb-8 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-5">
             <div className="lg:col-span-2">

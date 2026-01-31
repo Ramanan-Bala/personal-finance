@@ -1,0 +1,1 @@
+ALTER TABLE "transactions" ADD CONSTRAINT "transactions_transferToAccountId_accounts_id_fk" FOREIGN KEY ("transferToAccountId") REFERENCES "public"."accounts"("id") ON DELETE cascade ON UPDATE no action;

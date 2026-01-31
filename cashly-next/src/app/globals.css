@@ -23,13 +23,9 @@
   :root {
     --font-heading: "Source Sans 3", sans-serif;
     --font-body: "Source Sans 3", sans-serif;
-
-    .nav-bg {
-      background-color: rgba(255, 255, 255, 0.95);
-    }
   }
 
-  .dark {
+  /* .dark {
     --color-border: #52525b;
     --color-bg: #0f172a;
     --color-foreground: #e2e8f0;
@@ -37,10 +33,15 @@
     --color-muted: #334155;
     --color-muted-foreground: #94a3b8;
     --color-card: #1e293b;
-
-    .nav-bg {
-      background-color: rgba(30, 41, 59, 0.95);
-    }
+  } */
+  .dark {
+    --color-border: #2e2e32; /* Radix Gray 7 - neutral borders */
+    --color-bg: #111113; /* Radix Gray 1 - true dark background */
+    --color-foreground: #eeeeef; /* Radix Gray 12 - high contrast text */
+    --color-primary: #34d399; /* Keep your green primary */
+    --color-muted: #1c1c1f; /* Radix Gray 3 - muted backgrounds */
+    --color-muted-foreground: #b0b0b3; /* Radix Gray 11 - muted text */
+    --color-card: #18181b; /* Radix Gray 2 - card background */
   }
 
   * {

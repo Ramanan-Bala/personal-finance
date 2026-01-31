@@ -2,29 +2,35 @@ import { z } from 'zod';
 
 export const createTransactionSchema = z
   .object({
-    accountId: z.string('Please select an account').min(1),
-    categoryId: z.string('Please select a category').min(1),
-    type: z.enum(
-      ['INCOME', 'EXPENSE', 'TRANSFER'],
-      'Please select a transaction type',
-    ),
+    accountId: z.string().min(1, 'Please select an account'),
+    categoryId: z.string().optional(),
+    type: z.enum(['INCOME', 'EXPENSE', 'TRANSFER'], {
+      message: 'Please select a transaction type',
+    }),
     amount: z.coerce.number().min(0.01, 'Amount must be greater than 0'),
-    transactionDate: z.string('Date is required').datetime(), // Expect ISO string
+    transactionDate: z.string('Date is required').datetime(),
     notes: z.string().optional(),
     transferToAccountId: z.string().optional(),
   })
-  .refine(
-    data => {
-      if (data.type === 'TRANSFER' && !data.transferToAccountId) {
-        return false;
-      }
-      return true;
-    },
-    {
-      message: 'transferToAccountId is required for TRANSFER type',
-      path: ['transferToAccountId'],
-    },
-  );
+  .superRefine((data, ctx) => {
+    // TRANSFER → categoryId NOT required
+    if (data.type !== 'TRANSFER' && !data.categoryId) {
+      ctx.addIssue({
+        path: ['categoryId'],
+        message: 'Please select a category',
+        code: z.ZodIssueCode.custom,
+      });
+    }
+
+    // TRANSFER → transferToAccountId required
+    if (data.type === 'TRANSFER' && !data.transferToAccountId) {
+      ctx.addIssue({
+        path: ['transferToAccountId'],
+        message: 'Transfer account is required for TRANSFER type',
+        code: z.ZodIssueCode.custom,
+      });
+    }
+  });
 
 export const updateTransactionSchema = z.object({
   categoryId: z.string().min(1),
