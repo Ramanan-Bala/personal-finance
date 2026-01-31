@@ -1,4 +1,5 @@
 import { AuthProvider, Toaster } from "@/shared";
+import { FontProvider } from "@/shared/providers/font-provider";
 import { ThemeProvider } from "@/shared/providers/theme-provider";
 import { Theme } from "@radix-ui/themes";
 import type { Metadata } from "next";
@@ -21,8 +22,10 @@ export default function RootLayout({
         <Theme accentColor="green" radius="large">
           <ThemeProvider>
             <AuthProvider>
-              {children}
-              <Toaster />
+              <FontProvider initialFont="source-sans">
+                {children}
+                <Toaster />
+              </FontProvider>
             </AuthProvider>
           </ThemeProvider>
         </Theme>

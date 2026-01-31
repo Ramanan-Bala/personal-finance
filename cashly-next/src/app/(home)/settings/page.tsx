@@ -26,6 +26,7 @@ import {
   Phone,
   ShieldCheck,
   Tags,
+  Type,
 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -83,6 +84,15 @@ const SettingRow = ({
     )}
   </div>
 );
+
+const FONTS = [
+  { id: "source-sans", name: "Source Sans 3", preview: "Source Sans 3" },
+  { id: "inter", name: "Inter", preview: "Inter" },
+  { id: "roboto", name: "Roboto", preview: "Roboto" },
+  { id: "poppins", name: "Poppins", preview: "Poppins" },
+  { id: "open-sans", name: "Open Sans", preview: "Open Sans" },
+  { id: "system", name: "System Default", preview: "System" },
+] as const;
 
 export default function SettingsPage() {
   const { user, logout, updateProfile } = useAuth();
@@ -295,6 +305,46 @@ export default function SettingsPage() {
                 label="Appearance"
                 description="Theme and display preferences"
                 action={<ThemeSwitcher isTabStyle={true} />}
+              />
+              <SettingRow
+                icon={Type}
+                label="Font Family"
+                description="Choose your preferred font"
+                action={
+                  <Flex gap="2" align="center">
+                    <Select.Root
+                      value={user?.fontFamily || "Inter"}
+                      onValueChange={(val) =>
+                        updateProfile({ fontFamily: val })
+                      }
+                    >
+                      <Select.Trigger variant="soft" />
+                      <Select.Content position="popper" align="end">
+                        {FONTS.map((font) => (
+                          <Select.Item
+                            key={font.id}
+                            value={font.name}
+                            style={{
+                              fontFamily: `'${font.name}', sans-serif`,
+                            }}
+                          >
+                            {font.preview}
+                          </Select.Item>
+                        ))}
+                      </Select.Content>
+                    </Select.Root>
+                    <Badge
+                      variant="soft"
+                      color="iris"
+                      size="2"
+                      style={{
+                        fontFamily: `'${user?.fontFamily || "Inter"}', sans-serif`,
+                      }}
+                    >
+                      {user?.fontFamily || "Inter"}
+                    </Badge>
+                  </Flex>
+                }
               />
               <SettingRow
                 icon={Globe}

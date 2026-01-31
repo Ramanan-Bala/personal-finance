@@ -38,6 +38,7 @@ interface User {
   is2faEnabled?: boolean;
   currency?: string;
   dateFormat?: string;
+  fontFamily?: string;
 }
 
 interface LoginResponse {
@@ -49,6 +50,7 @@ interface LoginResponse {
   is2faEnabled?: boolean;
   currency?: string;
   dateFormat?: string;
+  fontFamily?: string;
 }
 
 interface LoginAcceptResponse {
@@ -109,6 +111,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       is2faEnabled: response.data.is2faEnabled,
       currency: response.data.currency,
       dateFormat: response.data.dateFormat,
+      fontFamily: response.data.fontFamily,
     };
     setUser(userData);
     localStorage.setItem("accessToken", response.data.accessToken);

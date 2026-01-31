@@ -271,6 +271,7 @@ export class AuthService {
       phone: user.phone,
       currency: user.currency,
       dateFormat: user.dateFormat,
+      fontFamily: user.fontFamily,
     };
   }
 

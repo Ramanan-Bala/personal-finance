@@ -33,6 +33,7 @@ export const users = pgTable('users', {
   otpExpiry: timestamp('otpExpiry'),
   currency: text('currency').default('INR').notNull(),
   dateFormat: text('dateFormat').default('MM-DD-YYYY').notNull(),
+  fontFamily: text('fontFamily').default('Inter').notNull(),
   createdAt: timestamp('createdAt').defaultNow().notNull(),
   updatedAt: timestamp('updatedAt').defaultNow().notNull(),
 });
