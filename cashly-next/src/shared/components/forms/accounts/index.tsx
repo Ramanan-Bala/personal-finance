@@ -32,6 +32,7 @@ export function AccountForm({ onSubmit, groups, isLoading }: AccountFormProps) {
     resolver: zodResolver(createAccountSchema),
     defaultValues: {
       openingBalance: 0,
+      groupId: groups[0].id,
     },
   });
 
@@ -60,7 +61,10 @@ export function AccountForm({ onSubmit, groups, isLoading }: AccountFormProps) {
           <Text as="div" size="2" mb="1" weight="bold">
             Group
           </Text>
-          <Select.Root onValueChange={(val) => setValue("groupId", val)}>
+          <Select.Root
+            defaultValue={groups[0].id}
+            onValueChange={(val) => setValue("groupId", val)}
+          >
             <Select.Trigger className="w-full" placeholder="Select Group" />
             <Select.Content position="popper">
               {groups.map((group) => (

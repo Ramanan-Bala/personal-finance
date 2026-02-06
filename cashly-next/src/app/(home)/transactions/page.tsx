@@ -9,7 +9,6 @@ import {
   EmptyState,
   ICON_MAP,
   PageHeader,
-  StatsCard,
   Tabs,
   TabsContent,
   TabsList,
@@ -19,18 +18,10 @@ import {
   TransactionType,
   useFormatter,
 } from "@/shared";
-import {
-  Button,
-  Card,
-  Dialog,
-  Flex,
-  Grid,
-  Skeleton,
-  Text,
-} from "@radix-ui/themes";
+import { Button, Card, Dialog, Flex, Skeleton, Text } from "@radix-ui/themes";
 import { motion } from "motion/react";
 
-import { endOfToday, startOfToday, subDays } from "date-fns";
+import { endOfToday, startOfToday } from "date-fns";
 import {
   ArrowDownRight,
   ArrowLeftRight,
@@ -38,8 +29,6 @@ import {
   ArrowUpRight,
   Pencil,
   Plus,
-  TrendingDown,
-  TrendingUp,
   X,
 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -57,7 +46,7 @@ const Transactions = () => {
   const [editData, setEditData] = useState<Transaction | null>(null);
 
   const [dateRange, setDateRange] = useState<{ from: Date; to: Date }>({
-    from: subDays(startOfToday(), 10),
+    from: startOfToday(),
     to: endOfToday(),
   });
 
@@ -198,15 +187,6 @@ const Transactions = () => {
     (item) => item.type === TransactionType.TRANSFER,
   );
 
-  const totalIncome = incomeData.reduce(
-    (sum, item) => sum + (Number(item.amount) || 0),
-    0,
-  );
-  const totalExpense = expenseData.reduce(
-    (sum, item) => sum + (Number(item.amount) || 0),
-    0,
-  );
-
   return (
     <>
       <Dialog.Root open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
@@ -269,32 +249,6 @@ const Transactions = () => {
           </Dialog.Root>
         }
       />
-
-      {/* Summary Cards */}
-      <Grid columns={{ initial: "1", md: "2" }} gap="4" mb="6">
-        <StatsCard
-          label="Total Income"
-          value={formatCurrency(totalIncome)}
-          icon={<TrendingUp size={20} />}
-          color="green"
-          description={
-            <Text size="1" color="gray">
-              This month
-            </Text>
-          }
-        />
-        <StatsCard
-          label="Total Expenses"
-          value={formatCurrency(totalExpense)}
-          icon={<TrendingDown size={20} />}
-          color="red"
-          description={
-            <Text size="1" color="gray">
-              This month
-            </Text>
-          }
-        />
-      </Grid>
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">

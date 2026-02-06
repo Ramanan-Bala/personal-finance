@@ -7,6 +7,7 @@ import {
   leftToRightVariants,
   PageHeader,
   staggerContainerVariants,
+  StatsCard,
   Transaction,
   TransactionType,
   useFormatter,
@@ -17,6 +18,7 @@ import {
   Button,
   Card,
   Flex,
+  Grid,
   Heading,
   Skeleton,
   Text,
@@ -38,6 +40,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Search,
+  TrendingDown,
+  TrendingUp,
 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useMemo, useState } from "react";
@@ -82,6 +86,23 @@ export default function LedgerPage() {
 
     return filtered ?? {};
   }, [transactions, searchQuery]);
+
+  const totalIncome = useMemo(
+    () =>
+      Object.values(transactions).reduce(
+        (sum, item) => sum + (Number(item.totalIncome) || 0),
+        0,
+      ),
+    [transactions],
+  );
+  const totalExpense = useMemo(
+    () =>
+      Object.values(transactions).reduce(
+        (sum, item) => sum + (Number(item.totalExpense) || 0),
+        0,
+      ),
+    [transactions],
+  );
 
   useEffect(() => {
     setLoading(true);
@@ -170,6 +191,32 @@ export default function LedgerPage() {
           </div>
         }
       />
+
+      {/* Summary Cards */}
+      <Grid columns={{ initial: "1", md: "2" }} gap="4" mb="6">
+        <StatsCard
+          label="Total Income"
+          value={formatCurrency(totalIncome)}
+          icon={<TrendingUp size={20} />}
+          color="green"
+          description={
+            <Text size="1" color="gray">
+              This month
+            </Text>
+          }
+        />
+        <StatsCard
+          label="Total Expenses"
+          value={formatCurrency(totalExpense)}
+          icon={<TrendingDown size={20} />}
+          color="red"
+          description={
+            <Text size="1" color="gray">
+              This month
+            </Text>
+          }
+        />
+      </Grid>
 
       <TextField.Root
         size="3"

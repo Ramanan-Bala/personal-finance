@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { motion } from "motion/react";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -106,11 +107,15 @@ export default function RegisterPage() {
     mode: "onChange",
   });
 
-  const { register: registerUser } = useAuth();
+  const { register: registerUser, isAuthenticated } = useAuth();
 
   // Find the password mismatch error from root schema refinement
   // In react-hook-form with zodResolver, root errors might be under "root" or a specific path
   const passwordMismatchError = (errors as any).passwordMismatch?.message;
+
+  if (isAuthenticated) {
+    redirect("/dashboard");
+  }
 
   return (
     <div className="bg-bg flex min-h-screen">

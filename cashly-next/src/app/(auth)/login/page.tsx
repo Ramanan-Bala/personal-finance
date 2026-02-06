@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { motion } from "motion/react";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { FormEvent, useMemo, useState } from "react";
 
 type LoginStep = "LOGIN" | "VERIFY_2FA";
@@ -34,7 +35,7 @@ export default function LoginPage() {
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [isLoading, setIsLoading] = useState(false);
 
-  const { login, verify2fa } = useAuth();
+  const { login, verify2fa, isAuthenticated } = useAuth();
 
   const isValid = useMemo<boolean>(() => {
     if (step === "LOGIN") {
@@ -104,6 +105,10 @@ export default function LoginPage() {
     { icon: Lock, text: "Bank-Level Security" },
     { icon: Fingerprint, text: "Two-Factor Authentication" },
   ];
+
+  if (isAuthenticated) {
+    redirect("/dashboard");
+  }
 
   return (
     <div className="bg-bg flex min-h-screen">

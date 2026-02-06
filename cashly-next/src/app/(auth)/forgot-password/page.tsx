@@ -161,12 +161,6 @@ export default function ForgotPasswordPage() {
                           "Send Recovery Code"
                         )}
                       </Button>
-                      <Button variant="ghost" className="w-full" asChild>
-                        <Link href="/login">
-                          <ArrowLeft className="h-4 w-4" />
-                          Back to Login
-                        </Link>
-                      </Button>
                     </div>
                   </form>
                 </>

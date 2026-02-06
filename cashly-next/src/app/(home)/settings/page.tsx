@@ -1,6 +1,6 @@
 "use client";
 
-import { PageHeader, ThemeSwitcher, useAuth } from "@/shared";
+import { PageHeader, ThemeSwitcher, useAuth, useFormatter } from "@/shared";
 import {
   Avatar,
   Badge,
@@ -86,18 +86,17 @@ const SettingRow = ({
 );
 
 const FONTS = [
-  { id: "source-sans", name: "Source Sans 3", preview: "Source Sans 3" },
-  { id: "inter", name: "Inter", preview: "Inter" },
-  { id: "roboto", name: "Roboto", preview: "Roboto" },
-  { id: "poppins", name: "Poppins", preview: "Poppins" },
-  { id: "open-sans", name: "Open Sans", preview: "Open Sans" },
-  { id: "system", name: "System Default", preview: "System" },
+  { id: "source-sans", name: "Source Sans 3", preview: "Aa" },
+  { id: "inter", name: "Inter", preview: "Aa" },
+  { id: "roboto", name: "Roboto", preview: "Aa" },
+  { id: "open-sans", name: "Open Sans", preview: "Aa" },
 ] as const;
 
 export default function SettingsPage() {
   const { user, logout, updateProfile } = useAuth();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
+  const { formatCurrency } = useFormatter();
 
   const presets = [
     "MM/dd/yyyy",
@@ -318,7 +317,7 @@ export default function SettingsPage() {
                         updateProfile({ fontFamily: val })
                       }
                     >
-                      <Select.Trigger variant="soft" />
+                      <Select.Trigger variant="soft" className="w-36" />
                       <Select.Content position="popper" align="end">
                         {FONTS.map((font) => (
                           <Select.Item
@@ -328,7 +327,7 @@ export default function SettingsPage() {
                               fontFamily: `'${font.name}', sans-serif`,
                             }}
                           >
-                            {font.preview}
+                            {font.name}
                           </Select.Item>
                         ))}
                       </Select.Content>
@@ -351,18 +350,30 @@ export default function SettingsPage() {
                 label="Currency"
                 description="Select your preferred currency"
                 action={
-                  <Select.Root
-                    value={user?.currency || "INR"}
-                    onValueChange={(val) => updateProfile({ currency: val })}
-                  >
-                    <Select.Trigger variant="soft" />
-                    <Select.Content position="popper" align="end">
-                      <Select.Item value="INR">INR (₹)</Select.Item>
-                      <Select.Item value="USD">USD ($)</Select.Item>
-                      <Select.Item value="EUR">EUR (€)</Select.Item>
-                      <Select.Item value="GBP">GBP (£)</Select.Item>
-                    </Select.Content>
-                  </Select.Root>
+                  <Flex gap="2" align="center">
+                    <Select.Root
+                      value={user?.currency || "INR"}
+                      onValueChange={(val) => updateProfile({ currency: val })}
+                    >
+                      <Select.Trigger variant="soft" />
+                      <Select.Content position="popper" align="end">
+                        <Select.Item value="INR">INR (₹)</Select.Item>
+                        <Select.Item value="USD">USD ($)</Select.Item>
+                        <Select.Item value="EUR">EUR (€)</Select.Item>
+                        <Select.Item value="GBP">GBP (£)</Select.Item>
+                      </Select.Content>
+                    </Select.Root>
+                    <Badge
+                      variant="soft"
+                      color="iris"
+                      size="2"
+                      style={{
+                        fontFamily: `'${user?.fontFamily || "Inter"}', sans-serif`,
+                      }}
+                    >
+                      {formatCurrency("123456")}
+                    </Badge>
+                  </Flex>
                 }
               />
               <SettingRow
