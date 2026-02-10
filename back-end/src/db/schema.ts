@@ -207,6 +207,7 @@ export const lendDebts = pgTable('lend_debt', {
     .references(() => users.id, { onDelete: 'cascade' }),
   type: lendDebtTypeEnum('type').notNull(),
   personName: text('personName').notNull(),
+  phoneNumber: text('phoneNumber'),
   amount: decimal('amount', { precision: 12, scale: 2 }).notNull(),
   dueDate: timestamp('dueDate'),
   status: lendDebtStatusEnum('status').default('OPEN').notNull(),

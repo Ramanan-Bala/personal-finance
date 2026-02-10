@@ -37,6 +37,7 @@ export const Sidebar = () => {
     { icon: LayoutDashboard, label: "Dashboard", url: "/dashboard" },
     { icon: BookOpen, label: "Ledger", url: "/ledger" },
     { icon: ArrowUpDown, label: "Transactions", url: "/transactions" },
+    { icon: ArrowUpDown, label: "Lend & Debts", url: "/lend-debt" },
     { icon: Tags, label: "Categories", url: "/categories" },
     { icon: Wallet, label: "Accounts", url: "/accounts" },
   ];

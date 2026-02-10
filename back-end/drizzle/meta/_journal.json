@@ -64,6 +64,13 @@
       "when": 1769863588527,
       "tag": "0008_violet_vengeance",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1770389151614,
+      "tag": "0009_smart_king_bedlam",
+      "breakpoints": true
     }
   ]
 }

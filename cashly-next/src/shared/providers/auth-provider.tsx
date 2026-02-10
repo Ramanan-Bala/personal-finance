@@ -122,7 +122,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       description: "Login successful",
       type: "success",
     });
-    router.push("/dashboard");
     return response.data;
   };
 

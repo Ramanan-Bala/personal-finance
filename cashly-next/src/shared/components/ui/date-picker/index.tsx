@@ -18,13 +18,21 @@ interface DatePickerProps {
   onChange: (date: Date) => void;
   selected?: Date;
   className?: string;
+  disabled?: (date: Date) => boolean;
 }
 
-export function DatePicker({ selected, onChange, className }: DatePickerProps) {
+export function DatePicker({
+  selected,
+  onChange,
+  className,
+  disabled,
+}: DatePickerProps) {
   const [selectedDate, setSelectedDate] = React.useState<Date | undefined>(
     selected,
   );
   const [open, setOpen] = React.useState(false);
+
+  const defaultDisabled = (date: Date) => date > new Date();
 
   const handleSelect = (date: Date | undefined) => {
     if (date) {
@@ -70,7 +78,7 @@ export function DatePicker({ selected, onChange, className }: DatePickerProps) {
                 showOutsideDays
                 selected={selectedDate}
                 onSelect={handleSelect}
-                disabled={(date) => date > new Date()}
+                disabled={disabled || defaultDisabled}
                 classNames={{
                   months:
                     "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",

@@ -20,13 +20,13 @@ let isRefreshing = false;
 // Queue to store requests that failed with 401 while refreshing
 let failedQueue: Array<{
   resolve: (token: string) => void;
-  reject: (error: any) => void;
+  reject: (error: Error) => void;
 }> = [];
 
 /**
  * Process the failed request queue after refresh attempt
  */
-const processQueue = (error: any, token: string | null = null) => {
+const processQueue = (error?: Error | null, token: string | null = null) => {
   failedQueue.forEach((prom) => {
     if (error) {
       prom.reject(error);
@@ -38,12 +38,13 @@ const processQueue = (error: any, token: string | null = null) => {
   failedQueue = [];
 };
 
-const apiMap: any = {
+const apiMap: Record<string, string> = {
   transactions: "Transaction",
   accounts: "Account",
   categories: "Category",
   profile: "Profile",
   users: "User profile",
+  "lend-debt": "Lend/Debt entry",
 };
 
 api.interceptors.request.use(
@@ -81,7 +82,7 @@ api.interceptors.response.use(
       console.log(pathname);
 
       const message =
-        (response.data as any)?.message ||
+        (response.data as { message: string })?.message ||
         `${source} ${method == "post" ? "created" : method == "patch" ? "updated" : "deleted"} successfully`;
 
       toastStore.getState().addToast({
@@ -167,7 +168,7 @@ api.interceptors.response.use(
     if (error.response) {
       if (error.response.status !== 401) {
         const message =
-          (error.response.data as any)?.message ||
+          (error.response.data as { message: string })?.message ||
           "An unexpected error occurred.";
 
         toastStore.getState().addToast({

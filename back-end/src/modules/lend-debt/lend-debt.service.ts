@@ -17,6 +17,7 @@ export class LendDebtService {
         userId,
         type: input.type,
         personName: input.personName,
+        phoneNumber: input.phoneNumber,
         amount: input.amount.toString(),
         dueDate: input.dueDate ? new Date(input.dueDate) : null,
         notes: input.notes,

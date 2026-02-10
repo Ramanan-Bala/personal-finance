@@ -4,6 +4,7 @@ import { z } from 'zod';
 export const createLendDebtSchema = z.object({
   type: z.enum(['LEND', 'DEBT']),
   personName: z.string().min(1),
+  phoneNumber: z.string().optional(),
   amount: z.coerce.number(),
   dueDate: z.string().datetime().optional(),
   notes: z.string().optional(),
@@ -11,6 +12,7 @@ export const createLendDebtSchema = z.object({
 
 export const updateLendDebtSchema = z.object({
   personName: z.string().min(1).optional(),
+  phoneNumber: z.string().optional(),
   dueDate: z.string().datetime().optional(),
   notes: z.string().optional(),
 });
