@@ -71,6 +71,13 @@
       "when": 1770389151614,
       "tag": "0009_smart_king_bedlam",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1771600354767,
+      "tag": "0010_futuristic_junta",
+      "breakpoints": true
     }
   ]
 }

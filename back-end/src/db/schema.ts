@@ -126,6 +126,8 @@ export const accountsRelations = relations(accounts, ({ one, many }) => ({
     references: [accountGroups.id],
   }),
   transactions: many(transactions),
+  lendDebts: many(lendDebts),
+  lendDebtPayments: many(lendDebtPayments),
 }));
 
 // Categories
@@ -205,6 +207,9 @@ export const lendDebts = pgTable('lend_debt', {
   userId: text('userId')
     .notNull()
     .references(() => users.id, { onDelete: 'cascade' }),
+  accountId: text('accountId')
+    .notNull()
+    .references(() => accounts.id, { onDelete: 'cascade' }),
   type: lendDebtTypeEnum('type').notNull(),
   personName: text('personName').notNull(),
   phoneNumber: text('phoneNumber'),
@@ -221,6 +226,10 @@ export const lendDebtsRelations = relations(lendDebts, ({ one, many }) => ({
     fields: [lendDebts.userId],
     references: [users.id],
   }),
+  account: one(accounts, {
+    fields: [lendDebts.accountId],
+    references: [accounts.id],
+  }),
   payments: many(lendDebtPayments),
 }));
 
@@ -235,6 +244,9 @@ export const lendDebtPayments = pgTable('lend_debt_payments', {
   lendDebtId: text('lendDebtId')
     .notNull()
     .references(() => lendDebts.id, { onDelete: 'cascade' }),
+  accountId: text('accountId')
+    .notNull()
+    .references(() => accounts.id, { onDelete: 'cascade' }),
   amount: decimal('amount', { precision: 12, scale: 2 }).notNull(),
   paymentDate: timestamp('paymentDate').notNull(),
   notes: text('notes'),
@@ -252,6 +264,10 @@ export const lendDebtPaymentsRelations = relations(
     lendDebt: one(lendDebts, {
       fields: [lendDebtPayments.lendDebtId],
       references: [lendDebts.id],
+    }),
+    account: one(accounts, {
+      fields: [lendDebtPayments.accountId],
+      references: [accounts.id],
     }),
   }),
 );

@@ -4,6 +4,7 @@ export const createLendDebtSchema = z
   .object({
     id: z.string().optional(),
     type: z.enum(["LEND", "DEBT"]),
+    accountId: z.string().min(1, "Account is required"),
     personName: z.string().min(1, "Person name is required"),
     phoneNumber: z.string().optional(),
     amount: z
@@ -14,16 +15,6 @@ export const createLendDebtSchema = z
       .transform((val) => Number(val)),
     dueDate: z.string().datetime().optional(),
     notes: z.string().optional(),
-  })
-  .refine(
-    (data) => {
-      // Phone number is optional but if type is LEND, we allow it
-      // No strict requirement, just conditional display
-      return true;
-    },
-    {
-      message: "Validation passed",
-    },
-  );
+  });
 
 export type CreateLendDebtSchema = z.infer<typeof createLendDebtSchema>;

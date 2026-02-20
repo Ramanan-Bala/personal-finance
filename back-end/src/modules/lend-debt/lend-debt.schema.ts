@@ -3,16 +3,20 @@ import { z } from 'zod';
 // Lend/Debt
 export const createLendDebtSchema = z.object({
   type: z.enum(['LEND', 'DEBT']),
+  accountId: z.string().min(1),
   personName: z.string().min(1),
   phoneNumber: z.string().optional(),
-  amount: z.coerce.number(),
+  amount: z.coerce.number().positive(),
   dueDate: z.string().datetime().optional(),
   notes: z.string().optional(),
 });
 
 export const updateLendDebtSchema = z.object({
+  accountId: z.string().min(1).optional(),
   personName: z.string().min(1).optional(),
   phoneNumber: z.string().optional(),
+  amount: z.coerce.number().positive().optional(),
+  type: z.enum(['LEND', 'DEBT']).optional(),
   dueDate: z.string().datetime().optional(),
   notes: z.string().optional(),
 });
@@ -20,13 +24,15 @@ export const updateLendDebtSchema = z.object({
 // Payments
 export const createLendDebtPaymentSchema = z.object({
   lendDebtId: z.string().min(1),
-  amount: z.coerce.number(),
+  accountId: z.string().min(1),
+  amount: z.coerce.number().positive(),
   paymentDate: z.string().datetime(),
   notes: z.string().optional(),
 });
 
 export const updateLendDebtPaymentSchema = z.object({
-  amount: z.coerce.number().optional(),
+  accountId: z.string().min(1).optional(),
+  amount: z.coerce.number().positive().optional(),
   paymentDate: z.string().datetime().optional(),
   notes: z.string().optional(),
 });

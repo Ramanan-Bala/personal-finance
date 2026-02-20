@@ -13,7 +13,7 @@ import {
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
-import { DatePicker } from "@/shared";
+import { Account, DatePicker } from "@/shared";
 
 type LendDebtFormOutput = z.infer<typeof createLendDebtSchema>;
 type LendDebtFormInput = z.input<typeof createLendDebtSchema>;
@@ -21,12 +21,14 @@ type LendDebtFormInput = z.input<typeof createLendDebtSchema>;
 interface LendDebtFormProps {
   onSubmit: (data: LendDebtFormOutput) => void;
   defaultValues?: Partial<LendDebtFormInput>;
+  accounts?: Account[];
   isLoading?: boolean;
 }
 
 export function LendDebtForm({
   onSubmit,
   defaultValues,
+  accounts = [],
   isLoading,
 }: LendDebtFormProps) {
   const {
@@ -73,6 +75,33 @@ export function LendDebtForm({
           {errors.type && (
             <Text color="red" size="1">
               {errors.type.message}
+            </Text>
+          )}
+        </label>
+
+        {/* Account */}
+        <label className="block">
+          <Text as="div" size="2" mb="1" weight="bold">
+            Account
+          </Text>
+          <Select.Root
+            defaultValue={defaultValues?.accountId || ""}
+            onValueChange={(val) => {
+              setValue("accountId", val);
+            }}
+          >
+            <Select.Trigger className="w-full" placeholder="Select account" />
+            <Select.Content position="popper">
+              {accounts.map((account) => (
+                <Select.Item key={account.id} value={account.id}>
+                  {account.name}
+                </Select.Item>
+              ))}
+            </Select.Content>
+          </Select.Root>
+          {errors.accountId && (
+            <Text color="red" size="1">
+              {errors.accountId.message}
             </Text>
           )}
         </label>
