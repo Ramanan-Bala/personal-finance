@@ -12,7 +12,11 @@ const port = process.env.PORT || 8080;
 app.use(helmet());
 app.use(
   cors({
-    origin: ['http://localhost:3000', 'http://localhost:5173'],
+    origin: [
+      'http://localhost:3000',
+      'http://localhost:5173',
+      'https://personal-finance-psi-orpin.vercel.app',
+    ],
     credentials: true,
   }),
 );
