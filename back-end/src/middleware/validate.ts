@@ -6,6 +6,7 @@ export const validate =
     try {
       schema.parse(req.body);
       next();
+      return;
     } catch (error) {
       if (error instanceof ZodError) {
         const message = error.issues.map(i => i.message).join(', ');

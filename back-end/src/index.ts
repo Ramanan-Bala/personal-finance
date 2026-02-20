@@ -24,7 +24,7 @@ setupAuth(app);
 import routes from './routes';
 app.use('/api', routes);
 
-app.get('/health', (req, res) => {
+app.get('/health', (_, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
