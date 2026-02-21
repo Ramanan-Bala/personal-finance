@@ -16,6 +16,7 @@ app.use(
       'http://localhost:3000',
       'http://localhost:5173',
       'https://personal-finance-psi-orpin.vercel.app',
+      'https://cashly-finance.vercel.app',
     ],
     credentials: true,
   }),
