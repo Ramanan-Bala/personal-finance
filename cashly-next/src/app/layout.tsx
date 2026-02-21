@@ -3,6 +3,7 @@ import { ServiceWorkerRegister } from "@/shared/components/sw-register";
 import { FontProvider } from "@/shared/providers/font-provider";
 import { ThemeProvider } from "@/shared/providers/theme-provider";
 import { Theme } from "@radix-ui/themes";
+import { Analytics } from "@vercel/analytics/next";
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
@@ -33,6 +34,7 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/icon-192x192.png" />
       </head>
       <body>
+        <Analytics />
         <Theme accentColor="green" radius="large">
           <ThemeProvider>
             <AuthProvider>
