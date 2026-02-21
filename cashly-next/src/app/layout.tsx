@@ -3,6 +3,7 @@ import { ServiceWorkerRegister } from "@/shared/components/sw-register";
 import { FontProvider } from "@/shared/providers/font-provider";
 import { ThemeProvider } from "@/shared/providers/theme-provider";
 import { Theme } from "@radix-ui/themes";
+import { Analytics } from "@vercel/analytics/next";
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
@@ -44,6 +45,7 @@ export default function RootLayout({
             </AuthProvider>
           </ThemeProvider>
         </Theme>
+        <Analytics />
       </body>
     </html>
   );
