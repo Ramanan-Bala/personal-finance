@@ -1,12 +1,17 @@
 "use client";
 
-import { PageHeader, ThemeSwitcher, useAuth, useFormatter } from "@/shared";
+import {
+  PageHeader,
+  ResponsiveModal,
+  ThemeSwitcher,
+  useAuth,
+  useFormatter,
+} from "@/shared";
 import {
   Avatar,
   Badge,
   Button,
   Card,
-  Dialog,
   Flex,
   IconButton,
   Select,
@@ -56,32 +61,34 @@ const SettingRow = ({
         onClick();
       }
     }}
-    className={`w-full flex items-center justify-between p-3 rounded-xl hover:bg-gray-100 dark:hover:bg-white/5 transition-colors text-left group ${
+    className={`w-full flex flex-col sm:flex-row sm:items-center gap-3 p-3 rounded-xl hover:bg-gray-100 dark:hover:bg-white/5 transition-colors text-left group ${
       onClick ? "cursor-pointer" : "cursor-default"
     }`}
   >
-    <Flex gap="4" align="center">
-      <Flex className="h-10 w-10 rounded-xl items-center justify-center bg-gray-100 dark:bg-white/5 group-hover:bg-white dark:group-hover:bg-white/10 transition-colors shadow-sm">
+    <Flex gap="4" align="center" className="min-w-0 shrink-0">
+      <Flex className="h-10 w-10 shrink-0 rounded-xl items-center justify-center bg-gray-100 dark:bg-white/5 group-hover:bg-white dark:group-hover:bg-white/10 transition-colors shadow-sm">
         <Icon className="h-5 w-5 text-gray-600 dark:text-gray-400" />
       </Flex>
-      <Flex direction="column" gap="0">
-        <Text size="2" weight="bold">
+      <Flex direction="column" gap="0" className="min-w-0">
+        <Text size="2" weight="bold" truncate>
           {label}
         </Text>
         {description && (
-          <Text size="1" color="gray">
+          <Text size="1" color="gray" truncate>
             {description}
           </Text>
         )}
       </Flex>
     </Flex>
-    {action ? (
-      action
-    ) : (
-      <ChevronRight
-        className={`h-4 w-4 text-gray-400 group-hover:translate-x-1 transition-transform ${!onClick && "opacity-0"}`}
-      />
-    )}
+    <div className="sm:ml-auto shrink-0">
+      {action ? (
+        action
+      ) : (
+        <ChevronRight
+          className={`h-4 w-4 text-gray-400 group-hover:translate-x-1 transition-transform ${!onClick && "opacity-0"}`}
+        />
+      )}
+    </div>
   </div>
 );
 
@@ -204,51 +211,52 @@ export default function SettingsPage() {
       </Card>
 
       {/* Edit Profile Modal */}
-      <Dialog.Root open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-        <Dialog.Content maxWidth="450px">
-          <Dialog.Title>Edit Profile</Dialog.Title>
-          <Dialog.Description size="2" mb="4">
-            Update your personal information below.
-          </Dialog.Description>
+      <ResponsiveModal
+        open={isEditModalOpen}
+        onOpenChange={setIsEditModalOpen}
+        title="Edit Profile"
+        description="Update your personal information below."
+      >
+        <form onSubmit={handleUpdateProfile}>
+          <Flex direction="column" gap="3">
+            <label>
+              <Text as="div" size="2" mb="1" weight="bold">
+                Full Name
+              </Text>
+              <TextField.Root
+                value={editName}
+                onChange={(e) => setEditName(e.target.value)}
+                placeholder="Enter your full name"
+                required
+              />
+            </label>
+            <label>
+              <Text as="div" size="2" mb="1" weight="bold">
+                Phone Number
+              </Text>
+              <TextField.Root
+                value={editPhone}
+                onChange={(e) => setEditPhone(e.target.value)}
+                placeholder="+1 (555) 000-0000"
+              />
+            </label>
+          </Flex>
 
-          <form onSubmit={handleUpdateProfile}>
-            <Flex direction="column" gap="3">
-              <label>
-                <Text as="div" size="2" mb="1" weight="bold">
-                  Full Name
-                </Text>
-                <TextField.Root
-                  value={editName}
-                  onChange={(e) => setEditName(e.target.value)}
-                  placeholder="Enter your full name"
-                  required
-                />
-              </label>
-              <label>
-                <Text as="div" size="2" mb="1" weight="bold">
-                  Phone Number
-                </Text>
-                <TextField.Root
-                  value={editPhone}
-                  onChange={(e) => setEditPhone(e.target.value)}
-                  placeholder="+1 (555) 000-0000"
-                />
-              </label>
-            </Flex>
-
-            <Flex gap="3" mt="4" justify="end">
-              <Dialog.Close>
-                <Button variant="soft" color="gray">
-                  Cancel
-                </Button>
-              </Dialog.Close>
-              <Button type="submit" loading={isUpdating}>
-                Save Changes
-              </Button>
-            </Flex>
-          </form>
-        </Dialog.Content>
-      </Dialog.Root>
+          <Flex gap="3" mt="4" justify="end">
+            <Button
+              variant="soft"
+              color="gray"
+              type="button"
+              onClick={() => setIsEditModalOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button type="submit" loading={isUpdating}>
+              Save Changes
+            </Button>
+          </Flex>
+        </form>
+      </ResponsiveModal>
 
       {/* Main Settings Sections */}
       <Flex direction="column" gap="6">
@@ -310,14 +318,14 @@ export default function SettingsPage() {
                 label="Font Family"
                 description="Choose your preferred font"
                 action={
-                  <Flex gap="2" align="center">
+                  <Flex gap="2" align="center" wrap="wrap">
                     <Select.Root
                       value={user?.fontFamily || "Inter"}
                       onValueChange={(val) =>
                         updateProfile({ fontFamily: val })
                       }
                     >
-                      <Select.Trigger variant="soft" className="w-36" />
+                      <Select.Trigger variant="soft" />
                       <Select.Content position="popper" align="end">
                         {FONTS.map((font) => (
                           <Select.Item
@@ -332,16 +340,6 @@ export default function SettingsPage() {
                         ))}
                       </Select.Content>
                     </Select.Root>
-                    <Badge
-                      variant="soft"
-                      color="iris"
-                      size="2"
-                      style={{
-                        fontFamily: `'${user?.fontFamily || "Inter"}', sans-serif`,
-                      }}
-                    >
-                      {user?.fontFamily || "Inter"}
-                    </Badge>
                   </Flex>
                 }
               />
@@ -350,30 +348,18 @@ export default function SettingsPage() {
                 label="Currency"
                 description="Select your preferred currency"
                 action={
-                  <Flex gap="2" align="center">
-                    <Select.Root
-                      value={user?.currency || "INR"}
-                      onValueChange={(val) => updateProfile({ currency: val })}
-                    >
-                      <Select.Trigger variant="soft" />
-                      <Select.Content position="popper" align="end">
-                        <Select.Item value="INR">INR (₹)</Select.Item>
-                        <Select.Item value="USD">USD ($)</Select.Item>
-                        <Select.Item value="EUR">EUR (€)</Select.Item>
-                        <Select.Item value="GBP">GBP (£)</Select.Item>
-                      </Select.Content>
-                    </Select.Root>
-                    <Badge
-                      variant="soft"
-                      color="iris"
-                      size="2"
-                      style={{
-                        fontFamily: `'${user?.fontFamily || "Inter"}', sans-serif`,
-                      }}
-                    >
-                      {formatCurrency("123456")}
-                    </Badge>
-                  </Flex>
+                  <Select.Root
+                    value={user?.currency || "INR"}
+                    onValueChange={(val) => updateProfile({ currency: val })}
+                  >
+                    <Select.Trigger variant="soft" />
+                    <Select.Content position="popper" align="end">
+                      <Select.Item value="INR">INR (₹)</Select.Item>
+                      <Select.Item value="USD">USD ($)</Select.Item>
+                      <Select.Item value="EUR">EUR (€)</Select.Item>
+                      <Select.Item value="GBP">GBP (£)</Select.Item>
+                    </Select.Content>
+                  </Select.Root>
                 }
               />
               <SettingRow
@@ -381,7 +367,7 @@ export default function SettingsPage() {
                 label="Date Format"
                 description="How dates appear across the app"
                 action={
-                  <Flex gap="2" align="center" className="w-full sm:w-auto">
+                  <Flex gap="2" align="center" wrap="wrap">
                     <Select.Root
                       value={dateSelection}
                       onValueChange={(val) => {
@@ -413,9 +399,7 @@ export default function SettingsPage() {
                         <TextField.Root
                           placeholder="e.g. MMMM do, yyyy"
                           value={customFormat}
-                          onChange={(e) => {
-                            setCustomFormat(e.target.value);
-                          }}
+                          onChange={(e) => setCustomFormat(e.target.value)}
                           color={(() => {
                             if (!customFormat) return undefined;
                             try {
@@ -425,7 +409,7 @@ export default function SettingsPage() {
                               return "red";
                             }
                           })()}
-                          className="w-48"
+                          className="w-40"
                         >
                           <TextField.Slot side="right">
                             <IconButton
@@ -433,9 +417,7 @@ export default function SettingsPage() {
                               variant="ghost"
                               onClick={() => {
                                 if (customFormat.trim()) {
-                                  updateProfile({
-                                    dateFormat: customFormat,
-                                  });
+                                  updateProfile({ dateFormat: customFormat });
                                 }
                               }}
                               disabled={(() => {

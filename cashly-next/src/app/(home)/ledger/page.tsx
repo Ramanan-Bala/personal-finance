@@ -51,6 +51,7 @@ interface LedgerTransaction {
   totalExpense: number;
   totalTransfer: number;
   transactions: Transaction[];
+  displayDate?: string; // Added to store the formatted date for display
 }
 
 export default function LedgerPage() {
@@ -116,7 +117,7 @@ export default function LedgerPage() {
           },
         });
 
-        var groupedTransactions = response.data.reduce(
+        const groupedTransactions = response.data.reduce(
           (acc, transaction) => {
             const date = format(transaction.transactionDate, "yyyy-MM-dd"); // Stable grouping key
             const displayDate = formatDate(transaction.transactionDate);
@@ -126,10 +127,11 @@ export default function LedgerPage() {
                 totalExpense: 0,
                 totalTransfer: 0,
                 transactions: [],
+                displayDate: "",
               };
             }
             // Store the display date so we use it in the UI
-            (acc[date] as any).displayDate = displayDate;
+            acc[date].displayDate = displayDate;
             acc[date].transactions.push(transaction);
             if (transaction.type === TransactionType.INCOME) {
               acc[date].totalIncome += Number(transaction.amount);
@@ -232,13 +234,13 @@ export default function LedgerPage() {
 
       {loading ? (
         <Flex direction="column" gap="4">
-          <Flex justify="between">
-            <Skeleton className="w-1/4 h-10" />
-            <Skeleton className="w-1/12 h-10" />
+          <Flex justify="between" gap="4">
+            <Skeleton className="h-10 w-2/3 sm:w-1/4" />
+            <Skeleton className="h-10 w-1/4 sm:w-16" />
           </Flex>
-          <Skeleton className="w-full h-10" />
-          <Skeleton className="w-full h-10" />
-          <Skeleton className="w-full h-10" />
+          <Skeleton className="h-12 w-full" />
+          <Skeleton className="h-12 w-full" />
+          <Skeleton className="h-12 w-full" />
         </Flex>
       ) : Object.entries(filteredTransactions).length === 0 ? (
         <EmptyState
@@ -263,39 +265,50 @@ export default function LedgerPage() {
                     align="center"
                     className="sticky top-0 z-10 backdrop-blur-lg"
                     my="3"
+                    wrap="wrap"
+                    gap="2"
                   >
-                    <Flex gap="4">
-                      <Button variant="soft" className="py-6 rounded-lg">
+                    <Flex gap="3" align="center" className="min-w-0">
+                      <Button
+                        variant="soft"
+                        className="py-6 rounded-lg shrink-0 hidden sm:flex"
+                      >
                         <Calendar />
                       </Button>
-                      <Box>
-                        <Heading size="3">
-                          {(item as any).displayDate || date}
+                      <Box className="min-w-0">
+                        <Heading size="3" truncate>
+                          {item.displayDate || date}
                         </Heading>
-                        <Flex gap="4">
+                        <Flex gap="2" wrap="wrap">
                           <Text
                             color="green"
+                            size="1"
                             className="flex items-center gap-1"
                           >
-                            <ArrowUpRight size="14" />{" "}
+                            <ArrowUpRight size="12" />{" "}
                             {formatCurrency(item.totalIncome)}
                           </Text>
-                          <Text color="red" className="flex items-center gap-1">
-                            <ArrowDownRight size="14" />{" "}
+                          <Text
+                            color="red"
+                            size="1"
+                            className="flex items-center gap-1"
+                          >
+                            <ArrowDownRight size="12" />{" "}
                             {formatCurrency(item.totalExpense)}
                           </Text>
                           <Text
                             color="blue"
+                            size="1"
                             className="flex items-center gap-1"
                           >
-                            <ArrowLeftRight size="14" />{" "}
+                            <ArrowLeftRight size="12" />{" "}
                             {formatCurrency(item.totalTransfer)}
                           </Text>
                         </Flex>
                       </Box>
                     </Flex>
                     <Heading
-                      size="4"
+                      size={{ initial: "3", sm: "4" }}
                       color={
                         item.totalIncome - item.totalExpense > 0
                           ? "green"
@@ -303,6 +316,7 @@ export default function LedgerPage() {
                             ? "red"
                             : "gray"
                       }
+                      className="shrink-0"
                     >
                       {formatCurrency(item.totalIncome - item.totalExpense)}
                     </Heading>

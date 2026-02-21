@@ -7,13 +7,13 @@ import {
   CreateAccountDTO,
   EmptyState,
   PageHeader,
+  ResponsiveModal,
   useFormatter,
 } from "@/shared";
 import {
   Badge,
   Button,
   Card,
-  Dialog,
   Flex,
   Grid,
   Heading,
@@ -104,55 +104,41 @@ export default function AccountsPage() {
         title="Accounts"
         description="Manage your financial accounts and groups"
         actions={
-          <Dialog.Root open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <Dialog.Trigger>
-              <Button variant="solid" color="green">
-                <Plus size={18} />
-                <span>Add Account</span>
-              </Button>
-            </Dialog.Trigger>
-
-            <Dialog.Content
-              onEscapeKeyDown={(e) => e.preventDefault()}
-              onPointerDownOutside={(e) => e.preventDefault()}
-              maxWidth="450px"
+          <>
+            <Button
+              variant="solid"
+              color="green"
+              onClick={() => setIsDialogOpen(true)}
             >
-              <Flex direction="column" justify="between" mb="4">
-                <Flex justify="between">
-                  <Dialog.Title mb="0">Create New Account</Dialog.Title>
-                  <Dialog.Close>
-                    <IconButton variant="ghost">
-                      <X size={18} />
-                    </IconButton>
-                  </Dialog.Close>
-                </Flex>
-                <Dialog.Description size="2">
-                  Add a new account to manage your financial transactions.
-                </Dialog.Description>
-              </Flex>
-
+              <Plus size={18} />
+              <span>Add Account</span>
+            </Button>
+            <ResponsiveModal
+              open={isDialogOpen}
+              onOpenChange={setIsDialogOpen}
+              title="Create New Account"
+              description="Add a new account to manage your financial transactions."
+            >
               <AccountForm
                 groups={groups.map((g) => ({ id: g.id, name: g.name }))}
                 onSubmit={handleCreateAccount}
                 isLoading={isCreating}
               />
-            </Dialog.Content>
-          </Dialog.Root>
+            </ResponsiveModal>
+          </>
         }
       />
 
       {loading ? (
-        <>
-          <Flex direction="column" gap="4">
-            <Skeleton width="300px" height="40px" />
-            <Skeleton width="400px" height="30px" />
-          </Flex>
+        <Flex direction="column" gap="4">
+          <Skeleton className="h-10 w-full sm:w-72" />
+          <Skeleton className="h-8 w-full sm:w-48" />
           <Grid columns={{ initial: "1", md: "2", lg: "3" }} gap="4">
             {[1, 2, 3].map((i) => (
-              <Skeleton key={i} height="100px" />
+              <Skeleton key={i} className="h-24" />
             ))}
           </Grid>
-        </>
+        </Flex>
       ) : (
         <Flex direction="column" gap="4">
           <TextField.Root

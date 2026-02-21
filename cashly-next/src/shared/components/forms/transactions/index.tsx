@@ -15,7 +15,7 @@ import * as z from "zod";
 
 import { Account, Category, DatePicker } from "@/shared";
 
-type TransactionFormOutput = z.infer<typeof createTransactionSchema>;
+export type TransactionFormOutput = z.infer<typeof createTransactionSchema>;
 type TransactionFormInput = z.input<typeof createTransactionSchema>;
 
 interface TransactionFormProps {
@@ -74,7 +74,7 @@ export function TransactionForm({
           <Select.Root
             defaultValue={defaultValues?.type || "INCOME"}
             onValueChange={(val) => {
-              setValue("type", val as any);
+              setValue("type", val as never);
               setValue("categoryId", ""); // Reset category when type changes
             }}
           >

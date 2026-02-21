@@ -4,8 +4,10 @@ import api from "@/lib/api/axios";
 import {
   Category,
   CategoryForm,
+  CategoryFormOutput,
   ICON_MAP,
   PageHeader,
+  ResponsiveModal,
   Tabs,
   TabsList,
   TabsTrigger,
@@ -15,11 +17,9 @@ import {
   Badge,
   Button,
   Card,
-  Dialog,
   Flex,
   Grid,
   Heading,
-  IconButton,
   Skeleton,
   Text,
   TextField,
@@ -32,7 +32,6 @@ import {
   Tag,
   TrendingDown,
   TrendingUp,
-  X,
 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useMemo, useState } from "react";
@@ -67,7 +66,7 @@ export default function CategoriesPage() {
     }
   };
 
-  const createCategory = async (data: any) => {
+  const createCategory = async (data: CategoryFormOutput) => {
     try {
       setIsCreating(true);
       await api.post("/categories", data, { showSuccessToast: true });
@@ -80,7 +79,7 @@ export default function CategoriesPage() {
     }
   };
 
-  const updateCategory = async (data: any) => {
+  const updateCategory = async (data: CategoryFormOutput) => {
     try {
       const id = data.id;
       setLoading(true);
@@ -118,75 +117,51 @@ export default function CategoriesPage() {
 
   return (
     <div className="space-y-6">
-      <Dialog.Root open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <Dialog.Content maxWidth="450px">
-          <Flex direction="column" justify="between" mb="4">
-            <Flex justify="between">
-              <Dialog.Title mb="0">Edit Category</Dialog.Title>
-              <Dialog.Close>
-                <Button variant="ghost" color="gray">
-                  <X size={18} />
-                </Button>
-              </Dialog.Close>
-            </Flex>
-            <Dialog.Description size="2">
-              Edit the category details below.
-            </Dialog.Description>
-          </Flex>
-          <CategoryForm
-            onSubmit={updateCategory}
-            defaultValues={editData as any}
-            isLoading={loading}
-          />
-        </Dialog.Content>
-      </Dialog.Root>
+      <ResponsiveModal
+        open={isEditDialogOpen}
+        onOpenChange={setIsEditDialogOpen}
+        title="Edit Category"
+        description="Edit the category details below."
+      >
+        <CategoryForm
+          onSubmit={updateCategory}
+          defaultValues={editData as never}
+          isLoading={loading}
+        />
+      </ResponsiveModal>
 
       <PageHeader
         title="Categories"
         description="Manage your transaction categories"
         actions={
-          <Dialog.Root open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-            <Dialog.Trigger>
-              <Button>
-                <Plus size={18} />
-                Add Category
-              </Button>
-            </Dialog.Trigger>
-            <Dialog.Content maxWidth="450px">
-              <Flex direction="column" justify="between" mb="4">
-                <Flex justify="between">
-                  <Dialog.Title mb="0">Add New Category</Dialog.Title>
-                  <Dialog.Close>
-                    <IconButton variant="ghost">
-                      <X size={18} />
-                    </IconButton>
-                  </Dialog.Close>
-                </Flex>
-                <Dialog.Description size="2">
-                  Add a new category to manage your transactions.
-                </Dialog.Description>
-              </Flex>
+          <>
+            <Button onClick={() => setIsAddDialogOpen(true)}>
+              <Plus size={18} />
+              Add Category
+            </Button>
+            <ResponsiveModal
+              open={isAddDialogOpen}
+              onOpenChange={setIsAddDialogOpen}
+              title="Add New Category"
+              description="Add a new category to manage your transactions."
+            >
               <CategoryForm onSubmit={createCategory} isLoading={isCreating} />
-            </Dialog.Content>
-          </Dialog.Root>
+            </ResponsiveModal>
+          </>
         }
       />
 
       {loading ? (
         <Flex direction="column" gap="4">
-          <Flex gap="6">
-            <Skeleton height="40px" width="300px" />
-            <Skeleton height="40px" width="300px" />
+          <Flex gap="4" direction={{ initial: "column", sm: "row" }}>
+            <Skeleton className="h-10 w-full sm:w-60" />
+            <Skeleton className="h-10 w-full sm:w-60" />
           </Flex>
-          <Grid columns="2" gap="6">
-            <Skeleton height="40px" width="300px" />
-            <Skeleton height="40px" width="300px" />
-          </Grid>
-          <Grid columns="2" gap="4">
-            <Skeleton height="80px" />
-            <Skeleton height="80px" />
-            <Skeleton height="80px" />
-            <Skeleton height="80px" />
+          <Grid columns={{ initial: "1", sm: "2" }} gap="4">
+            <Skeleton className="h-20" />
+            <Skeleton className="h-20" />
+            <Skeleton className="h-20" />
+            <Skeleton className="h-20" />
           </Grid>
         </Flex>
       ) : categories.length > 0 ? (
@@ -212,7 +187,7 @@ export default function CategoriesPage() {
 
             <Tabs
               value={filterType}
-              onValueChange={(val) => setFilterType(val as any)}
+              onValueChange={(val) => setFilterType(val as never)}
             >
               <TabsList>
                 <TabsTrigger value="ALL">

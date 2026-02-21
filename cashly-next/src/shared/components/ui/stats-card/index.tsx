@@ -20,13 +20,17 @@ export function StatsCard({
   const styles = CARD_COLOR_MAP[color];
 
   return (
-    <div className={`rounded-lg border ${styles.bg} ${styles.border}`}>
-      <Flex align="center" justify="between" px="4" py="3">
-        <Flex align="center" gap="3">
-          <div className={`p-2 rounded-lg ${styles.iconBg} ${styles.text}`}>
+    <div
+      className={`rounded-lg border overflow-hidden min-w-0 w-full ${styles.bg} ${styles.border}`}
+    >
+      <Flex align="center" justify="between" px="4" py="3" gap="2">
+        <Flex align="center" gap="3" className="min-w-0">
+          <div
+            className={`p-2 rounded-lg shrink-0 ${styles.iconBg} ${styles.text}`}
+          >
             {icon}
           </div>
-          <div>
+          <div className="min-w-0">
             <Text
               size="1"
               color="gray"
@@ -35,11 +39,13 @@ export function StatsCard({
             >
               {label}
             </Text>
-            <Heading size="6">{value}</Heading>
+            <Heading size="4" truncate>
+              {value}
+            </Heading>
           </div>
         </Flex>
         {description && (
-          <Flex direction="column" align="end">
+          <Flex direction="column" align="end" className="shrink-0">
             {description}
           </Flex>
         )}

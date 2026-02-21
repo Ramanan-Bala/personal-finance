@@ -5,6 +5,7 @@ import {
   Account,
   CreateLendDebtPaymentSchema,
   CreateLendDebtSchema,
+  DeleteConfirmDialog,
   EmptyState,
   LendDebt,
   LendDebtForm,
@@ -12,6 +13,7 @@ import {
   LendDebtStatus,
   LendDebtType,
   PageHeader,
+  ResponsiveModal,
   StatsCard,
   Tabs,
   TabsContent,
@@ -23,7 +25,6 @@ import {
   Badge,
   Button,
   Card,
-  Dialog,
   DropdownMenu,
   Flex,
   Grid,
@@ -46,7 +47,6 @@ import {
   Trash2,
   User,
   Wallet,
-  X,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -66,9 +66,9 @@ const LendDebtPage = () => {
   const [historyTarget, setHistoryTarget] = useState<LendDebt | null>(null);
 
   const [deleteTarget, setDeleteTarget] = useState<{
-    type: "entry" | "payment";
     id: string;
     label: string;
+    onConfirm: () => void;
   } | null>(null);
 
   const { formatCurrency, formatDate } = useFormatter();
@@ -308,16 +308,18 @@ const LendDebtPage = () => {
                 {getStatusBadge(item)}
               </Flex>
               <Flex align="center" gap="2" className="mt-0.5">
-                {item.notes && (
-                  <Text size="1" color="gray" truncate>
-                    {item.notes}
-                  </Text>
-                )}
-                {item.notes && item.dueDate && (
-                  <Text size="1" color="gray" className="shrink-0">
-                    &middot;
-                  </Text>
-                )}
+                <span className="hidden sm:contents">
+                  {item.notes && (
+                    <Text size="1" color="gray" truncate>
+                      {item.notes}
+                    </Text>
+                  )}
+                  {item.notes && item.dueDate && (
+                    <Text size="1" color="gray" className="shrink-0">
+                      &middot;
+                    </Text>
+                  )}
+                </span>
                 {item.dueDate && (
                   <Text
                     size="1"
@@ -327,23 +329,18 @@ const LendDebtPage = () => {
                     Due {formatDate(item.dueDate)}
                   </Text>
                 )}
-                {!item.notes && !item.dueDate && (
-                  <Text size="1" color="gray">
-                    No description
-                  </Text>
-                )}
               </Flex>
             </div>
           </Flex>
 
           {/* Right: amount + menu */}
-          <Flex align="center" gap="3" className="shrink-0">
-            <Flex direction="column" align="end" gap="0">
-              <Text weight="bold" color={color} size="4">
+          <Flex align="center" gap="3">
+            <Flex direction="column" align="end" gap="0" className="min-w-0">
+              <Text weight="bold" color={color} size="3" truncate>
                 {formatCurrency(item.outstanding || 0)}
               </Text>
               {hasPayments && (
-                <Text size="1" color="gray">
+                <Text size="1" color="gray" truncate>
                   of {formatCurrency(item.amount)}
                 </Text>
               )}
@@ -401,9 +398,9 @@ const LendDebtPage = () => {
                   color="red"
                   onClick={() =>
                     setDeleteTarget({
-                      type: "entry",
                       id: item.id,
                       label: item.personName,
+                      onConfirm: () => deleteLendDebt(item.id),
                     })
                   }
                 >
@@ -419,359 +416,273 @@ const LendDebtPage = () => {
   };
 
   return (
-    <>
+    <div className="flex flex-col h-[calc(100dvh-6rem)]">
+      {/* Delete Confirmation */}
+      <DeleteConfirmDialog
+        open={!!deleteTarget}
+        onOpenChange={(open) => {
+          if (!open) setDeleteTarget(null);
+        }}
+        onConfirm={() => {
+          deleteTarget?.onConfirm();
+          setDeleteTarget(null);
+        }}
+        title="Delete Entry"
+        description={
+          deleteTarget
+            ? `Delete entry for ${deleteTarget.label}? This will reverse all balance changes and remove all associated payments.`
+            : ""
+        }
+      />
+
       {/* Edit Dialog */}
-      <Dialog.Root open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-        <Dialog.Content maxWidth="450px">
-          <Flex direction="column" justify="between" mb="4">
-            <Flex justify="between">
-              <Dialog.Title mb="0">Edit Entry</Dialog.Title>
-              <Dialog.Close>
-                <Button variant="ghost" color="gray">
-                  <X size={18} />
-                </Button>
-              </Dialog.Close>
-            </Flex>
-            <Dialog.Description>
-              Edit the lend/debt entry details below.
-            </Dialog.Description>
-          </Flex>
-          <LendDebtForm
-            onSubmit={updateLendDebt}
-            defaultValues={editData as never}
-            accounts={accounts}
-            isLoading={loading}
-          />
-        </Dialog.Content>
-      </Dialog.Root>
+      <ResponsiveModal
+        open={isEditModalOpen}
+        onOpenChange={setIsEditModalOpen}
+        title="Edit Entry"
+        description="Edit the lend/debt entry details below."
+      >
+        <LendDebtForm
+          onSubmit={updateLendDebt}
+          defaultValues={editData as never}
+          accounts={accounts}
+          isLoading={loading}
+        />
+      </ResponsiveModal>
 
       {/* Payment Dialog */}
-      <Dialog.Root
+      <ResponsiveModal
         open={isPaymentModalOpen}
         onOpenChange={(open) => {
           setIsPaymentModalOpen(open);
           if (!open) setPaymentTarget(null);
         }}
+        title={
+          paymentTarget?.type === LendDebtType.LEND
+            ? "Record Received Payment"
+            : "Record Payment Made"
+        }
+        description={
+          paymentTarget
+            ? `${paymentTarget.type === LendDebtType.LEND ? `Receiving from ${paymentTarget.personName}` : `Paying to ${paymentTarget.personName}`} -- Outstanding: ${formatCurrency(paymentTarget.outstanding || 0)}`
+            : undefined
+        }
       >
-        <Dialog.Content maxWidth="450px">
-          <Flex direction="column" justify="between" mb="4">
-            <Flex justify="between">
-              <Dialog.Title mb="0">
-                {paymentTarget?.type === LendDebtType.LEND
-                  ? "Record Received Payment"
-                  : "Record Payment Made"}
-              </Dialog.Title>
-              <Dialog.Close>
-                <Button variant="ghost" color="gray">
-                  <X size={18} />
-                </Button>
-              </Dialog.Close>
-            </Flex>
-            <Dialog.Description size="2">
-              {paymentTarget?.type === LendDebtType.LEND
-                ? `Receiving from ${paymentTarget?.personName}`
-                : `Paying to ${paymentTarget?.personName}`}
-              {" -- "}
-              Outstanding: {formatCurrency(paymentTarget?.outstanding || 0)}
-            </Dialog.Description>
-          </Flex>
-          {paymentTarget && (
-            <LendDebtPaymentForm
-              lendDebtId={paymentTarget.id}
-              defaultAccountId={paymentTarget.accountId}
-              outstanding={paymentTarget.outstanding || 0}
-              accounts={accounts}
-              onSubmit={createPayment}
-              isLoading={loading}
-            />
-          )}
-        </Dialog.Content>
-      </Dialog.Root>
+        {paymentTarget && (
+          <LendDebtPaymentForm
+            lendDebtId={paymentTarget.id}
+            defaultAccountId={paymentTarget.accountId}
+            outstanding={paymentTarget.outstanding || 0}
+            accounts={accounts}
+            onSubmit={createPayment}
+            isLoading={loading}
+          />
+        )}
+      </ResponsiveModal>
 
       {/* Payment History Dialog */}
-      <Dialog.Root
+      <ResponsiveModal
         open={!!historyTarget}
         onOpenChange={(open) => {
           if (!open) setHistoryTarget(null);
         }}
+        title="Payment History"
+        description={
+          historyTarget?.type === LendDebtType.LEND
+            ? `Payments received from ${historyTarget?.personName}`
+            : `Payments made to ${historyTarget?.personName}`
+        }
+        maxWidth="520px"
       >
-        <Dialog.Content maxWidth="520px">
-          <Flex direction="column" justify="between" mb="4">
-            <Flex justify="between">
-              <Dialog.Title mb="0">Payment History</Dialog.Title>
-              <Dialog.Close>
-                <Button variant="ghost" color="gray">
-                  <X size={18} />
-                </Button>
-              </Dialog.Close>
-            </Flex>
-            <Dialog.Description size="2">
-              {historyTarget?.type === LendDebtType.LEND
-                ? `Payments received from ${historyTarget?.personName}`
-                : `Payments made to ${historyTarget?.personName}`}
-            </Dialog.Description>
-          </Flex>
-
-          {historyTarget && (
-            <Flex direction="column" gap="4">
-              {/* Summary strip */}
-              <Flex
-                justify="between"
-                align="center"
-                className="rounded-lg bg-muted/60 dark:bg-muted/40 px-4 py-3"
-              >
-                <Flex direction="column" gap="0">
-                  <Text size="1" color="gray" weight="medium">
-                    Total
-                  </Text>
-                  <Text size="3" weight="bold">
-                    {formatCurrency(historyTarget.amount)}
-                  </Text>
-                </Flex>
-                <Flex direction="column" gap="0" align="center">
-                  <Text size="1" color="gray" weight="medium">
-                    Paid
-                  </Text>
-                  <Text size="3" weight="bold" color="green">
-                    {formatCurrency(
-                      historyTarget.amount - (historyTarget.outstanding || 0),
-                    )}
-                  </Text>
-                </Flex>
-                <Flex direction="column" gap="0" align="end">
-                  <Text size="1" color="gray" weight="medium">
-                    Outstanding
-                  </Text>
-                  <Text
-                    size="3"
-                    weight="bold"
-                    color={historyTarget.outstanding === 0 ? "green" : "orange"}
-                  >
-                    {formatCurrency(historyTarget.outstanding || 0)}
-                  </Text>
-                </Flex>
+        {historyTarget && (
+          <Flex direction="column" gap="4">
+            {/* Summary strip */}
+            <Flex
+              justify="between"
+              align="center"
+              className="rounded-lg bg-muted/60 dark:bg-muted/40 px-4 py-3"
+            >
+              <Flex direction="column" gap="0">
+                <Text size="1" color="gray" weight="medium">
+                  Total
+                </Text>
+                <Text size="3" weight="bold">
+                  {formatCurrency(historyTarget.amount)}
+                </Text>
               </Flex>
+              <Flex direction="column" gap="0" align="center">
+                <Text size="1" color="gray" weight="medium">
+                  Paid
+                </Text>
+                <Text size="3" weight="bold" color="green">
+                  {formatCurrency(
+                    historyTarget.amount - (historyTarget.outstanding || 0),
+                  )}
+                </Text>
+              </Flex>
+              <Flex direction="column" gap="0" align="end">
+                <Text size="1" color="gray" weight="medium">
+                  Outstanding
+                </Text>
+                <Text
+                  size="3"
+                  weight="bold"
+                  color={historyTarget.outstanding === 0 ? "green" : "orange"}
+                >
+                  {formatCurrency(historyTarget.outstanding || 0)}
+                </Text>
+              </Flex>
+            </Flex>
 
-              {/* Progress */}
-              <Progress
-                value={getProgressPercent(historyTarget)}
+            {/* Progress */}
+            <Progress
+              value={getProgressPercent(historyTarget)}
+              color={historyTarget.type === LendDebtType.LEND ? "green" : "red"}
+              size="2"
+            />
+
+            {/* Timeline */}
+            {historyTarget.payments && historyTarget.payments.length > 0 ? (
+              <div className="relative ml-3">
+                <div className="absolute left-0 top-2 bottom-2 w-px bg-border" />
+                <Flex direction="column" gap="0">
+                  {historyTarget.payments.map((payment, i) => {
+                    const isLend = historyTarget.type === LendDebtType.LEND;
+                    return (
+                      <motion.div
+                        key={payment.id}
+                        initial={{ opacity: 0, x: -8 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: i * 0.06 }}
+                      >
+                        <Flex
+                          align="start"
+                          gap="3"
+                          className="relative py-3 pl-5 group hover:bg-muted/30 -ml-3 pr-2 rounded-lg transition-colors"
+                        >
+                          {/* Dot */}
+                          <div
+                            className={`absolute left-0 top-[18px] w-2.5 h-2.5 rounded-full ring-2 ring-card z-10 ${
+                              isLend
+                                ? "bg-green-500 dark:bg-green-400"
+                                : "bg-red-500 dark:bg-red-400"
+                            }`}
+                          />
+
+                          <Flex
+                            justify="between"
+                            align="center"
+                            className="flex-1 min-w-0"
+                          >
+                            <Flex
+                              direction="column"
+                              gap="0"
+                              className="min-w-0 flex-1"
+                            >
+                              <Flex align="center" gap="2">
+                                <Text size="3" weight="bold">
+                                  {formatCurrency(Number(payment.amount))}
+                                </Text>
+                                <Text size="1" color="gray">
+                                  {formatDate(new Date(payment.paymentDate))}
+                                </Text>
+                              </Flex>
+                              <Flex align="center" gap="1" className="mt-0.5">
+                                <Wallet
+                                  size={11}
+                                  className="text-muted-foreground shrink-0"
+                                />
+                                <Text size="1" color="gray" truncate>
+                                  {getAccountName(payment.accountId)}
+                                </Text>
+                                {payment.notes && (
+                                  <>
+                                    <Text
+                                      size="1"
+                                      color="gray"
+                                      className="shrink-0"
+                                    >
+                                      &middot;
+                                    </Text>
+                                    <Text size="1" color="gray" truncate>
+                                      {payment.notes}
+                                    </Text>
+                                  </>
+                                )}
+                              </Flex>
+                            </Flex>
+
+                            <div className="opacity-0 group-hover:opacity-100 transition-opacity shrink-0 ml-2">
+                              <DeleteConfirmDialog
+                                onConfirm={() => deletePayment(payment.id)}
+                                title="Delete Payment"
+                                description={`Delete payment of ${formatCurrency(Number(payment.amount))}? This will reverse the balance change.`}
+                              />
+                            </div>
+                          </Flex>
+                        </Flex>
+                      </motion.div>
+                    );
+                  })}
+                </Flex>
+              </div>
+            ) : (
+              <Flex align="center" justify="center" py="6">
+                <Text size="2" color="gray">
+                  No payments recorded yet.
+                </Text>
+              </Flex>
+            )}
+
+            {/* Record new payment button */}
+            {historyTarget.status !== LendDebtStatus.SETTLED && (
+              <Button
+                variant="soft"
                 color={
                   historyTarget.type === LendDebtType.LEND ? "green" : "red"
                 }
-                size="2"
-              />
-
-              {/* Timeline */}
-              {historyTarget.payments && historyTarget.payments.length > 0 ? (
-                <div className="relative ml-3">
-                  <div className="absolute left-0 top-2 bottom-2 w-px bg-border" />
-                  <Flex direction="column" gap="0">
-                    {historyTarget.payments.map((payment, i) => {
-                      const isLend = historyTarget.type === LendDebtType.LEND;
-                      return (
-                        <motion.div
-                          key={payment.id}
-                          initial={{ opacity: 0, x: -8 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: i * 0.06 }}
-                        >
-                          <Flex
-                            align="start"
-                            gap="3"
-                            className="relative py-3 pl-5 group hover:bg-muted/30 -ml-3 pr-2 rounded-lg transition-colors"
-                          >
-                            {/* Dot */}
-                            <div
-                              className={`absolute left-0 top-[18px] w-2.5 h-2.5 rounded-full ring-2 ring-card z-10 ${
-                                isLend
-                                  ? "bg-green-500 dark:bg-green-400"
-                                  : "bg-red-500 dark:bg-red-400"
-                              }`}
-                            />
-
-                            <Flex
-                              justify="between"
-                              align="center"
-                              className="flex-1 min-w-0"
-                            >
-                              <Flex
-                                direction="column"
-                                gap="0"
-                                className="min-w-0 flex-1"
-                              >
-                                <Flex align="center" gap="2">
-                                  <Text size="3" weight="bold">
-                                    {formatCurrency(Number(payment.amount))}
-                                  </Text>
-                                  <Text size="1" color="gray">
-                                    {formatDate(new Date(payment.paymentDate))}
-                                  </Text>
-                                </Flex>
-                                <Flex align="center" gap="1" className="mt-0.5">
-                                  <Wallet
-                                    size={11}
-                                    className="text-muted-foreground shrink-0"
-                                  />
-                                  <Text size="1" color="gray" truncate>
-                                    {getAccountName(payment.accountId)}
-                                  </Text>
-                                  {payment.notes && (
-                                    <>
-                                      <Text
-                                        size="1"
-                                        color="gray"
-                                        className="shrink-0"
-                                      >
-                                        &middot;
-                                      </Text>
-                                      <Text size="1" color="gray" truncate>
-                                        {payment.notes}
-                                      </Text>
-                                    </>
-                                  )}
-                                </Flex>
-                              </Flex>
-
-                              <Button
-                                variant="ghost"
-                                color="red"
-                                size="1"
-                                className="opacity-0 group-hover:opacity-100 transition-opacity shrink-0 ml-2"
-                                onClick={() => {
-                                  setHistoryTarget(null);
-                                  setTimeout(() => {
-                                    setDeleteTarget({
-                                      type: "payment",
-                                      id: payment.id,
-                                      label: formatCurrency(
-                                        Number(payment.amount),
-                                      ),
-                                    });
-                                  }, 150);
-                                }}
-                              >
-                                <Trash2 size={13} />
-                              </Button>
-                            </Flex>
-                          </Flex>
-                        </motion.div>
-                      );
-                    })}
-                  </Flex>
-                </div>
-              ) : (
-                <Flex align="center" justify="center" py="6">
-                  <Text size="2" color="gray">
-                    No payments recorded yet.
-                  </Text>
-                </Flex>
-              )}
-
-              {/* Record new payment button */}
-              {historyTarget.status !== LendDebtStatus.SETTLED && (
-                <Button
-                  variant="soft"
-                  color={
-                    historyTarget.type === LendDebtType.LEND ? "green" : "red"
-                  }
-                  className="w-full"
-                  onClick={() => {
-                    const target = historyTarget;
-                    setHistoryTarget(null);
-                    setTimeout(() => {
-                      setPaymentTarget(target);
-                      setIsPaymentModalOpen(true);
-                    }, 150);
-                  }}
-                >
-                  <CreditCard size={15} />
-                  {historyTarget.type === LendDebtType.LEND
-                    ? "Record Received Payment"
-                    : "Record Payment Made"}
-                </Button>
-              )}
-            </Flex>
-          )}
-        </Dialog.Content>
-      </Dialog.Root>
-
-      {/* Delete Confirmation Dialog */}
-      <Dialog.Root
-        open={!!deleteTarget}
-        onOpenChange={(open) => {
-          if (!open) setDeleteTarget(null);
-        }}
-      >
-        <Dialog.Content maxWidth="400px">
-          <Flex direction="column" gap="4">
-            <div>
-              <Dialog.Title mb="1">
-                Delete {deleteTarget?.type === "entry" ? "Entry" : "Payment"}
-              </Dialog.Title>
-              <Dialog.Description size="2">
-                {deleteTarget?.type === "entry"
-                  ? `Delete entry for ${deleteTarget?.label}? This will reverse all balance changes and remove all associated payments.`
-                  : `Delete payment of ${deleteTarget?.label}? This will reverse the balance change.`}
-              </Dialog.Description>
-            </div>
-            <Flex gap="3" justify="end">
-              <Dialog.Close>
-                <Button variant="soft" color="gray">
-                  Cancel
-                </Button>
-              </Dialog.Close>
-              <Button
-                variant="solid"
-                color="red"
+                className="w-full"
                 onClick={() => {
-                  if (!deleteTarget) return;
-                  if (deleteTarget.type === "entry") {
-                    deleteLendDebt(deleteTarget.id);
-                  } else {
-                    deletePayment(deleteTarget.id);
-                  }
-                  setDeleteTarget(null);
+                  const target = historyTarget;
+                  setHistoryTarget(null);
+                  setTimeout(() => {
+                    setPaymentTarget(target);
+                    setIsPaymentModalOpen(true);
+                  }, 150);
                 }}
               >
-                Delete
+                <CreditCard size={15} />
+                {historyTarget.type === LendDebtType.LEND
+                  ? "Record Received Payment"
+                  : "Record Payment Made"}
               </Button>
-            </Flex>
+            )}
           </Flex>
-        </Dialog.Content>
-      </Dialog.Root>
+        )}
+      </ResponsiveModal>
 
       <PageHeader
         title="Lend & Debt"
         description="Track money you've lent or borrowed"
         actions={
-          <Dialog.Root open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
-            <Dialog.Trigger>
-              <Button>
-                <Plus size={18} />
-                Add Entry
-              </Button>
-            </Dialog.Trigger>
-            <Dialog.Content maxWidth="450px">
-              <Flex direction="column" justify="between" mb="4">
-                <Flex justify="between">
-                  <Dialog.Title mb="0">Create New Entry</Dialog.Title>
-                  <Dialog.Close>
-                    <Button variant="ghost" color="gray">
-                      <X size={18} />
-                    </Button>
-                  </Dialog.Close>
-                </Flex>
-                <Dialog.Description size="2">
-                  Add a new lend or debt entry to track your finances.
-                </Dialog.Description>
-              </Flex>
+          <>
+            <Button onClick={() => setIsAddModalOpen(true)}>
+              <Plus size={18} />
+              Add Entry
+            </Button>
+            <ResponsiveModal
+              open={isAddModalOpen}
+              onOpenChange={setIsAddModalOpen}
+              title="Create New Entry"
+              description="Add a new lend or debt entry to track your finances."
+            >
               <LendDebtForm
                 onSubmit={createLendDebt}
                 accounts={accounts}
                 isLoading={loading}
               />
-            </Dialog.Content>
-          </Dialog.Root>
+            </ResponsiveModal>
+          </>
         }
       />
 
@@ -831,14 +742,14 @@ const LendDebtPage = () => {
 
         {loading ? (
           <Flex direction="column" gap="4">
-            <Skeleton className="w-full h-24" />
-            <Skeleton className="w-full h-24" />
-            <Skeleton className="w-full h-24" />
+            <Skeleton className="w-full h-16" />
+            <Skeleton className="w-full h-16" />
+            <Skeleton className="w-full h-16" />
           </Flex>
         ) : lendDebts.length > 0 ? (
           <Card
             asChild
-            className="divide-y divide-border p-0"
+            className="divide-y divide-border p-0 overflow-hidden"
             variant="classic"
           >
             <motion.div
@@ -880,7 +791,7 @@ const LendDebtPage = () => {
           />
         )}
       </Tabs>
-    </>
+    </div>
   );
 };
 

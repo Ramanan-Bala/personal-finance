@@ -8,6 +8,7 @@ import {
   BookOpen,
   LayoutDashboard,
   LogOut,
+  Menu,
   PanelLeftClose,
   PanelRightClose,
   Settings,
@@ -16,6 +17,8 @@ import {
 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import { Drawer } from "vaul";
 
 interface MenuItem {
   icon: React.ComponentType<{ className?: string; size?: number }>;
@@ -169,35 +172,127 @@ export const Sidebar = () => {
         </div>
       </div>
 
-      {/* Mobile Floating Nav - Evenly distributed items including Settings */}
-      <div className="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-md">
-        <nav className="bg-card/80 backdrop-blur-xl border border-white/20 shadow-2xl rounded-full px-2 py-3 flex items-center justify-around">
-          {[
-            ...menuItems,
-            { icon: Settings, label: "Settings", url: "/settings" },
-          ]
-            .filter((item) => item.label !== "Categories")
-            .map((item) => {
-              const Icon = item.icon;
-              const isActive = pathname.startsWith(item.url);
-
-              return (
-                <button
-                  key={item.url}
-                  onClick={() => handleNavigate(item.url)}
-                  className={`flex flex-col items-center gap-1 transition-all active:scale-90 px-1 ${
-                    isActive ? "text-primary" : "text-muted-foreground"
-                  }`}
-                >
-                  <Icon size={20} />
-                  <span className="text-[9px] font-medium tracking-wide">
-                    {item.label}
-                  </span>
-                </button>
-              );
-            })}
-        </nav>
-      </div>
+      {/* Mobile Docked Bottom Nav */}
+      <MobileBottomNav
+        pathname={pathname}
+        onNavigate={handleNavigate}
+        onLogout={logout}
+      />
     </>
   );
 };
+
+const primaryNavItems = [
+  { icon: LayoutDashboard, label: "Home", url: "/dashboard" },
+  { icon: ArrowUpDown, label: "Transactions", url: "/transactions" },
+  { icon: Wallet, label: "Accounts", url: "/accounts" },
+  { icon: Settings, label: "Settings", url: "/settings" },
+];
+
+const secondaryNavItems = [
+  { icon: BookOpen, label: "Ledger", url: "/ledger" },
+  { icon: ArrowUpDown, label: "Lend & Debts", url: "/lend-debt" },
+  { icon: Tags, label: "Categories", url: "/categories" },
+];
+
+function MobileBottomNav({
+  pathname,
+  onNavigate,
+  onLogout,
+}: {
+  pathname: string;
+  onNavigate: (url: string) => void;
+  onLogout: () => void;
+}) {
+  const [moreOpen, setMoreOpen] = useState(false);
+  const portalRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    portalRef.current = document.querySelector(".radix-themes");
+  }, []);
+
+  const isSecondaryActive = secondaryNavItems.some((item) =>
+    pathname.startsWith(item.url),
+  );
+
+  return (
+    <div className="md:hidden fixed bottom-0 left-0 right-0 z-50">
+      <nav className="bg-card border-t border-border rounded-t-2xl shadow-[0_-2px_10px_rgba(0,0,0,0.08)] px-2 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] flex items-center justify-around">
+        {primaryNavItems.map((item) => {
+          const Icon = item.icon;
+          const isActive = pathname.startsWith(item.url);
+
+          return (
+            <button
+              key={item.url}
+              onClick={() => onNavigate(item.url)}
+              className={`flex flex-col items-center justify-center gap-0.5 min-w-[44px] min-h-[44px] transition-colors active:scale-90 ${
+                isActive ? "text-primary" : "text-muted-foreground"
+              }`}
+            >
+              <Icon size={22} />
+              <span className="text-[10px] font-medium">{item.label}</span>
+            </button>
+          );
+        })}
+
+        {/* More button */}
+        <button
+          onClick={() => setMoreOpen(true)}
+          className={`flex flex-col items-center justify-center gap-0.5 min-w-[44px] min-h-[44px] transition-colors active:scale-90 ${
+            isSecondaryActive ? "text-primary" : "text-muted-foreground"
+          }`}
+        >
+          <Menu size={22} />
+          <span className="text-[10px] font-medium">More</span>
+        </button>
+      </nav>
+
+      {/* More bottom sheet */}
+      <Drawer.Root open={moreOpen} onOpenChange={setMoreOpen}>
+        <Drawer.Portal container={portalRef.current}>
+          <Drawer.Overlay className="fixed inset-0 bg-black/40 z-50" />
+          <Drawer.Content className="fixed bottom-0 left-0 right-0 z-50 rounded-t-2xl bg-card border-t border-border flex flex-col">
+            <div className="mx-auto mt-3 mb-1 h-1.5 w-12 rounded-full bg-muted-foreground/30" />
+            <Drawer.Title className="sr-only">More</Drawer.Title>
+            <div className="px-2 pb-[max(1rem,env(safe-area-inset-bottom))]">
+              {secondaryNavItems.map((item) => {
+                const Icon = item.icon;
+                const isActive = pathname.startsWith(item.url);
+
+                return (
+                  <button
+                    key={item.url}
+                    onClick={() => {
+                      onNavigate(item.url);
+                      setMoreOpen(false);
+                    }}
+                    className={`flex items-center gap-3 w-full px-4 h-12 rounded-lg transition-colors active:bg-muted ${
+                      isActive ? "text-primary" : "text-foreground"
+                    }`}
+                  >
+                    <Icon size={20} />
+                    <span className="text-sm font-medium">{item.label}</span>
+                  </button>
+                );
+              })}
+
+              <div className="mx-4 my-1 border-t border-border" />
+
+              <button
+                onClick={() => {
+                  setMoreOpen(false);
+                  onLogout();
+                }}
+                className="flex items-center gap-3 w-full px-4 h-12 rounded-lg text-red-500 transition-colors active:bg-red-500/10"
+              >
+                <LogOut size={20} />
+                <span className="text-sm font-medium">Sign Out</span>
+              </button>
+            </div>
+          </Drawer.Content>
+        </Drawer.Portal>
+      </Drawer.Root>
+    </div>
+  );
+}

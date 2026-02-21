@@ -32,7 +32,7 @@ import {
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
-type CategoryFormOutput = z.infer<typeof createCategorySchema>;
+export type CategoryFormOutput = z.infer<typeof createCategorySchema>;
 type CategoryFormInput = z.input<typeof createCategorySchema>;
 
 interface CategoryFormProps {
@@ -105,7 +105,7 @@ export function CategoryForm({
           </Text>
           <Select.Root
             defaultValue={defaultValues?.type || TransactionType.INCOME}
-            onValueChange={(val) => setValue("type", val as any)}
+            onValueChange={(val) => setValue("type", val as never)}
           >
             <Select.Trigger className="w-full" />
             <Select.Content position="popper">

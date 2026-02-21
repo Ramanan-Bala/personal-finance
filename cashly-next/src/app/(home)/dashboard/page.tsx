@@ -86,12 +86,12 @@ export default function DashboardPage() {
       </div>
 
       {/* Amount Info */}
-      <div className="flex gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {amountInfo.map((item, i) => {
           return (
             <div
               key={i}
-              className="border border-border bg-card p-4 rounded-lg space-y-6 flex-1"
+              className="border border-border bg-card p-4 rounded-lg space-y-6"
             >
               <div className="flex justify-between items-center">
                 <IconButton size="3" variant="soft">
@@ -114,12 +114,12 @@ export default function DashboardPage() {
       {/* Your Accounts */}
       <div className="space-y-3">
         <h3 className="font-semibold text-lg">Your Accounts</h3>
-        <div className="flex gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {accountInfo.map((item, i) => {
             return (
               <div
                 key={i}
-                className="border border-border bg-card p-4 rounded-lg space-y-2 flex-1 flex flex-col"
+                className="border border-border bg-card p-4 rounded-lg space-y-2 flex flex-col"
               >
                 <IconButton size="3" color={item.color as never}>
                   {item.icon}

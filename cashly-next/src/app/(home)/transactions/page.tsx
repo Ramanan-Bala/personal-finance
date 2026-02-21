@@ -9,16 +9,18 @@ import {
   EmptyState,
   ICON_MAP,
   PageHeader,
+  ResponsiveModal,
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
   Transaction,
   TransactionForm,
+  TransactionFormOutput,
   TransactionType,
   useFormatter,
 } from "@/shared";
-import { Button, Card, Dialog, Flex, Skeleton, Text } from "@radix-ui/themes";
+import { Button, Card, Flex, Skeleton, Text } from "@radix-ui/themes";
 import { motion } from "motion/react";
 
 import { endOfToday, startOfToday } from "date-fns";
@@ -29,7 +31,6 @@ import {
   ArrowUpRight,
   Pencil,
   Plus,
-  X,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -98,7 +99,7 @@ const Transactions = () => {
     }
   };
 
-  const createTransaction = async (data: any) => {
+  const createTransaction = async (data: TransactionFormOutput) => {
     try {
       setLoading(true);
       const response = await api.post<Transaction>("/transactions", data, {
@@ -119,7 +120,7 @@ const Transactions = () => {
     }
   };
 
-  const updateTransaction = async (data: any) => {
+  const updateTransaction = async (data: TransactionFormOutput) => {
     try {
       const id = data.id;
       setLoading(true);
@@ -189,64 +190,44 @@ const Transactions = () => {
 
   return (
     <>
-      <Dialog.Root open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-        <Dialog.Content maxWidth="450px">
-          <Flex direction="column" justify="between" mb="4">
-            <Flex justify="between">
-              <Dialog.Title mb="0">Edit Transaction</Dialog.Title>
-              <Dialog.Close>
-                <Button variant="ghost" color="gray">
-                  <X size={18} />
-                </Button>
-              </Dialog.Close>
-            </Flex>
-            <Dialog.Description>
-              Edit the transaction details below.
-            </Dialog.Description>
-          </Flex>
-          <TransactionForm
-            categories={categories}
-            accounts={accounts}
-            onSubmit={updateTransaction}
-            defaultValues={editData as any}
-            isLoading={loading}
-          />
-        </Dialog.Content>
-      </Dialog.Root>
+      <ResponsiveModal
+        open={isEditModalOpen}
+        onOpenChange={setIsEditModalOpen}
+        title="Edit Transaction"
+        description="Edit the transaction details below."
+      >
+        <TransactionForm
+          categories={categories}
+          accounts={accounts}
+          onSubmit={updateTransaction}
+          defaultValues={editData as never}
+          isLoading={loading}
+        />
+      </ResponsiveModal>
 
       <PageHeader
         title="Transactions"
         description="Monitor your chronological income and expenses"
         actions={
-          <Dialog.Root open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
-            <Dialog.Trigger>
-              <Button>
-                <Plus size={18} />
-                Add Transaction
-              </Button>
-            </Dialog.Trigger>
-            <Dialog.Content maxWidth="450px">
-              <Flex direction="column" justify="between" mb="4">
-                <Flex justify="between">
-                  <Dialog.Title mb="0">Create New Transaction</Dialog.Title>
-                  <Dialog.Close>
-                    <Button variant="ghost" color="gray">
-                      <X size={18} />
-                    </Button>
-                  </Dialog.Close>
-                </Flex>
-                <Dialog.Description size="2">
-                  Add a new transaction to manage your income and expenses.
-                </Dialog.Description>
-              </Flex>
+          <>
+            <Button onClick={() => setIsAddModalOpen(true)}>
+              <Plus size={18} />
+              Add Transaction
+            </Button>
+            <ResponsiveModal
+              open={isAddModalOpen}
+              onOpenChange={setIsAddModalOpen}
+              title="Create New Transaction"
+              description="Add a new transaction to manage your income and expenses."
+            >
               <TransactionForm
                 categories={categories}
                 accounts={accounts}
                 onSubmit={createTransaction}
                 isLoading={loading}
               />
-            </Dialog.Content>
-          </Dialog.Root>
+            </ResponsiveModal>
+          </>
         }
       />
 
@@ -280,9 +261,9 @@ const Transactions = () => {
 
         {loading ? (
           <Flex direction="column" gap="4">
-            <Skeleton className="w-full h-18" />
-            <Skeleton className="w-full h-18" />
-            <Skeleton className="w-full h-18" />
+            <Skeleton className="w-full h-16" />
+            <Skeleton className="w-full h-16" />
+            <Skeleton className="w-full h-16" />
           </Flex>
         ) : transactionsArray.length > 0 ? (
           <Card
