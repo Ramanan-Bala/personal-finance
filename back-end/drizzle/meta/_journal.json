@@ -78,6 +78,13 @@
       "when": 1771600354767,
       "tag": "0010_futuristic_junta",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1771692324276,
+      "tag": "0011_tiny_miss_america",
+      "breakpoints": true
     }
   ]
 }

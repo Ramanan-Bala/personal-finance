@@ -1,10 +1,11 @@
-import { and, between, eq } from 'drizzle-orm';
+import { and, between, desc, eq } from 'drizzle-orm';
 import { db } from '../../db';
 import { accounts, categories, transactions } from '../../db/schema';
 import {
   CreateTransactionInput,
   UpdateTransactionInput,
 } from './transactions.schema';
+import { aiService } from '../ai/ai.service';
 
 export class TransactionsService {
   async createTransaction(userId: string, input: CreateTransactionInput) {
@@ -18,15 +19,50 @@ export class TransactionsService {
       });
       if (!account) throw new Error('Account not found');
 
-      // 2. Validate category
-      if (input.type !== 'TRANSFER' && input.categoryId) {
-        const category = await tx.query.categories.findFirst({
-          where: and(
-            eq(categories.id, input.categoryId),
-            eq(categories.userId, userId),
-          ),
-        });
-        if (!category) throw new Error('Category not found');
+      // 2. AI categorization or validate provided category
+      const aiEnabled =
+        process.env.AI_CATEGORIZATION_ENABLED !== 'false';
+      let resolvedCategoryId = input.categoryId || null;
+      if (input.type !== 'TRANSFER') {
+        if (input.categoryId) {
+          const category = await tx.query.categories.findFirst({
+            where: and(
+              eq(categories.id, input.categoryId),
+              eq(categories.userId, userId),
+            ),
+          });
+          if (!category) throw new Error('Category not found');
+        } else if (aiEnabled && input.notes) {
+          // Fetch recent overrides for AI context
+          const recentOverrides = await tx.query.transactions.findMany({
+            where: and(
+              eq(transactions.userId, userId),
+              eq(transactions.isOverridden, true),
+            ),
+            with: { category: true },
+            orderBy: [desc(transactions.updatedAt)],
+            limit: 10,
+          });
+
+          const overrideContext = recentOverrides
+            .filter(t => t.notes && t.category)
+            .map(t => ({
+              notes: t.notes!,
+              fromCategory: 'AI suggestion',
+              toCategory: t.category!.name,
+            }));
+
+          const result = await aiService.categorizeTransaction(
+            userId,
+            input.type as 'INCOME' | 'EXPENSE',
+            input.amount,
+            input.notes,
+            overrideContext,
+          );
+          resolvedCategoryId = result.categoryId;
+        } else if (!aiEnabled && !input.categoryId) {
+          throw new Error('Category is required');
+        }
       }
 
       // 3. Handle TRANSFER
@@ -79,7 +115,7 @@ export class TransactionsService {
         .values({
           userId,
           accountId: input.accountId,
-          categoryId: input.type === 'TRANSFER' ? null : input.categoryId,
+          categoryId: input.type === 'TRANSFER' ? null : resolvedCategoryId,
           type: input.type,
           amount: input.amount.toString(),
           transactionDate: new Date(input.transactionDate),
@@ -335,7 +371,13 @@ export class TransactionsService {
           .where(eq(accounts.id, accountId));
       }
 
-      // 11. Update transaction row
+      // 11. Detect category override
+      const isCategoryOverridden =
+        input.categoryId &&
+        existing.categoryId &&
+        input.categoryId !== existing.categoryId;
+
+      // 12. Update transaction row
       const [updated] = await tx
         .update(transactions)
         .set({
@@ -350,6 +392,7 @@ export class TransactionsService {
               : (input.categoryId ?? existing.categoryId),
           transferToAccountId:
             nextType === 'TRANSFER' ? nextTransferAccountId : null,
+          isOverridden: isCategoryOverridden ? true : existing.isOverridden,
           updatedAt: new Date(),
         })
         .where(eq(transactions.id, transactionId))

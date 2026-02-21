@@ -1,37 +1,20 @@
-import {
-  Banknote,
-  Briefcase,
-  Car,
-  Coffee,
-  CreditCard,
-  Gamepad2,
-  GraduationCap,
-  HeartPulse,
-  Home as HomeIcon,
-  Lightbulb,
-  ShoppingBag,
-  Tag,
-  Utensils,
-} from "lucide-react";
+import { icons, Tag } from "lucide-react";
 
-export const ICON_MAP: Record<
+export const ICON_MAP = new Proxy(
+  {},
+  {
+    get(_target, prop: string) {
+      if (prop in icons) return icons[prop as keyof typeof icons];
+      return Tag;
+    },
+    has(_target, prop: string) {
+      return prop in icons;
+    },
+  },
+) as Record<
   string,
   React.ComponentType<{ size?: number | string; className?: string }>
-> = {
-  Banknote,
-  Briefcase,
-  Car,
-  Coffee,
-  CreditCard,
-  Gamepad2,
-  GraduationCap,
-  HeartPulse,
-  Home: HomeIcon,
-  Lightbulb,
-  ShoppingBag,
-  Utensils,
-  Tag,
-};
+>;
 
 export const CARD_COLOR_MAP = {
   gray: {

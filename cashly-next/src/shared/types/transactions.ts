@@ -28,4 +28,5 @@ export interface Category {
   type: TransactionType;
   icon?: string | null;
   description?: string;
+  isAiGenerated?: boolean;
 }

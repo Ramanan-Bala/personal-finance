@@ -24,6 +24,8 @@ interface TransactionFormProps {
   accounts: Account[];
   defaultValues?: Partial<TransactionFormInput>;
   isLoading?: boolean;
+  isEditMode?: boolean;
+  aiCategorizationEnabled?: boolean;
 }
 
 export function TransactionForm({
@@ -32,6 +34,8 @@ export function TransactionForm({
   accounts,
   defaultValues,
   isLoading,
+  isEditMode = false,
+  aiCategorizationEnabled = true,
 }: TransactionFormProps) {
   const {
     register,
@@ -187,8 +191,8 @@ export function TransactionForm({
           </label>
         )}
 
-        {/* Category (Only for Income/Expense) */}
-        {type !== "TRANSFER" && (
+        {/* Category: shown in edit mode always, or in create mode when AI is disabled */}
+        {type !== "TRANSFER" && (isEditMode || !aiCategorizationEnabled) && (
           <label className="block">
             <Text as="div" size="2" mb="1" weight="bold">
               Category

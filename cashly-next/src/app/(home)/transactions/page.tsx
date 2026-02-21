@@ -31,6 +31,7 @@ import {
   ArrowUpRight,
   Pencil,
   Plus,
+  Sparkles,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -46,6 +47,8 @@ const Transactions = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editData, setEditData] = useState<Transaction | null>(null);
 
+  const [aiCategorizationEnabled, setAiCategorizationEnabled] = useState(true);
+
   const [dateRange, setDateRange] = useState<{ from: Date; to: Date }>({
     from: startOfToday(),
     to: endOfToday(),
@@ -57,16 +60,20 @@ const Transactions = () => {
     try {
       setLoading(true);
       // Fetch all data in parallel
-      const [transactionsRes, accountsRes, categoriesRes] = await Promise.all([
-        api.get<Transaction[]>("/transactions", {
-          params: {
-            from: dateRange.from.toISOString(),
-            to: dateRange.to.toISOString(),
-          },
-        }),
-        api.get<Account[]>("/accounts"),
-        api.get<Category[]>("/categories"),
-      ]);
+      const [transactionsRes, accountsRes, categoriesRes, featuresRes] =
+        await Promise.all([
+          api.get<Transaction[]>("/transactions", {
+            params: {
+              from: dateRange.from.toISOString(),
+              to: dateRange.to.toISOString(),
+            },
+          }),
+          api.get<Account[]>("/accounts"),
+          api.get<Category[]>("/categories"),
+          api.get<{ aiCategorizationEnabled: boolean }>("/settings/features"),
+        ]);
+
+      setAiCategorizationEnabled(featuresRes.data.aiCategorizationEnabled);
 
       setAccounts(accountsRes.data);
       setCategories(categoriesRes.data);
@@ -202,6 +209,8 @@ const Transactions = () => {
           onSubmit={updateTransaction}
           defaultValues={editData as never}
           isLoading={loading}
+          isEditMode
+          aiCategorizationEnabled={aiCategorizationEnabled}
         />
       </ResponsiveModal>
 
@@ -225,6 +234,7 @@ const Transactions = () => {
                 accounts={accounts}
                 onSubmit={createTransaction}
                 isLoading={loading}
+                aiCategorizationEnabled={aiCategorizationEnabled}
               />
             </ResponsiveModal>
           </>
@@ -302,9 +312,14 @@ const Transactions = () => {
                             {item.notes || "No description"}
                           </Text>
                           <Flex align="center" gap="2">
-                            <Text size="1" color="gray">
-                              {item.category?.name}
-                            </Text>
+                            <Flex align="center" gap="1">
+                              <Text size="1" color="gray">
+                                {item.category?.name}
+                              </Text>
+                              {item.category?.isAiGenerated && (
+                                <Sparkles size={10} className="text-amber-500" />
+                              )}
+                            </Flex>
                             <Text size="1" color="gray">
                               •
                             </Text>
@@ -383,9 +398,14 @@ const Transactions = () => {
                               {item.notes}
                             </Text>
                             <Flex align="center" gap="2">
-                              <Text size="1" color="gray">
-                                {item.category?.name}
-                              </Text>
+                              <Flex align="center" gap="1">
+                                <Text size="1" color="gray">
+                                  {item.category?.name}
+                                </Text>
+                                {item.category?.isAiGenerated && (
+                                  <Sparkles size={10} className="text-amber-500" />
+                                )}
+                              </Flex>
                               <Text size="1" color="gray">
                                 •
                               </Text>

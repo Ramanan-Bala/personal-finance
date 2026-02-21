@@ -29,6 +29,7 @@ import {
   Pencil,
   Plus,
   Search,
+  Sparkles,
   Tag,
   TrendingDown,
   TrendingUp,
@@ -348,6 +349,9 @@ function CategoryCard({
                   <Icon size={18} />
                 </div>
                 <Heading size="3">{category.name}</Heading>
+                {category.isAiGenerated && (
+                  <Sparkles size={14} className="text-amber-500" />
+                )}
               </motion.div>
               {category.description && (
                 <Text

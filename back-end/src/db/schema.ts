@@ -142,6 +142,7 @@ export const categories = pgTable('categories', {
   type: categoryTypeEnum('type').notNull(),
   icon: text('icon'),
   description: text('description'),
+  isAiGenerated: boolean('isAiGenerated').default(false).notNull(),
   createdAt: timestamp('createdAt').defaultNow().notNull(),
   updatedAt: timestamp('updatedAt').defaultNow().notNull(),
 });
@@ -176,6 +177,7 @@ export const transactions = pgTable('transactions', {
     () => accounts.id,
     { onDelete: 'set null' },
   ),
+  isOverridden: boolean('isOverridden').default(false).notNull(),
   createdAt: timestamp('createdAt').defaultNow().notNull(),
   updatedAt: timestamp('updatedAt').defaultNow().notNull(),
 });

@@ -13,15 +13,6 @@ export const createTransactionSchema = z
     transferToAccountId: z.string().optional(),
   })
   .superRefine((data, ctx) => {
-    // TRANSFER → categoryId NOT required
-    if (data.type !== 'TRANSFER' && !data.categoryId) {
-      ctx.addIssue({
-        path: ['categoryId'],
-        message: 'Please select a category',
-        code: z.ZodIssueCode.custom,
-      });
-    }
-
     // TRANSFER → transferToAccountId required
     if (data.type === 'TRANSFER' && !data.transferToAccountId) {
       ctx.addIssue({
@@ -33,7 +24,7 @@ export const createTransactionSchema = z
   });
 
 export const updateTransactionSchema = z.object({
-  categoryId: z.string().min(1),
+  categoryId: z.string().min(1).optional(),
   amount: z.coerce.number().optional(),
   transactionDate: z.string().datetime().optional(),
   notes: z.string().optional(),
