@@ -134,7 +134,7 @@ export default function Home() {
   return (
     <div className="bg-bg min-h-screen space-y-24">
       {/* Navbar */}
-      <nav className="fixed top-0 right-0 left-0 z-50 backdrop-blur-sm transition-all duration-300 py-4">
+      <nav className="fixed top-0 right-0 left-0 z-50 backdrop-blur-sm transition-all duration-300 py-4 sm:px-0 px-4">
         <div className="container mx-auto">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
@@ -158,7 +158,7 @@ export default function Home() {
       {/* Hero Section */}
       <motion.section
         {...fadeInVariants}
-        className="to-background relative overflow-hidden bg-linear-to-b from-emerald-200 px-6 py-24 dark:from-emerald-900"
+        className="to-background relative overflow-hidden bg-linear-to-b from-emerald-200 px-4 py-24 dark:from-emerald-900"
       >
         <div className="relative z-10 container mx-auto grid items-center gap-12 lg:grid-cols-2">
           {/* Left Content */}
