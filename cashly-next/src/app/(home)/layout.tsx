@@ -19,7 +19,7 @@ export default function HomeLayout({
   }
 
   return (
-    <Flex className="pt-[env(safe-area-inset-top)] overflow-hidden">
+    <Flex className="overflow-hidden">
       <Sidebar />
 
       <Flex
