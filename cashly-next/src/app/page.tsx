@@ -134,7 +134,7 @@ export default function Home() {
   return (
     <div className="bg-bg min-h-screen space-y-24">
       {/* Navbar */}
-      <nav className="fixed top-0 right-0 left-0 z-50 backdrop-blur-sm transition-all duration-300 py-4 sm:px-0 px-4 pt-[max(env(safe-area-inset-top),1rem)]">
+      <nav className="fixed top-0 right-0 left-0 z-50 backdrop-blur-sm transition-all duration-300 py-4 sm:px-0 px-4 pt-[max(1rem,env(safe-area-inset-top))]">
         <div className="container mx-auto">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
