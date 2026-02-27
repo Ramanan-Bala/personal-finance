@@ -138,6 +138,12 @@
     }
   }
 
+  @media (display-mode: standalone) {
+    .main-container {
+      padding-bottom: 6rem !important;
+    }
+  }
+
   .floating-container {
     position: absolute;
     inset: 0;
