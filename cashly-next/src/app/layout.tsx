@@ -1,4 +1,5 @@
 import { AuthProvider, Toaster } from "@/shared";
+import Eruda from "@/shared/components/eruda";
 import { ServiceWorkerRegister } from "@/shared/components/sw-register";
 import { FontProvider } from "@/shared/providers/font-provider";
 import { ThemeProvider } from "@/shared/providers/theme-provider";
@@ -38,6 +39,7 @@ export default function RootLayout({
         />
       </head>
       <body>
+        <Eruda />
         <Theme accentColor="green" radius="large">
           <ThemeProvider>
             <AuthProvider>
