@@ -257,7 +257,7 @@ export default function LedgerPage() {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100dvh-env(safe-area-inset-bottom))] overflow-y-auto relative">
+    <>
       <PageHeader
         title="Ledger"
         description="Your daily financial timeline"
@@ -654,6 +654,6 @@ export default function LedgerPage() {
           </AnimatePresence>
         </div>
       )}
-    </div>
+    </>
   );
 }
