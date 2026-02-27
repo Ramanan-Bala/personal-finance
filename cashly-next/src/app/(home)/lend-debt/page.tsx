@@ -416,7 +416,7 @@ const LendDebtPage = () => {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100dvh-6rem)]">
+    <div className="flex flex-col">
       {/* Delete Confirmation */}
       <DeleteConfirmDialog
         open={!!deleteTarget}
