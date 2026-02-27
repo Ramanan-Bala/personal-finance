@@ -14,7 +14,7 @@ export function PageHeader({ title, description, actions }: PageHeaderProps) {
       justify="between"
       align={{ md: "center" }}
       gap="4"
-      mb="6"
+      mb={{ initial: "4", sm: "6" }}
     >
       <div>
         <Heading size="8" mb="1">

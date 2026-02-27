@@ -20,7 +20,14 @@ import {
   TransactionType,
   useFormatter,
 } from "@/shared";
-import { Button, Card, Flex, Skeleton, Text } from "@radix-ui/themes";
+import {
+  Button,
+  Card,
+  DropdownMenu,
+  Flex,
+  Skeleton,
+  Text,
+} from "@radix-ui/themes";
 import { motion } from "motion/react";
 
 import { endOfToday, startOfToday } from "date-fns";
@@ -29,9 +36,11 @@ import {
   ArrowLeftRight,
   ArrowRightFromLineIcon,
   ArrowUpRight,
+  MoreVertical,
   Pencil,
   Plus,
   Sparkles,
+  Trash2,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -46,6 +55,12 @@ const Transactions = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editData, setEditData] = useState<Transaction | null>(null);
+
+  const [deleteTarget, setDeleteTarget] = useState<{
+    id: string;
+    label: string;
+    onConfirm: () => void;
+  } | null>(null);
 
   const [aiCategorizationEnabled, setAiCategorizationEnabled] = useState(true);
 
@@ -214,6 +229,24 @@ const Transactions = () => {
         />
       </ResponsiveModal>
 
+      {/* Delete Confirmation */}
+      <DeleteConfirmDialog
+        open={!!deleteTarget}
+        onOpenChange={(open) => {
+          if (!open) setDeleteTarget(null);
+        }}
+        onConfirm={() => {
+          deleteTarget?.onConfirm();
+          setDeleteTarget(null);
+        }}
+        title="Delete Entry"
+        description={
+          deleteTarget
+            ? `Delete entry for ${deleteTarget.label}? This will reverse all balance changes and remove all associated payments.`
+            : ""
+        }
+      />
+
       <PageHeader
         title="Transactions"
         description="Monitor your chronological income and expenses"
@@ -308,7 +341,11 @@ const Transactions = () => {
                           )}
                         </div>
                         <div>
-                          <Text weight="medium" as="div">
+                          <Text
+                            weight="medium"
+                            as="div"
+                            className="w-max overflow-hidden text-ellipsis whitespace-nowrap"
+                          >
                             {item.notes || "No description"}
                           </Text>
                           <Flex align="center" gap="2">
@@ -317,7 +354,10 @@ const Transactions = () => {
                                 {item.category?.name}
                               </Text>
                               {item.category?.isAiGenerated && (
-                                <Sparkles size={10} className="text-amber-500" />
+                                <Sparkles
+                                  size={10}
+                                  className="text-amber-500"
+                                />
                               )}
                             </Flex>
                             <Text size="1" color="gray">
@@ -340,28 +380,39 @@ const Transactions = () => {
                               : "No date"}
                           </Text>
                         </div>
-                        <Button
-                          variant="soft"
-                          color="gray"
-                          onClick={() => {
-                            setIsEditModalOpen(true);
-                            setEditData(item);
-                          }}
-                        >
-                          <Pencil size={16} />
-                        </Button>
-                        {/* <Button
-                          variant="soft"
-                          color="red"
-                          onClick={() => deleteTransaction(item.id)}
-                        >
-                          <Trash2 size={16} />
-                        </Button> */}
-                        <DeleteConfirmDialog
-                          onConfirm={() => deleteTransaction(item.id)}
-                          title="Delete Transaction"
-                          description={`Delete ${item.type} of ${item.amount}? This will update your account balance.`}
-                        />
+                        <DropdownMenu.Root>
+                          <DropdownMenu.Trigger>
+                            <Button variant="ghost" color="gray">
+                              <MoreVertical size={16} />
+                            </Button>
+                          </DropdownMenu.Trigger>
+                          <DropdownMenu.Content align="end">
+                            <DropdownMenu.Item
+                              onClick={() => {
+                                setEditData(item);
+                                setIsEditModalOpen(true);
+                              }}
+                            >
+                              <Pencil size={14} />
+                              Edit
+                            </DropdownMenu.Item>
+                            <DropdownMenu.Separator />
+                            <DropdownMenu.Item
+                              color="red"
+                              onClick={() =>
+                                setDeleteTarget({
+                                  id: item.id,
+                                  label:
+                                    item.notes || formatCurrency(item.amount),
+                                  onConfirm: () => deleteTransaction(item.id),
+                                })
+                              }
+                            >
+                              <Trash2 size={14} />
+                              Delete
+                            </DropdownMenu.Item>
+                          </DropdownMenu.Content>
+                        </DropdownMenu.Root>
                       </Flex>
                     </motion.div>
                   ))}
@@ -403,7 +454,10 @@ const Transactions = () => {
                                   {item.category?.name}
                                 </Text>
                                 {item.category?.isAiGenerated && (
-                                  <Sparkles size={10} className="text-amber-500" />
+                                  <Sparkles
+                                    size={10}
+                                    className="text-amber-500"
+                                  />
                                 )}
                               </Flex>
                               <Text size="1" color="gray">

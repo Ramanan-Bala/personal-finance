@@ -39,7 +39,7 @@ export const Sidebar = () => {
   const menuItems: MenuItem[] = [
     { icon: LayoutDashboard, label: "Dashboard", url: "/dashboard" },
     { icon: BookOpen, label: "Ledger", url: "/ledger" },
-    { icon: ArrowUpDown, label: "Transactions", url: "/transactions" },
+    // { icon: ArrowUpDown, label: "Transactions", url: "/transactions" },
     { icon: ArrowUpDown, label: "Lend & Debts", url: "/lend-debt" },
     { icon: Tags, label: "Categories", url: "/categories" },
     { icon: Wallet, label: "Accounts", url: "/accounts" },
@@ -184,14 +184,14 @@ export const Sidebar = () => {
 
 const primaryNavItems = [
   { icon: LayoutDashboard, label: "Home", url: "/dashboard" },
-  { icon: ArrowUpDown, label: "Transactions", url: "/transactions" },
-  { icon: Wallet, label: "Accounts", url: "/accounts" },
+  // { icon: ArrowUpDown, label: "Transactions", url: "/transactions" },
+  { icon: BookOpen, label: "Ledger", url: "/ledger" },
+  { icon: ArrowUpDown, label: "Lend & Debts", url: "/lend-debt" },
   { icon: Settings, label: "Settings", url: "/settings" },
 ];
 
 const secondaryNavItems = [
-  { icon: BookOpen, label: "Ledger", url: "/ledger" },
-  { icon: ArrowUpDown, label: "Lend & Debts", url: "/lend-debt" },
+  { icon: Wallet, label: "Accounts", url: "/accounts" },
   { icon: Tags, label: "Categories", url: "/categories" },
 ];
 
