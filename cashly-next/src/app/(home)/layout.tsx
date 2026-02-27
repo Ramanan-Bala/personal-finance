@@ -26,7 +26,7 @@ export default function HomeLayout({
         direction="column"
         className="flex-1 bg-bg transition-all duration-300 relative min-h-0"
       >
-        <div className="flex-1 overflow-auto py-6 pt-6 pb-[calc(5rem+env(safe-area-inset-bottom))] md:pb-6">
+        <div className="flex-1 overflow-auto px-6 pt-6 pb-[calc(5rem+env(safe-area-inset-bottom))] md:pb-6">
           <PageTransition>{children}</PageTransition>
         </div>
       </Flex>
