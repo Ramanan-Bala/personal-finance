@@ -30,7 +30,6 @@ import {
   Palette,
   Phone,
   ShieldCheck,
-  Tags,
   Type,
 } from "lucide-react";
 import Link from "next/link";
@@ -61,7 +60,7 @@ const SettingRow = ({
         onClick();
       }
     }}
-    className={`w-full flex flex-col sm:flex-row sm:items-center gap-3 p-3 rounded-xl hover:bg-gray-100 dark:hover:bg-white/5 transition-colors text-left group ${
+    className={`w-full flex justify-between items-center flex-wrap sm:flex-row sm:items-center gap-3 p-3 rounded-xl hover:bg-gray-100 dark:hover:bg-white/5 transition-colors text-left group ${
       onClick ? "cursor-pointer" : "cursor-default"
     }`}
   >
@@ -311,7 +310,7 @@ export default function SettingsPage() {
                 icon={Palette}
                 label="Appearance"
                 description="Theme and display preferences"
-                action={<ThemeSwitcher isTabStyle={true} />}
+                action={<ThemeSwitcher isTabStyle={false} />}
               />
               <SettingRow
                 icon={Type}
@@ -455,13 +454,6 @@ export default function SettingsPage() {
                   </Flex>
                 }
               />
-              <Link href="/categories">
-                <SettingRow
-                  icon={Tags}
-                  label="Categories"
-                  description="Manage your transaction categories"
-                />
-              </Link>
             </Flex>
           </Card>
         </div>
@@ -495,16 +487,6 @@ export default function SettingsPage() {
           </Flex>
         </Card>
       </Section> */}
-
-      {/* Footer Info */}
-      <Flex direction="column" align="center" gap="1" py="4">
-        <Text size="1" color="gray">
-          Cashly v1.0.0
-        </Text>
-        <Text size="1" color="gray">
-          Made with ❤️ for better financial management
-        </Text>
-      </Flex>
     </div>
   );
 }

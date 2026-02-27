@@ -226,7 +226,7 @@ function MobileBottomNav({
             <button
               key={item.url}
               onClick={() => onNavigate(item.url)}
-              className={`flex flex-col items-center justify-center gap-0.5 min-w-[44px] min-h-[44px] transition-colors active:scale-90 ${
+              className={`flex flex-col items-center justify-center gap-0.5 min-w-11 transition-colors active:scale-90 ${
                 isActive ? "text-primary" : "text-muted-foreground"
               }`}
             >
@@ -239,7 +239,7 @@ function MobileBottomNav({
         {/* More button */}
         <button
           onClick={() => setMoreOpen(true)}
-          className={`flex flex-col items-center justify-center gap-0.5 min-w-[44px] min-h-[44px] transition-colors active:scale-90 ${
+          className={`flex flex-col items-center justify-center gap-0.5 min-w-11 transition-colors active:scale-90 ${
             isSecondaryActive ? "text-primary" : "text-muted-foreground"
           }`}
         >
