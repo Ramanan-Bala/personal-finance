@@ -388,7 +388,10 @@ export default function LedgerPage() {
 
       <Button
         onClick={() => setIsAddModalOpen(true)}
-        className="sm:hidden w-10 h-10 rounded-full fixed bottom-[max(env(safe-area-inset-bottom),5rem)] right-[max(env(safe-area-inset-right),2rem)] z-50"
+        className="sm:hidden w-10 h-10 rounded-full fixed z-50 right-[max(env(safe-area-inset-right),2rem)]"
+        style={{
+          bottom: "max(calc(env(safe-area-inset-bottom) + 2rem), 5rem)",
+        }}
       >
         <Plus size={18} />
       </Button>
