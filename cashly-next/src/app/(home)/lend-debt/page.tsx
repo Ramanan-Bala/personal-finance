@@ -661,33 +661,42 @@ const LendDebtPage = () => {
         )}
       </ResponsiveModal>
 
+      {/* Create New Entry */}
+      <ResponsiveModal
+        open={isAddModalOpen}
+        onOpenChange={setIsAddModalOpen}
+        title="Create New Entry"
+        description="Add a new lend or debt entry to track your finances."
+      >
+        <LendDebtForm
+          onSubmit={createLendDebt}
+          accounts={accounts}
+          isLoading={loading}
+        />
+      </ResponsiveModal>
+
       <PageHeader
         title="Lend & Debt"
         description="Track money you've lent or borrowed"
-        actions={
-          <>
-            <Button onClick={() => setIsAddModalOpen(true)}>
-              <Plus size={18} />
-              Add Entry
-            </Button>
-            <ResponsiveModal
-              open={isAddModalOpen}
-              onOpenChange={setIsAddModalOpen}
-              title="Create New Entry"
-              description="Add a new lend or debt entry to track your finances."
-            >
-              <LendDebtForm
-                onSubmit={createLendDebt}
-                accounts={accounts}
-                isLoading={loading}
-              />
-            </ResponsiveModal>
-          </>
-        }
       />
 
+      <Button
+        onClick={() => setIsAddModalOpen(true)}
+        className="sm:hidden w-10 h-10 rounded-full fixed z-50 right-[max(env(safe-area-inset-right),2rem)]"
+        style={{
+          bottom: "max(calc(env(safe-area-inset-bottom) + 3rem), 5rem)",
+        }}
+      >
+        <Plus size={18} />
+      </Button>
+
       {/* Summary Cards */}
-      <Grid columns={{ initial: "1", md: "2" }} gap="4" mb="6">
+      <Grid
+        columns={{ initial: "1", md: "2" }}
+        gap="4"
+        mb="6"
+        display={{ initial: "none", sm: "grid" }}
+      >
         <StatsCard
           label="To Receive"
           value={formatCurrency(totalLent)}
@@ -722,22 +731,27 @@ const LendDebtPage = () => {
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <Flex
-          direction={{ initial: "column-reverse", sm: "row" }}
-          gap="4"
-          align={{ sm: "center" }}
-          mb="4"
-        >
-          <TabsList>
-            <TabsTrigger value="lent" className="bg-primary">
-              <ArrowUpRight className="w-4 h-4" />
-              Money Lent
-            </TabsTrigger>
-            <TabsTrigger value="borrowed" className="bg-red-400">
-              <ArrowDownLeft className="w-4 h-4" />
-              Money Borrowed
-            </TabsTrigger>
-          </TabsList>
+        <Flex justify="between" align="center" mb="4">
+          <Flex gap="4" align={{ sm: "center" }} className="w-full">
+            <TabsList className="w-full sm:w-max">
+              <TabsTrigger value="lent" className="bg-primary">
+                <ArrowUpRight className="w-4 h-4" />
+                Money Lent
+              </TabsTrigger>
+              <TabsTrigger value="borrowed" className="bg-red-400">
+                <ArrowDownLeft className="w-4 h-4" />
+                Money Borrowed
+              </TabsTrigger>
+            </TabsList>
+          </Flex>
+          <Button
+            onClick={() => setIsAddModalOpen(true)}
+            className="hidden sm:flex"
+            size="3"
+          >
+            <Plus size={18} />
+            Add Entry
+          </Button>
         </Flex>
 
         {loading ? (

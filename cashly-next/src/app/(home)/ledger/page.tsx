@@ -258,32 +258,9 @@ export default function LedgerPage() {
 
   return (
     <>
-      <PageHeader
-        title="Ledger"
-        description="Your daily financial timeline"
-        actions={
-          <div className="flex items-center gap-1 justify-between bg-card border border-border rounded-lg px-3 py-2 w-full">
-            <Button
-              variant="ghost"
-              className="h-6 w-4"
-              onClick={handlePrevMonth}
-            >
-              <ChevronLeft className="w-4 h-4" />
-            </Button>
-            <span className="px-3 text-sm font-medium text-foreground w-36 text-center">
-              {format(currentMonth, "MMMM yyyy")}
-            </span>
-            <Button
-              variant="ghost"
-              className="h-6 w-4"
-              onClick={handleNextMonth}
-            >
-              <ChevronRight className="w-4 h-4" />
-            </Button>
-          </div>
-        }
-      />
+      <PageHeader title="Ledger" description="Your daily financial timeline" />
 
+      {/* Create New Transaction */}
       <ResponsiveModal
         open={isAddModalOpen}
         onOpenChange={setIsAddModalOpen}
@@ -299,6 +276,7 @@ export default function LedgerPage() {
         />
       </ResponsiveModal>
 
+      {/* Edit Transaction */}
       <ResponsiveModal
         open={isEditModalOpen}
         onOpenChange={setIsEditModalOpen}
@@ -365,7 +343,14 @@ export default function LedgerPage() {
         />
       </Grid>
 
-      <Flex justify="between" align="center" gap="4" mb="4">
+      {/* Search and Filter */}
+      <Flex
+        justify="between"
+        align={{ initial: "stretch", sm: "center" }}
+        gap="4"
+        mb="4"
+        direction={{ initial: "column-reverse", sm: "row" }}
+      >
         <TextField.Root
           size="3"
           placeholder="Search transactions..."
@@ -377,20 +362,42 @@ export default function LedgerPage() {
             <Search size={16} />
           </TextField.Slot>
         </TextField.Root>
-        <Button
-          onClick={() => setIsAddModalOpen(true)}
-          className="hidden sm:flex"
-        >
-          <Plus size={18} />
-          Add Transaction
-        </Button>
+        <Flex align="center" gap="4">
+          <div className="flex items-center gap-1 justify-between bg-card border border-border rounded-lg px-3 py-2 w-full">
+            <Button
+              variant="ghost"
+              className="h-6 w-4"
+              onClick={handlePrevMonth}
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </Button>
+            <span className="px-3 text-sm font-medium text-foreground w-36 text-center">
+              {format(currentMonth, "MMMM yyyy")}
+            </span>
+            <Button
+              variant="ghost"
+              className="h-6 w-4"
+              onClick={handleNextMonth}
+            >
+              <ChevronRight className="w-4 h-4" />
+            </Button>
+          </div>
+          <Button
+            onClick={() => setIsAddModalOpen(true)}
+            className="hidden sm:flex"
+            size="3"
+          >
+            <Plus size={18} />
+            Add Transaction
+          </Button>
+        </Flex>
       </Flex>
 
       <Button
         onClick={() => setIsAddModalOpen(true)}
         className="sm:hidden w-10 h-10 rounded-full fixed z-50 right-[max(env(safe-area-inset-right),2rem)]"
         style={{
-          bottom: "max(calc(env(safe-area-inset-bottom) + 2rem), 5rem)",
+          bottom: "max(calc(env(safe-area-inset-bottom) + 3rem), 5rem)",
         }}
       >
         <Plus size={18} />
@@ -398,10 +405,6 @@ export default function LedgerPage() {
 
       {loading ? (
         <Flex direction="column" gap="4">
-          <Flex justify="between" gap="4">
-            <Skeleton className="h-10 w-2/3 sm:w-1/4" />
-            <Skeleton className="h-10 w-1/4 sm:w-16" />
-          </Flex>
           <Skeleton className="h-12 w-full" />
           <Skeleton className="h-12 w-full" />
           <Skeleton className="h-12 w-full" />

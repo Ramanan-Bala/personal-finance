@@ -7,15 +7,17 @@ import { motion } from "motion/react";
 
 // const Tabs = TabsPrimitive.Root;
 
-interface TabsProps extends React.ComponentPropsWithoutRef<
-  typeof TabsPrimitive.Tabs
-> {}
+type TabsProps = React.ComponentPropsWithoutRef<typeof TabsPrimitive.Tabs>;
 
 const Tabs = ({ value: activeValue, ...rest }: TabsProps) => {
   const layoutId = React.useId();
   return (
     <TabsContext.Provider value={{ activeValue, layoutId }}>
-      <TabsPrimitive.Root value={activeValue} {...rest} className="relative" />
+      <TabsPrimitive.Root
+        value={activeValue}
+        {...rest}
+        className="relative w-full"
+      />
     </TabsContext.Provider>
   );
 };

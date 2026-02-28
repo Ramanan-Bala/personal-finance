@@ -32,7 +32,7 @@ export default function AccountsPage() {
   const [loading, setLoading] = useState(true);
   const [, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
 
   useEffect(() => {
@@ -59,7 +59,7 @@ export default function AccountsPage() {
       await api.post("/accounts", data, { showSuccessToast: true });
 
       await fetchGroups();
-      setIsDialogOpen(false);
+      setIsAddModalOpen(false);
     } catch (err) {
       console.error("Error creating account:", err);
     } finally {
@@ -99,35 +99,35 @@ export default function AccountsPage() {
   }, [groups]);
 
   return (
-    <div className="space-y-6">
+    <>
+      {/* Create New Account */}
+      <ResponsiveModal
+        open={isAddModalOpen}
+        onOpenChange={setIsAddModalOpen}
+        title="Create New Account"
+        description="Add a new account to manage your financial transactions."
+      >
+        <AccountForm
+          groups={groups.map((g) => ({ id: g.id, name: g.name }))}
+          onSubmit={handleCreateAccount}
+          isLoading={isCreating}
+        />
+      </ResponsiveModal>
+
       <PageHeader
         title="Accounts"
         description="Manage your financial accounts and groups"
-        actions={
-          <>
-            <Button
-              variant="solid"
-              color="green"
-              onClick={() => setIsDialogOpen(true)}
-            >
-              <Plus size={18} />
-              <span>Add Account</span>
-            </Button>
-            <ResponsiveModal
-              open={isDialogOpen}
-              onOpenChange={setIsDialogOpen}
-              title="Create New Account"
-              description="Add a new account to manage your financial transactions."
-            >
-              <AccountForm
-                groups={groups.map((g) => ({ id: g.id, name: g.name }))}
-                onSubmit={handleCreateAccount}
-                isLoading={isCreating}
-              />
-            </ResponsiveModal>
-          </>
-        }
       />
+
+      <Button
+        onClick={() => setIsAddModalOpen(true)}
+        className="sm:hidden w-10 h-10 rounded-full fixed z-50 right-[max(env(safe-area-inset-right),2rem)]"
+        style={{
+          bottom: "max(calc(env(safe-area-inset-bottom) + 3rem), 5rem)",
+        }}
+      >
+        <Plus size={18} />
+      </Button>
 
       {loading ? (
         <Flex direction="column" gap="4">
@@ -141,28 +141,40 @@ export default function AccountsPage() {
         </Flex>
       ) : (
         <Flex direction="column" gap="4">
-          <TextField.Root
-            size="3"
-            placeholder="Search accounts..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full md:w-80"
-          >
-            <TextField.Slot>
-              <Search size={16} />
-            </TextField.Slot>
-            {searchQuery && (
+          <Flex justify="between" align="center" gap="4">
+            <TextField.Root
+              size="3"
+              placeholder="Search accounts..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full md:w-80"
+            >
               <TextField.Slot>
-                <IconButton
-                  variant="ghost"
-                  size="1"
-                  onClick={() => setSearchQuery("")}
-                >
-                  <X size={14} />
-                </IconButton>
+                <Search size={16} />
               </TextField.Slot>
-            )}
-          </TextField.Root>
+              {searchQuery && (
+                <TextField.Slot>
+                  <IconButton
+                    variant="ghost"
+                    size="1"
+                    onClick={() => setSearchQuery("")}
+                  >
+                    <X size={14} />
+                  </IconButton>
+                </TextField.Slot>
+              )}
+            </TextField.Root>
+            <Button
+              variant="solid"
+              color="green"
+              onClick={() => setIsAddModalOpen(true)}
+              className="hidden sm:flex"
+              size="3"
+            >
+              <Plus size={18} />
+              <span>Add Account</span>
+            </Button>
+          </Flex>
 
           {/* Groups and Accounts List */}
           <div className="space-y-10">
@@ -232,6 +244,6 @@ export default function AccountsPage() {
           </div>
         </Flex>
       )}
-    </div>
+    </>
   );
 }

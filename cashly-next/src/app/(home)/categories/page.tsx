@@ -47,8 +47,8 @@ export default function CategoriesPage() {
     "ALL",
   );
 
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editData, setEditData] = useState<Category | null>(null);
 
   useEffect(() => {
@@ -72,7 +72,7 @@ export default function CategoriesPage() {
       setIsCreating(true);
       await api.post("/categories", data, { showSuccessToast: true });
       await fetchCategories();
-      setIsAddDialogOpen(false);
+      setIsAddModalOpen(false);
     } catch (err) {
       console.error("Error creating category:", err);
     } finally {
@@ -90,7 +90,7 @@ export default function CategoriesPage() {
       setCategories((prev) =>
         prev.map((item) => (item.id === id ? response.data : item)),
       );
-      setIsEditDialogOpen(false);
+      setIsEditModalOpen(false);
       fetchCategories();
     } catch (err) {
       console.error("Error updating category:", err);
@@ -117,10 +117,21 @@ export default function CategoriesPage() {
   );
 
   return (
-    <div className="space-y-6">
+    <>
+      {/* Add New Category */}
       <ResponsiveModal
-        open={isEditDialogOpen}
-        onOpenChange={setIsEditDialogOpen}
+        open={isAddModalOpen}
+        onOpenChange={setIsAddModalOpen}
+        title="Add New Category"
+        description="Add a new category to manage your transactions."
+      >
+        <CategoryForm onSubmit={createCategory} isLoading={isCreating} />
+      </ResponsiveModal>
+
+      {/* Edit Category */}
+      <ResponsiveModal
+        open={isEditModalOpen}
+        onOpenChange={setIsEditModalOpen}
         title="Edit Category"
         description="Edit the category details below."
       >
@@ -134,30 +145,71 @@ export default function CategoriesPage() {
       <PageHeader
         title="Categories"
         description="Manage your transaction categories"
-        actions={
-          <>
-            <Button onClick={() => setIsAddDialogOpen(true)}>
-              <Plus size={18} />
-              Add Category
-            </Button>
-            <ResponsiveModal
-              open={isAddDialogOpen}
-              onOpenChange={setIsAddDialogOpen}
-              title="Add New Category"
-              description="Add a new category to manage your transactions."
-            >
-              <CategoryForm onSubmit={createCategory} isLoading={isCreating} />
-            </ResponsiveModal>
-          </>
-        }
       />
+
+      {/* Search and Filter */}
+      <Flex
+        justify="between"
+        align={{ initial: "stretch", sm: "center" }}
+        gap="4"
+        mb="4"
+        direction={{ initial: "column-reverse", sm: "row" }}
+      >
+        <TextField.Root
+          size="3"
+          placeholder="Search categories..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="w-full md:w-80"
+        >
+          <TextField.Slot>
+            <Search size={16} />
+          </TextField.Slot>
+        </TextField.Root>
+
+        <Flex align="center" gap="2">
+          <Tabs
+            value={filterType}
+            onValueChange={(val) => setFilterType(val as never)}
+          >
+            <TabsList className="w-full sm:w-max">
+              <TabsTrigger value="ALL">
+                <Filter size={16} />
+                All
+              </TabsTrigger>
+              <TabsTrigger value="INCOME" className="bg-primary">
+                <TrendingUp size={16} />
+                Income
+              </TabsTrigger>
+              <TabsTrigger value="EXPENSE" className="bg-red-400">
+                <TrendingDown size={16} />
+                Expense
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+          <Button
+            className="hidden sm:flex"
+            size="3"
+            onClick={() => setIsAddModalOpen(true)}
+          >
+            <Plus size={18} />
+            Add Category
+          </Button>
+        </Flex>
+      </Flex>
+
+      <Button
+        onClick={() => setIsAddModalOpen(true)}
+        className="sm:hidden w-10 h-10 rounded-full fixed z-50 right-[max(env(safe-area-inset-right),2rem)]"
+        style={{
+          bottom: "max(calc(env(safe-area-inset-bottom) + 3rem), 5rem)",
+        }}
+      >
+        <Plus size={18} />
+      </Button>
 
       {loading ? (
         <Flex direction="column" gap="4">
-          <Flex gap="4" direction={{ initial: "column", sm: "row" }}>
-            <Skeleton className="h-10 w-full sm:w-60" />
-            <Skeleton className="h-10 w-full sm:w-60" />
-          </Flex>
           <Grid columns={{ initial: "1", sm: "2" }} gap="4">
             <Skeleton className="h-20" />
             <Skeleton className="h-20" />
@@ -166,156 +218,111 @@ export default function CategoriesPage() {
           </Grid>
         </Flex>
       ) : categories.length > 0 ? (
-        <>
-          {/* Search and Filter */}
-          <Flex
-            direction={{ initial: "column-reverse", sm: "row" }}
-            gap="4"
-            align={{ sm: "center" }}
-            mb="4"
-          >
-            <TextField.Root
-              size="3"
-              placeholder="Search categories..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full md:w-80"
-            >
-              <TextField.Slot>
-                <Search size={16} />
-              </TextField.Slot>
-            </TextField.Root>
-
-            <Tabs
-              value={filterType}
-              onValueChange={(val) => setFilterType(val as never)}
-            >
-              <TabsList>
-                <TabsTrigger value="ALL">
-                  <Filter size={16} />
-                  All
-                </TabsTrigger>
-                <TabsTrigger value="INCOME" className="bg-primary">
-                  <TrendingUp size={16} />
-                  Income
-                </TabsTrigger>
-                <TabsTrigger value="EXPENSE" className="bg-red-400">
-                  <TrendingDown size={16} />
-                  Expense
-                </TabsTrigger>
-              </TabsList>
-            </Tabs>
-          </Flex>
-
-          {/* Category Grid */}
-          <div
-            className={
-              filterType === "ALL"
-                ? "grid grid-cols-1 lg:grid-cols-2 gap-6"
-                : ""
-            }
-          >
-            {/* Income Column */}
-            {(filterType === "ALL" || filterType === "INCOME") && (
-              <div className="space-y-4">
-                <Flex asChild align="center" gap="2" mb="2">
-                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                    <TrendingUp className="text-green-500" />
-                    <Heading size="4">Income Categories</Heading>
-                    <Badge color="green" variant="soft">
-                      {incomeCategories.length}
-                    </Badge>
-                  </motion.div>
-                </Flex>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <AnimatePresence mode="popLayout">
-                    {incomeCategories.map((cat) => (
-                      <CategoryCard
-                        key={cat.id}
-                        category={cat}
-                        editClicked={() => {
-                          setEditData(cat);
-                          setIsEditDialogOpen(true);
-                        }}
-                      />
-                    ))}
-                  </AnimatePresence>
-                </div>
-                {incomeCategories.length === 0 && !loading && (
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.3 }}
-                  >
-                    <Text
-                      color="gray"
-                      size="2"
-                      align="center"
-                      className="block rounded-lg border-2 border-dashed py-7 -mt-4"
-                    >
-                      No income categories found
-                    </Text>
-                  </motion.div>
-                )}
+        <div
+          className={
+            filterType === "ALL" ? "grid grid-cols-1 lg:grid-cols-2 gap-6" : ""
+          }
+        >
+          {/* Income Column */}
+          {(filterType === "ALL" || filterType === "INCOME") && (
+            <div className="space-y-4">
+              <Flex asChild align="center" gap="2" mb="2">
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                  <TrendingUp className="text-green-500" />
+                  <Heading size="4">Income Categories</Heading>
+                  <Badge color="green" variant="soft">
+                    {incomeCategories.length}
+                  </Badge>
+                </motion.div>
+              </Flex>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <AnimatePresence mode="popLayout">
+                  {incomeCategories.map((cat) => (
+                    <CategoryCard
+                      key={cat.id}
+                      category={cat}
+                      editClicked={() => {
+                        setEditData(cat);
+                        setIsEditModalOpen(true);
+                      }}
+                    />
+                  ))}
+                </AnimatePresence>
               </div>
-            )}
+              {incomeCategories.length === 0 && !loading && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.3 }}
+                >
+                  <Text
+                    color="gray"
+                    size="2"
+                    align="center"
+                    className="block rounded-lg border-2 border-dashed py-7 -mt-4"
+                  >
+                    No income categories found
+                  </Text>
+                </motion.div>
+              )}
+            </div>
+          )}
 
-            {/* Expense Column */}
-            {(filterType === "ALL" || filterType === "EXPENSE") && (
-              <div className="space-y-4">
-                <Flex asChild align="center" gap="2" mb="2">
-                  <motion.div
-                    layout="position"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                  >
-                    <TrendingDown className="text-red-500" />
-                    <Heading size="4">Expense Categories</Heading>
-                    <Badge color="red" variant="soft">
-                      {expenseCategories.length}
-                    </Badge>
-                  </motion.div>
-                </Flex>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <AnimatePresence mode="popLayout">
-                    {expenseCategories.map((cat) => (
-                      <CategoryCard
-                        key={cat.id}
-                        category={cat}
-                        editClicked={() => {
-                          setEditData(cat);
-                          setIsEditDialogOpen(true);
-                        }}
-                      />
-                    ))}
-                  </AnimatePresence>
-                </div>
-                {expenseCategories.length === 0 && !loading && (
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.3 }}
-                  >
-                    <Text
-                      color="gray"
-                      size="2"
-                      align="center"
-                      className="block rounded-lg border-2 border-dashed py-7 -mt-4"
-                    >
-                      No expense categories found
-                    </Text>
-                  </motion.div>
-                )}
+          {/* Expense Column */}
+          {(filterType === "ALL" || filterType === "EXPENSE") && (
+            <div className="space-y-4">
+              <Flex asChild align="center" gap="2" mb="2">
+                <motion.div
+                  layout="position"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                >
+                  <TrendingDown className="text-red-500" />
+                  <Heading size="4">Expense Categories</Heading>
+                  <Badge color="red" variant="soft">
+                    {expenseCategories.length}
+                  </Badge>
+                </motion.div>
+              </Flex>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <AnimatePresence mode="popLayout">
+                  {expenseCategories.map((cat) => (
+                    <CategoryCard
+                      key={cat.id}
+                      category={cat}
+                      editClicked={() => {
+                        setEditData(cat);
+                        setIsEditModalOpen(true);
+                      }}
+                    />
+                  ))}
+                </AnimatePresence>
               </div>
-            )}
-          </div>
-        </>
+              {expenseCategories.length === 0 && !loading && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.3 }}
+                >
+                  <Text
+                    color="gray"
+                    size="2"
+                    align="center"
+                    className="block rounded-lg border-2 border-dashed py-7 -mt-4"
+                  >
+                    No expense categories found
+                  </Text>
+                </motion.div>
+              )}
+            </div>
+          )}
+        </div>
       ) : (
         <Flex align="center" justify="center" p="8">
           <Text color="gray">No categories found</Text>
         </Flex>
       )}
-    </div>
+    </>
   );
 }
 
