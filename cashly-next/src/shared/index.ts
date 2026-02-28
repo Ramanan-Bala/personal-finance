@@ -19,6 +19,7 @@ export * from "./components/ui/stats-card/index";
 export * from "./components/ui/tabs/tabs";
 export * from "./components/ui/theme-switcher/index";
 export * from "./constants";
+export * from "./hooks/use-keyboard-fix";
 export * from "./hooks/use-media-query";
 export * from "./providers/auth-provider";
 export * from "./providers/theme-provider";
