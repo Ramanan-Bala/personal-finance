@@ -1,4 +1,5 @@
 import { and, eq, sql } from 'drizzle-orm';
+import { stripTimestamps } from '../../common/utils';
 import { db } from '../../db';
 import { accounts, lendDebtPayments, lendDebts } from '../../db/schema';
 import {
@@ -13,23 +14,62 @@ export class LendDebtService {
     return type === 'LEND' ? -amount : amount;
   }
 
-  private getPaymentBalanceDelta(type: 'LEND' | 'DEBT', amount: number): number {
+  private getPaymentBalanceDelta(
+    type: 'LEND' | 'DEBT',
+    amount: number,
+  ): number {
     return type === 'LEND' ? amount : -amount;
   }
 
-  // Lend/Debt
+  private async adjustBalance(tx: any, accountId: string, delta: number) {
+    await tx
+      .update(accounts)
+      .set({ openingBalance: sql`${accounts.openingBalance} + ${delta}` })
+      .where(eq(accounts.id, accountId));
+  }
+
+  private async verifyUserAccount(tx: any, accountId: string, userId: string) {
+    const account = await tx.query.accounts.findFirst({
+      where: and(eq(accounts.id, accountId), eq(accounts.userId, userId)),
+    });
+    if (!account) throw new Error('Account not found');
+    return account;
+  }
+
+  private computeOutstanding(item: any): number {
+    const totalPaid = item.payments.reduce(
+      (sum: number, p: any) => sum + Number(p.amount),
+      0,
+    );
+    return Number(item.amount) - totalPaid;
+  }
+
+  private async updateStatus(tx: any, userId: string, lendDebtId: string) {
+    const item = await tx.query.lendDebts.findFirst({
+      where: and(eq(lendDebts.id, lendDebtId), eq(lendDebts.userId, userId)),
+      with: { payments: true },
+    });
+    if (!item) return;
+
+    const outstanding = this.computeOutstanding(item);
+    const newStatus = outstanding <= 0 ? 'SETTLED' : 'OPEN';
+
+    if (item.status !== newStatus) {
+      await tx
+        .update(lendDebts)
+        .set({ status: newStatus })
+        .where(eq(lendDebts.id, lendDebtId));
+    }
+  }
+
+  // --- Lend/Debt CRUD ---
+
   async createLendDebt(userId: string, input: CreateLendDebtInput) {
-    return db.transaction(async (tx) => {
-      const account = await tx.query.accounts.findFirst({
-        where: and(eq(accounts.id, input.accountId), eq(accounts.userId, userId)),
-      });
-      if (!account) throw new Error('Account not found');
+    return db.transaction(async tx => {
+      await this.verifyUserAccount(tx, input.accountId, userId);
 
       const delta = this.getBalanceDelta(input.type, input.amount);
-      await tx
-        .update(accounts)
-        .set({ openingBalance: sql`${accounts.openingBalance} + ${delta}` })
-        .where(eq(accounts.id, input.accountId));
+      await this.adjustBalance(tx, input.accountId, delta);
 
       const [item] = await tx
         .insert(lendDebts)
@@ -46,80 +86,42 @@ export class LendDebtService {
         })
         .returning();
 
-      if (!item) return null;
-      const { createdAt, updatedAt, ...rest } = item;
-      return rest;
+      return item ? stripTimestamps(item) : null;
     });
   }
 
   async getLendDebts(userId: string) {
     const items = await db.query.lendDebts.findMany({
       where: eq(lendDebts.userId, userId),
-      columns: {
-        createdAt: false,
-        updatedAt: false,
-      },
+      columns: { createdAt: false, updatedAt: false },
       with: {
-        payments: {
-          columns: {
-            createdAt: false,
-            updatedAt: false,
-          },
-        },
-        account: {
-          columns: {
-            createdAt: false,
-            updatedAt: false,
-          },
-        },
+        payments: { columns: { createdAt: false, updatedAt: false } },
+        account: { columns: { createdAt: false, updatedAt: false } },
       },
     });
 
-    return items.map((item) => {
-      const totalPaid = item.payments.reduce(
-        (sum, p) => sum + Number(p.amount),
-        0,
-      );
-      const outstanding = Number(item.amount) - totalPaid;
-      return { ...item, outstanding };
-    });
+    return items.map(item => ({
+      ...item,
+      outstanding: this.computeOutstanding(item),
+    }));
   }
 
   async getLendDebt(userId: string, id: string) {
     const item = await db.query.lendDebts.findFirst({
       where: and(eq(lendDebts.id, id), eq(lendDebts.userId, userId)),
-      columns: {
-        createdAt: false,
-        updatedAt: false,
-      },
+      columns: { createdAt: false, updatedAt: false },
       with: {
-        payments: {
-          columns: {
-            createdAt: false,
-            updatedAt: false,
-          },
-        },
-        account: {
-          columns: {
-            createdAt: false,
-            updatedAt: false,
-          },
-        },
+        payments: { columns: { createdAt: false, updatedAt: false } },
+        account: { columns: { createdAt: false, updatedAt: false } },
       },
     });
-
     if (!item) return null;
 
-    const totalPaid = item.payments.reduce(
-      (sum, p) => sum + Number(p.amount),
-      0,
-    );
-    const outstanding = Number(item.amount) - totalPaid;
-    return { ...item, outstanding };
+    return { ...item, outstanding: this.computeOutstanding(item) };
   }
 
   async updateLendDebt(userId: string, id: string, input: UpdateLendDebtInput) {
-    return db.transaction(async (tx) => {
+    return db.transaction(async tx => {
       const existing = await tx.query.lendDebts.findFirst({
         where: and(eq(lendDebts.id, id), eq(lendDebts.userId, userId)),
       });
@@ -130,10 +132,7 @@ export class LendDebtService {
       const newType = input.type ?? existing.type;
 
       if (input.accountId && input.accountId !== existing.accountId) {
-        const account = await tx.query.accounts.findFirst({
-          where: and(eq(accounts.id, input.accountId), eq(accounts.userId, userId)),
-        });
-        if (!account) throw new Error('Account not found');
+        await this.verifyUserAccount(tx, input.accountId, userId);
       }
 
       const hasBalanceChange =
@@ -142,26 +141,27 @@ export class LendDebtService {
         input.accountId !== undefined;
 
       if (hasBalanceChange) {
-        const oldDelta = this.getBalanceDelta(existing.type, Number(existing.amount));
-        await tx
-          .update(accounts)
-          .set({ openingBalance: sql`${accounts.openingBalance} - ${oldDelta}` })
-          .where(eq(accounts.id, existing.accountId));
+        const oldDelta = this.getBalanceDelta(
+          existing.type,
+          Number(existing.amount),
+        );
+        await this.adjustBalance(tx, existing.accountId, -oldDelta);
 
         const newDelta = this.getBalanceDelta(newType, newAmount);
-        await tx
-          .update(accounts)
-          .set({ openingBalance: sql`${accounts.openingBalance} + ${newDelta}` })
-          .where(eq(accounts.id, newAccountId));
+        await this.adjustBalance(tx, newAccountId, newDelta);
       }
 
       const updateData: any = { updatedAt: new Date() };
-      if (input.personName !== undefined) updateData.personName = input.personName;
-      if (input.phoneNumber !== undefined) updateData.phoneNumber = input.phoneNumber;
+      if (input.personName !== undefined)
+        updateData.personName = input.personName;
+      if (input.phoneNumber !== undefined)
+        updateData.phoneNumber = input.phoneNumber;
       if (input.notes !== undefined) updateData.notes = input.notes;
-      if (input.dueDate !== undefined) updateData.dueDate = new Date(input.dueDate);
+      if (input.dueDate !== undefined)
+        updateData.dueDate = new Date(input.dueDate);
       if (input.accountId !== undefined) updateData.accountId = input.accountId;
-      if (input.amount !== undefined) updateData.amount = input.amount.toString();
+      if (input.amount !== undefined)
+        updateData.amount = input.amount.toString();
       if (input.type !== undefined) updateData.type = input.type;
 
       const [item] = await tx
@@ -170,14 +170,12 @@ export class LendDebtService {
         .where(and(eq(lendDebts.id, id), eq(lendDebts.userId, userId)))
         .returning();
 
-      if (!item) return null;
-      const { createdAt, updatedAt, ...rest } = item;
-      return rest;
+      return item ? stripTimestamps(item) : null;
     });
   }
 
   async deleteLendDebt(userId: string, id: string) {
-    return db.transaction(async (tx) => {
+    return db.transaction(async tx => {
       const item = await tx.query.lendDebts.findFirst({
         where: and(eq(lendDebts.id, id), eq(lendDebts.userId, userId)),
         with: { payments: true },
@@ -189,29 +187,26 @@ export class LendDebtService {
           item.type,
           Number(payment.amount),
         );
-        await tx
-          .update(accounts)
-          .set({ openingBalance: sql`${accounts.openingBalance} - ${paymentDelta}` })
-          .where(eq(accounts.id, payment.accountId));
+        await this.adjustBalance(tx, payment.accountId, -paymentDelta);
       }
 
-      const lendDebtDelta = this.getBalanceDelta(item.type, Number(item.amount));
-      await tx
-        .update(accounts)
-        .set({ openingBalance: sql`${accounts.openingBalance} - ${lendDebtDelta}` })
-        .where(eq(accounts.id, item.accountId));
+      const lendDebtDelta = this.getBalanceDelta(
+        item.type,
+        Number(item.amount),
+      );
+      await this.adjustBalance(tx, item.accountId, -lendDebtDelta);
 
       await tx
         .delete(lendDebts)
         .where(and(eq(lendDebts.id, id), eq(lendDebts.userId, userId)));
-
       return true;
     });
   }
 
-  // Payments
+  // --- Payments ---
+
   async createPayment(userId: string, input: CreateLendDebtPaymentInput) {
-    return db.transaction(async (tx) => {
+    return db.transaction(async tx => {
       const item = await tx.query.lendDebts.findFirst({
         where: and(
           eq(lendDebts.id, input.lendDebtId),
@@ -220,16 +215,10 @@ export class LendDebtService {
       });
       if (!item) throw new Error('Lend/Debt not found');
 
-      const account = await tx.query.accounts.findFirst({
-        where: and(eq(accounts.id, input.accountId), eq(accounts.userId, userId)),
-      });
-      if (!account) throw new Error('Account not found');
+      await this.verifyUserAccount(tx, input.accountId, userId);
 
       const delta = this.getPaymentBalanceDelta(item.type, input.amount);
-      await tx
-        .update(accounts)
-        .set({ openingBalance: sql`${accounts.openingBalance} + ${delta}` })
-        .where(eq(accounts.id, input.accountId));
+      await this.adjustBalance(tx, input.accountId, delta);
 
       const [payment] = await tx
         .insert(lendDebtPayments)
@@ -243,11 +232,8 @@ export class LendDebtService {
         })
         .returning();
 
-      if (!payment) return null;
-      const { createdAt, updatedAt, ...rest } = payment;
-
       await this.updateStatus(tx, userId, input.lendDebtId);
-      return rest;
+      return payment ? stripTimestamps(payment) : null;
     });
   }
 
@@ -257,10 +243,7 @@ export class LendDebtService {
         eq(lendDebtPayments.id, paymentId),
         eq(lendDebtPayments.userId, userId),
       ),
-      columns: {
-        createdAt: false,
-        updatedAt: false,
-      },
+      columns: { createdAt: false, updatedAt: false },
     });
   }
 
@@ -269,7 +252,7 @@ export class LendDebtService {
     paymentId: string,
     input: UpdateLendDebtPaymentInput,
   ) {
-    return db.transaction(async (tx) => {
+    return db.transaction(async tx => {
       const payment = await tx.query.lendDebtPayments.findFirst({
         where: and(
           eq(lendDebtPayments.id, paymentId),
@@ -285,7 +268,6 @@ export class LendDebtService {
 
       const newAccountId = input.accountId ?? payment.accountId;
       const newAmount = input.amount ?? Number(payment.amount);
-
       const hasBalanceChange =
         input.amount !== undefined || input.accountId !== undefined;
 
@@ -294,28 +276,21 @@ export class LendDebtService {
           lendDebt.type,
           Number(payment.amount),
         );
-        await tx
-          .update(accounts)
-          .set({ openingBalance: sql`${accounts.openingBalance} - ${oldDelta}` })
-          .where(eq(accounts.id, payment.accountId));
+        await this.adjustBalance(tx, payment.accountId, -oldDelta);
 
         if (input.accountId && input.accountId !== payment.accountId) {
-          const account = await tx.query.accounts.findFirst({
-            where: and(eq(accounts.id, input.accountId), eq(accounts.userId, userId)),
-          });
-          if (!account) throw new Error('Account not found');
+          await this.verifyUserAccount(tx, input.accountId, userId);
         }
 
         const newDelta = this.getPaymentBalanceDelta(lendDebt.type, newAmount);
-        await tx
-          .update(accounts)
-          .set({ openingBalance: sql`${accounts.openingBalance} + ${newDelta}` })
-          .where(eq(accounts.id, newAccountId));
+        await this.adjustBalance(tx, newAccountId, newDelta);
       }
 
       const updateData: any = { updatedAt: new Date() };
-      if (input.amount !== undefined) updateData.amount = input.amount.toString();
-      if (input.paymentDate !== undefined) updateData.paymentDate = new Date(input.paymentDate);
+      if (input.amount !== undefined)
+        updateData.amount = input.amount.toString();
+      if (input.paymentDate !== undefined)
+        updateData.paymentDate = new Date(input.paymentDate);
       if (input.notes !== undefined) updateData.notes = input.notes;
       if (input.accountId !== undefined) updateData.accountId = input.accountId;
 
@@ -331,15 +306,12 @@ export class LendDebtService {
         .returning();
 
       await this.updateStatus(tx, userId, payment.lendDebtId);
-
-      if (!updatedPayment) return null;
-      const { createdAt, updatedAt, ...rest } = updatedPayment;
-      return rest;
+      return updatedPayment ? stripTimestamps(updatedPayment) : null;
     });
   }
 
   async deletePayment(userId: string, paymentId: string) {
-    return db.transaction(async (tx) => {
+    return db.transaction(async tx => {
       const payment = await tx.query.lendDebtPayments.findFirst({
         where: and(
           eq(lendDebtPayments.id, paymentId),
@@ -357,10 +329,7 @@ export class LendDebtService {
         lendDebt.type,
         Number(payment.amount),
       );
-      await tx
-        .update(accounts)
-        .set({ openingBalance: sql`${accounts.openingBalance} - ${delta}` })
-        .where(eq(accounts.id, payment.accountId));
+      await this.adjustBalance(tx, payment.accountId, -delta);
 
       await tx
         .delete(lendDebtPayments)
@@ -374,28 +343,6 @@ export class LendDebtService {
       await this.updateStatus(tx, userId, payment.lendDebtId);
       return true;
     });
-  }
-
-  private async updateStatus(tx: any, userId: string, lendDebtId: string) {
-    const item = await tx.query.lendDebts.findFirst({
-      where: and(eq(lendDebts.id, lendDebtId), eq(lendDebts.userId, userId)),
-      with: { payments: true },
-    });
-    if (!item) return;
-
-    const totalPaid = item.payments.reduce(
-      (sum: number, p: any) => sum + Number(p.amount),
-      0,
-    );
-    const outstanding = Number(item.amount) - totalPaid;
-    const newStatus = outstanding <= 0 ? 'SETTLED' : 'OPEN';
-
-    if (item.status !== newStatus) {
-      await tx
-        .update(lendDebts)
-        .set({ status: newStatus })
-        .where(eq(lendDebts.id, lendDebtId));
-    }
   }
 }
 
