@@ -216,7 +216,7 @@ function MobileBottomNav({
   );
 
   return (
-    <div className="md:hidden fixed bottom-0 left-0 right-0 z-50">
+    <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 h-14">
       <nav className="bg-card border-t border-border rounded-t-2xl shadow-[0_-2px_10px_rgba(0,0,0,0.08)] px-2 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] flex items-center justify-around">
         {primaryNavItems.map((item) => {
           const Icon = item.icon;

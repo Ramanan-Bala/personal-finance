@@ -123,7 +123,7 @@ export default function AccountsPage() {
         onClick={() => setIsAddModalOpen(true)}
         className="sm:hidden w-10 h-10 rounded-full fixed z-50 right-[max(env(safe-area-inset-right),2rem)]"
         style={{
-          bottom: "max(calc(env(safe-area-inset-bottom) + 3rem), 5rem)",
+          bottom: "max(calc(env(safe-area-inset-bottom) + 4rem), 5rem)",
         }}
       >
         <Plus size={18} />
