@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  PageHeader,
-  ResponsiveModal,
-  ThemeSwitcher,
-  useAuth,
-  useFormatter,
-} from "@/shared";
+import { PageHeader, ResponsiveModal, ThemeSwitcher, useAuth } from "@/shared";
 import {
   Avatar,
   Badge,
@@ -26,6 +20,7 @@ import {
   ChevronRight,
   Globe,
   Info,
+  LucideIcon,
   Mail,
   Palette,
   Phone,
@@ -34,14 +29,24 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import RecurringTransactionsSection from "./components/recurring-transactions-section";
 
 interface SettingRowProps {
-  icon: any;
+  icon: LucideIcon;
   label: string;
   description?: string;
   action?: React.ReactNode;
   onClick?: () => void;
 }
+
+const DATE_FORMAT_PRESETS = [
+  "MM/dd/yyyy",
+  "dd/MM/yyyy",
+  "yyyy-MM-dd",
+  "MMMM dd, yyyy",
+  "MMM dd, yyyy",
+  "EEEE, MMMM dd, yyyy",
+];
 
 const SettingRow = ({
   icon: Icon,
@@ -99,22 +104,12 @@ const FONTS = [
 ] as const;
 
 export default function SettingsPage() {
-  const { user, logout, updateProfile } = useAuth();
+  const { user, updateProfile } = useAuth();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
-  const { formatCurrency } = useFormatter();
-
-  const presets = [
-    "MM/dd/yyyy",
-    "dd/MM/yyyy",
-    "yyyy-MM-dd",
-    "MMMM dd, yyyy",
-    "MMM dd, yyyy",
-    "EEEE, MMMM dd, yyyy",
-  ];
 
   const currentDateFormat = user?.dateFormat || "MM/dd/yyyy";
-  const isCustom = !presets.includes(currentDateFormat);
+  const isCustom = !DATE_FORMAT_PRESETS.includes(currentDateFormat);
 
   const [dateSelection, setDateSelection] = useState(
     isCustom ? "custom" : currentDateFormat,
@@ -125,7 +120,7 @@ export default function SettingsPage() {
 
   useEffect(() => {
     if (user?.dateFormat) {
-      const isCustomNow = !presets.includes(user.dateFormat);
+      const isCustomNow = !DATE_FORMAT_PRESETS.includes(user.dateFormat);
       setDateSelection(isCustomNow ? "custom" : user.dateFormat);
       if (isCustomNow) setCustomFormat(user.dateFormat);
     }
@@ -154,7 +149,7 @@ export default function SettingsPage() {
   const handleToggle2FA = async (enabled: boolean) => {
     try {
       await updateProfile({ is2faEnabled: enabled });
-    } catch (err) {
+    } catch {
       // Revert UI if failed (Auth Provider handles toast)
     }
   };
@@ -380,7 +375,7 @@ export default function SettingsPage() {
                       <Select.Content position="popper" align="end">
                         <Select.Group>
                           <Select.Label>Presets</Select.Label>
-                          {presets.map((p) => (
+                          {DATE_FORMAT_PRESETS.map((p) => (
                             <Select.Item key={p} value={p}>
                               {p}
                             </Select.Item>
@@ -457,6 +452,8 @@ export default function SettingsPage() {
             </Flex>
           </Card>
         </div>
+        {/* Recurring Transactions Section */}
+        <RecurringTransactionsSection />
       </Flex>
 
       {/* Sign Out Footer */}

@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  DeleteConfirmDialog,
-  LendDebt,
-  LendDebtStatus,
-  LendDebtType,
-  useFormatter,
-} from "@/shared";
+import { LendDebt, LendDebtStatus, useFormatter } from "@/shared";
 import {
   Badge,
   Button,
@@ -15,7 +9,6 @@ import {
   Text,
   Tooltip,
 } from "@radix-ui/themes";
-import { motion } from "motion/react";
 import {
   Check,
   CreditCard,
@@ -25,6 +18,7 @@ import {
   Trash2,
   User,
 } from "lucide-react";
+import { motion } from "motion/react";
 
 interface LendDebtItemProps {
   item: LendDebt;
@@ -39,15 +33,31 @@ interface LendDebtItemProps {
 
 function getStatusBadge(item: LendDebt) {
   if (item.status === LendDebtStatus.SETTLED) {
-    return <Badge color="green" variant="soft" size="1">Settled</Badge>;
+    return (
+      <Badge color="green" variant="soft" size="1">
+        Settled
+      </Badge>
+    );
   }
   if (item.dueDate && new Date(item.dueDate) < new Date()) {
-    return <Badge color="red" variant="soft" size="1">Overdue</Badge>;
+    return (
+      <Badge color="red" variant="soft" size="1">
+        Overdue
+      </Badge>
+    );
   }
   if (item.payments && item.payments.length > 0) {
-    return <Badge color="blue" variant="soft" size="1">Partial</Badge>;
+    return (
+      <Badge color="blue" variant="soft" size="1">
+        Partial
+      </Badge>
+    );
   }
-  return <Badge color="orange" variant="soft" size="1">Pending</Badge>;
+  return (
+    <Badge color="orange" variant="soft" size="1">
+      Pending
+    </Badge>
+  );
 }
 
 export function LendDebtItem({
@@ -106,13 +116,17 @@ export function LendDebtItem({
             <Flex align="center" gap="2" className="mt-0.5">
               <span className="hidden sm:contents">
                 {item.notes && (
-                  <Text size="1" color="gray" truncate>{item.notes}</Text>
+                  <Text size="1" color="gray" truncate>
+                    {item.notes}
+                  </Text>
                 )}
-                {item.notes && item.dueDate && (
-                  <Text size="1" color="gray" className="shrink-0">&middot;</Text>
+                {item.notes && item.dueDate && !isSettled && (
+                  <Text size="1" color="gray" className="shrink-0">
+                    &middot;
+                  </Text>
                 )}
               </span>
-              {item.dueDate && (
+              {item.dueDate && !isSettled && (
                 <Text
                   size="1"
                   color={new Date(item.dueDate) < new Date() ? "red" : "gray"}

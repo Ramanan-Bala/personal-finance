@@ -1,4 +1,5 @@
 import { icons, Tag } from "lucide-react";
+import { RecurringFrequency } from "../types/transactions";
 
 export const ICON_MAP = new Proxy(
   {},
@@ -15,6 +16,14 @@ export const ICON_MAP = new Proxy(
   string,
   React.ComponentType<{ size?: number | string; className?: string }>
 >;
+
+export const FREQUENCY_LABELS: Record<string, string> = {
+  [RecurringFrequency.DAILY]: "Daily",
+  [RecurringFrequency.WEEKLY]: "Weekly",
+  [RecurringFrequency.MONTHLY_START]: "Start of Month",
+  [RecurringFrequency.MONTHLY_END]: "End of Month",
+  [RecurringFrequency.YEARLY]: "Yearly",
+};
 
 export const CARD_COLOR_MAP = {
   gray: {

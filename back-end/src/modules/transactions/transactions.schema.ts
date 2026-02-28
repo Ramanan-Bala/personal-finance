@@ -11,6 +11,11 @@ export const createTransactionSchema = z
     transactionDate: z.string('Date is required').datetime(),
     notes: z.string().optional(),
     transferToAccountId: z.string().optional(),
+    isRecurring: z.boolean().optional(),
+    recurringFrequency: z
+      .enum(['DAILY', 'WEEKLY', 'MONTHLY_START', 'MONTHLY_END', 'YEARLY'])
+      .optional(),
+    recurringEndDate: z.string().datetime().nullable().optional(),
   })
   .superRefine((data, ctx) => {
     // TRANSFER → transferToAccountId required
@@ -18,6 +23,14 @@ export const createTransactionSchema = z
       ctx.addIssue({
         path: ['transferToAccountId'],
         message: 'Transfer account is required for TRANSFER type',
+        code: z.ZodIssueCode.custom,
+      });
+    }
+    // Recurring → frequency required
+    if (data.isRecurring && !data.recurringFrequency) {
+      ctx.addIssue({
+        path: ['recurringFrequency'],
+        message: 'Frequency is required for recurring transactions',
         code: z.ZodIssueCode.custom,
       });
     }

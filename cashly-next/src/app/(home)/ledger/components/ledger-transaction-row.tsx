@@ -8,7 +8,7 @@ import {
   useFormatter,
   viewPortComplete,
 } from "@/shared";
-import { Button, DropdownMenu, Flex, Text } from "@radix-ui/themes";
+import { Badge, Button, DropdownMenu, Flex, Text } from "@radix-ui/themes";
 import { format } from "date-fns";
 import {
   ArrowLeftRight,
@@ -16,6 +16,7 @@ import {
   ArrowUpRight,
   MoreVertical,
   Pencil,
+  Repeat,
   Trash2,
 } from "lucide-react";
 import { motion } from "motion/react";
@@ -39,6 +40,7 @@ export function LedgerTransactionRow({
 }: LedgerTransactionRowProps) {
   const { formatCurrency } = useFormatter();
   const isTransfer = transaction.type === TransactionType.TRANSFER;
+  const isRecurring = !!transaction.recurringTransactionId;
   const style = TYPE_STYLES[transaction.type];
   const amountColor =
     transaction.type === TransactionType.INCOME
@@ -79,9 +81,17 @@ export function LedgerTransactionRow({
           )}
         </div>
         <div>
-          <Text weight="medium" as="div">
-            {transaction.notes || "No description"}
-          </Text>
+          <Flex align="center" gap="2">
+            <Text weight="medium" as="div">
+              {transaction.notes || "No description"}
+            </Text>
+            {isRecurring && (
+              <Badge size="1" variant="soft" color="iris">
+                <Repeat size={10} />
+                Recurring
+              </Badge>
+            )}
+          </Flex>
           {!isTransfer ? (
             <Flex align="center" gap="2">
               <Text size="1" color="gray">

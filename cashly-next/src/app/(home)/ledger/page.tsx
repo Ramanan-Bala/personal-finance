@@ -40,13 +40,14 @@ import {
   ArrowLeftRight,
   ArrowUpRight,
   Calendar,
+  LoaderCircleIcon,
   Plus,
   Search,
   TrendingDown,
   TrendingUp,
 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { LedgerTransactionRow } from "./components/ledger-transaction-row";
 import { MonthNavigator } from "./components/month-navigator";
@@ -136,7 +137,23 @@ export default function LedgerPage() {
     fetchReferenceData();
   }, []);
 
-  const fetchTransactions = async () => {
+  const [materializing, setMaterializing] = useState(false);
+
+  const materializeRecurring = useCallback(async () => {
+    try {
+      setMaterializing(true);
+      await api.post("/recurring-transactions/materialize", {
+        from: dateRange.from.toISOString(),
+        to: dateRange.to.toISOString(),
+      });
+    } catch {
+      // Materialization errors are non-blocking; transactions still load
+    } finally {
+      setMaterializing(false);
+    }
+  }, [dateRange]);
+
+  const fetchTransactions = useCallback(async () => {
     try {
       const response = await api.get<Transaction[]>("/transactions", {
         params: {
@@ -172,12 +189,16 @@ export default function LedgerPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [dateRange, formatDate]);
 
   useEffect(() => {
-    setLoading(true);
-    fetchTransactions();
-  }, [dateRange]);
+    const loadMonth = async () => {
+      setLoading(true);
+      await materializeRecurring();
+      await fetchTransactions();
+    };
+    loadMonth();
+  }, [fetchTransactions, materializeRecurring]);
 
   const createTransaction = async (data: TransactionFormOutput) => {
     try {
@@ -335,7 +356,14 @@ export default function LedgerPage() {
 
       <FloatingAddButton onClick={() => setIsAddModalOpen(true)} />
 
-      {loading ? (
+      {materializing ? (
+        <Flex direction="column" align="center" justify="center" gap="3" py="9">
+          <LoaderCircleIcon size={28} className="animate-spin text-primary" />
+          <Text size="3" weight="medium" color="gray">
+            Creating recurring transactions, please wait...
+          </Text>
+        </Flex>
+      ) : loading ? (
         <ListSkeleton count={3} height="h-12" />
       ) : Object.entries(filteredTransactions).length === 0 ? (
         <EmptyState

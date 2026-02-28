@@ -1,5 +1,13 @@
 import { z } from "zod";
 
+export const recurringFrequencyValues = [
+  "DAILY",
+  "WEEKLY",
+  "MONTHLY_START",
+  "MONTHLY_END",
+  "YEARLY",
+] as const;
+
 export const createTransactionSchema = z
   .object({
     id: z.string().optional(),
@@ -18,6 +26,11 @@ export const createTransactionSchema = z
     }), // Expect ISO string
     notes: z.string().optional(),
     transferToAccountId: z.string().optional(),
+    isRecurring: z.boolean().optional(),
+    recurringFrequency: z
+      .enum(recurringFrequencyValues)
+      .optional(),
+    recurringEndDate: z.iso.datetime().nullable().optional(),
   })
   .refine(
     (data) => {
@@ -29,6 +42,18 @@ export const createTransactionSchema = z
     {
       message: "Transfer account is required for TRANSFER type",
       path: ["transferToAccountId"],
+    },
+  )
+  .refine(
+    (data) => {
+      if (data.isRecurring && !data.recurringFrequency) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: "Frequency is required for recurring transactions",
+      path: ["recurringFrequency"],
     },
   );
 

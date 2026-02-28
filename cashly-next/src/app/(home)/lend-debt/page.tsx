@@ -24,8 +24,8 @@ import {
   useFormatter,
 } from "@/shared";
 import { Button, Card, Flex, Grid, Text } from "@radix-ui/themes";
-import { motion } from "motion/react";
 import { ArrowDownLeft, ArrowUpRight, Plus } from "lucide-react";
+import { motion } from "motion/react";
 import { useEffect, useState } from "react";
 
 import { LendDebtItem } from "./components/lend-debt-item";
@@ -45,7 +45,13 @@ const LendDebtPage = () => {
   const [paymentTarget, setPaymentTarget] = useState<LendDebt | null>(null);
   const [historyTarget, setHistoryTarget] = useState<LendDebt | null>(null);
 
-  const { deleteTarget, requestDelete, confirmDelete, cancelDelete, isDeleteOpen } = useDeleteConfirm();
+  const {
+    deleteTarget,
+    requestDelete,
+    confirmDelete,
+    cancelDelete,
+    isDeleteOpen,
+  } = useDeleteConfirm();
   const { formatCurrency } = useFormatter();
 
   const fetchData = async () => {
@@ -76,7 +82,9 @@ const LendDebtPage = () => {
     }
   };
 
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   const getAccountName = (accountId: string) =>
     accounts.find((a) => a.id === accountId)?.name || "Unknown";
@@ -98,7 +106,9 @@ const LendDebtPage = () => {
   const handleUpdate = async (data: CreateLendDebtSchema) => {
     try {
       setLoading(true);
-      await api.patch(`/lend-debt/${data.id}`, data, { showSuccessToast: true });
+      await api.patch(`/lend-debt/${data.id}`, data, {
+        showSuccessToast: true,
+      });
       setIsEditModalOpen(false);
       fetchData();
     } catch (err) {
@@ -161,7 +171,9 @@ const LendDebtPage = () => {
   const handleDeletePayment = async (paymentId: string) => {
     try {
       setLoading(true);
-      await api.delete(`/lend-debt/payments/${paymentId}`, { showSuccessToast: true });
+      await api.delete(`/lend-debt/payments/${paymentId}`, {
+        showSuccessToast: true,
+      });
       fetchData();
     } catch (err) {
       console.error("Error deleting payment:", err);
@@ -179,7 +191,9 @@ const LendDebtPage = () => {
     <div className="flex flex-col">
       <DeleteConfirmDialog
         open={isDeleteOpen}
-        onOpenChange={(open) => { if (!open) cancelDelete(); }}
+        onOpenChange={(open) => {
+          if (!open) cancelDelete();
+        }}
         onConfirm={confirmDelete}
         title="Delete Entry"
         description={
@@ -189,15 +203,36 @@ const LendDebtPage = () => {
         }
       />
 
-      <ResponsiveModal open={isEditModalOpen} onOpenChange={setIsEditModalOpen} title="Edit Entry" description="Edit the lend/debt entry details below.">
-        <LendDebtForm onSubmit={handleUpdate} defaultValues={editData as never} accounts={accounts} isLoading={loading} />
+      <ResponsiveModal
+        open={isEditModalOpen}
+        onOpenChange={setIsEditModalOpen}
+        title="Edit Entry"
+        description="Edit the lend/debt entry details below."
+      >
+        <LendDebtForm
+          onSubmit={handleUpdate}
+          defaultValues={editData as never}
+          accounts={accounts}
+          isLoading={loading}
+        />
       </ResponsiveModal>
 
       <ResponsiveModal
         open={isPaymentModalOpen}
-        onOpenChange={(open) => { setIsPaymentModalOpen(open); if (!open) setPaymentTarget(null); }}
-        title={paymentTarget?.type === LendDebtType.LEND ? "Record Received Payment" : "Record Payment Made"}
-        description={paymentTarget ? `${paymentTarget.type === LendDebtType.LEND ? `Receiving from ${paymentTarget.personName}` : `Paying to ${paymentTarget.personName}`} -- Outstanding: ${formatCurrency(paymentTarget.outstanding || 0)}` : undefined}
+        onOpenChange={(open) => {
+          setIsPaymentModalOpen(open);
+          if (!open) setPaymentTarget(null);
+        }}
+        title={
+          paymentTarget?.type === LendDebtType.LEND
+            ? "Record Received Payment"
+            : "Record Payment Made"
+        }
+        description={
+          paymentTarget
+            ? `${paymentTarget.type === LendDebtType.LEND ? `Receiving from ${paymentTarget.personName}` : `Paying to ${paymentTarget.personName}`} -- Outstanding: ${formatCurrency(paymentTarget.outstanding || 0)}`
+            : undefined
+        }
       >
         {paymentTarget && (
           <LendDebtPaymentForm
@@ -217,24 +252,62 @@ const LendDebtPage = () => {
         onDeletePayment={handleDeletePayment}
         onRecordNewPayment={(target) => {
           setHistoryTarget(null);
-          setTimeout(() => { setPaymentTarget(target); setIsPaymentModalOpen(true); }, 150);
+          setTimeout(() => {
+            setPaymentTarget(target);
+            setIsPaymentModalOpen(true);
+          }, 150);
         }}
         getAccountName={getAccountName}
       />
 
-      <ResponsiveModal open={isAddModalOpen} onOpenChange={setIsAddModalOpen} title="Create New Entry" description="Add a new lend or debt entry to track your finances.">
-        <LendDebtForm onSubmit={handleCreate} accounts={accounts} isLoading={loading} />
+      <ResponsiveModal
+        open={isAddModalOpen}
+        onOpenChange={setIsAddModalOpen}
+        title="Create New Entry"
+        description="Add a new lend or debt entry to track your finances."
+      >
+        <LendDebtForm
+          onSubmit={handleCreate}
+          accounts={accounts}
+          isLoading={loading}
+        />
       </ResponsiveModal>
 
-      <PageHeader title="Lend & Debt" description="Track money you've lent or borrowed" />
+      <PageHeader
+        title="Lend & Debt"
+        description="Track money you've lent or borrowed"
+      />
       <FloatingAddButton onClick={() => setIsAddModalOpen(true)} />
 
-      <Grid columns={{ initial: "1", md: "2" }} gap="4" mb="6" display={{ initial: "none", sm: "grid" }}>
-        <StatsCard label="To Receive" value={formatCurrency(totalLent)} icon={<ArrowUpRight size={20} />} color="green"
-          description={<Text size="1" color="gray">{lentData.filter((i) => i.status !== "SETTLED").length} open entries</Text>}
+      <Grid
+        columns={{ initial: "1", md: "2" }}
+        gap="4"
+        mb="6"
+        display={{ initial: "none", sm: "grid" }}
+      >
+        <StatsCard
+          label="To Receive"
+          value={formatCurrency(totalLent)}
+          icon={<ArrowUpRight size={20} />}
+          color="green"
+          description={
+            <Text size="1" color="gray">
+              {lentData.filter((i) => i.status !== "SETTLED").length} open
+              entries
+            </Text>
+          }
         />
-        <StatsCard label="To Pay" value={formatCurrency(totalOwed)} icon={<ArrowDownLeft size={20} />} color="red"
-          description={<Text size="1" color="gray">{borrowedData.filter((i) => i.status !== "SETTLED").length} open entries</Text>}
+        <StatsCard
+          label="To Pay"
+          value={formatCurrency(totalOwed)}
+          icon={<ArrowDownLeft size={20} />}
+          color="red"
+          description={
+            <Text size="1" color="gray">
+              {borrowedData.filter((i) => i.status !== "SETTLED").length} open
+              entries
+            </Text>
+          }
         />
       </Grid>
 
@@ -242,47 +315,108 @@ const LendDebtPage = () => {
         <Flex justify="between" align="center" mb="4">
           <Flex gap="4" align={{ sm: "center" }} className="w-full">
             <TabsList className="w-full sm:w-max">
-              <TabsTrigger value="lent" className="bg-primary"><ArrowUpRight className="w-4 h-4" /> Money Lent</TabsTrigger>
-              <TabsTrigger value="borrowed" className="bg-red-400"><ArrowDownLeft className="w-4 h-4" /> Money Borrowed</TabsTrigger>
+              <TabsTrigger value="lent" className="bg-primary">
+                <ArrowUpRight className="w-4 h-4" /> Money Lent
+              </TabsTrigger>
+              <TabsTrigger value="borrowed" className="bg-red-400">
+                <ArrowDownLeft className="w-4 h-4" /> Money Borrowed
+              </TabsTrigger>
             </TabsList>
           </Flex>
-          <Button onClick={() => setIsAddModalOpen(true)} className="hidden sm:flex" size="3"><Plus size={18} /> Add Entry</Button>
+          <Button
+            onClick={() => setIsAddModalOpen(true)}
+            className="hidden sm:flex"
+            size="3"
+          >
+            <Plus size={18} /> Add Entry
+          </Button>
         </Flex>
 
         {loading ? (
           <ListSkeleton count={3} />
         ) : lendDebts.length > 0 ? (
-          <Card asChild className="divide-y divide-border p-0 overflow-hidden" variant="classic">
-            <motion.div key={activeTab} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
+          <Card
+            asChild
+            className="divide-y divide-border p-0 overflow-hidden"
+            variant="classic"
+          >
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+            >
               {activeTab === "lent" ? (
                 <TabsContent value="lent" forceMount>
-                  {lentData.length > 0 ? lentData.map((item) => (
-                    <LendDebtItem key={item.id} item={item} color="green" getAccountName={getAccountName}
-                      onEdit={(i) => { setEditData(i); setIsEditModalOpen(true); }}
-                      onDelete={(id, label) => requestDelete(id, label, () => handleDelete(id))}
-                      onRecordPayment={(i) => { setPaymentTarget(i); setIsPaymentModalOpen(true); }}
-                      onMarkSettled={handleMarkSettled}
-                      onViewHistory={setHistoryTarget}
+                  {lentData.length > 0 ? (
+                    lentData.map((item) => (
+                      <LendDebtItem
+                        key={item.id}
+                        item={item}
+                        color="green"
+                        getAccountName={getAccountName}
+                        onEdit={(i) => {
+                          setEditData(i);
+                          setIsEditModalOpen(true);
+                        }}
+                        onDelete={(id, label) =>
+                          requestDelete(id, label, () => handleDelete(id))
+                        }
+                        onRecordPayment={(i) => {
+                          setPaymentTarget(i);
+                          setIsPaymentModalOpen(true);
+                        }}
+                        onMarkSettled={handleMarkSettled}
+                        onViewHistory={setHistoryTarget}
+                      />
+                    ))
+                  ) : (
+                    <EmptyState
+                      title="No money lent"
+                      description="You haven't lent any money yet."
                     />
-                  )) : <EmptyState title="No money lent" description="You haven't lent any money yet." />}
+                  )}
                 </TabsContent>
               ) : (
                 <TabsContent value="borrowed" forceMount>
-                  {borrowedData.length > 0 ? borrowedData.map((item) => (
-                    <LendDebtItem key={item.id} item={item} color="red" getAccountName={getAccountName}
-                      onEdit={(i) => { setEditData(i); setIsEditModalOpen(true); }}
-                      onDelete={(id, label) => requestDelete(id, label, () => handleDelete(id))}
-                      onRecordPayment={(i) => { setPaymentTarget(i); setIsPaymentModalOpen(true); }}
-                      onMarkSettled={handleMarkSettled}
-                      onViewHistory={setHistoryTarget}
+                  {borrowedData.length > 0 ? (
+                    borrowedData.map((item) => (
+                      <LendDebtItem
+                        key={item.id}
+                        item={item}
+                        color="red"
+                        getAccountName={getAccountName}
+                        onEdit={(i) => {
+                          setEditData(i);
+                          setIsEditModalOpen(true);
+                        }}
+                        onDelete={(id, label) =>
+                          requestDelete(id, label, () => handleDelete(id))
+                        }
+                        onRecordPayment={(i) => {
+                          setPaymentTarget(i);
+                          setIsPaymentModalOpen(true);
+                        }}
+                        onMarkSettled={handleMarkSettled}
+                        onViewHistory={setHistoryTarget}
+                      />
+                    ))
+                  ) : (
+                    <EmptyState
+                      title="No money borrowed"
+                      description="You haven't borrowed any money yet."
                     />
-                  )) : <EmptyState title="No money borrowed" description="You haven't borrowed any money yet." />}
+                  )}
                 </TabsContent>
               )}
             </motion.div>
           </Card>
         ) : (
-          <EmptyState title="No entries found" description="You haven't added any lend or debt entries yet." />
+          <EmptyState
+            title="No entries found"
+            description="You haven't added any lend or debt entries yet."
+          />
         )}
       </Tabs>
     </div>

@@ -6,6 +6,7 @@ import {
   pgTable,
   text,
   timestamp,
+  uniqueIndex,
 } from 'drizzle-orm/pg-core';
 
 // Enums
@@ -17,6 +18,18 @@ export const transactionTypeEnum = pgEnum('TransactionType', [
 ]);
 export const lendDebtTypeEnum = pgEnum('LendDebtType', ['LEND', 'DEBT']);
 export const lendDebtStatusEnum = pgEnum('LendDebtStatus', ['OPEN', 'SETTLED']);
+export const recurrenceFrequencyEnum = pgEnum('RecurrenceFrequency', [
+  'DAILY',
+  'WEEKLY',
+  'MONTHLY_START',
+  'MONTHLY_END',
+  'YEARLY',
+]);
+export const recurringStatusEnum = pgEnum('RecurringStatus', [
+  'ACTIVE',
+  'PAUSED',
+  'STOPPED',
+]);
 // back-end/src/db/schema.ts
 export type User = typeof users.$inferSelect;
 // Users
@@ -44,6 +57,7 @@ export const usersRelations = relations(users, ({ many }) => ({
   accounts: many(accounts),
   categories: many(categories),
   transactions: many(transactions),
+  recurringTransactions: many(recurringTransactions),
   lendDebts: many(lendDebts),
   lendDebtPayments: many(lendDebtPayments),
 }));
@@ -155,6 +169,59 @@ export const categoriesRelations = relations(categories, ({ one, many }) => ({
   transactions: many(transactions),
 }));
 
+// Recurring Transactions
+export const recurringTransactions = pgTable('recurring_transactions', {
+  id: text('id')
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  userId: text('userId')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  accountId: text('accountId')
+    .notNull()
+    .references(() => accounts.id, { onDelete: 'cascade' }),
+  categoryId: text('categoryId').references(() => categories.id, {
+    onDelete: 'set null',
+  }),
+  transferToAccountId: text('transferToAccountId').references(
+    () => accounts.id,
+    { onDelete: 'set null' },
+  ),
+  type: transactionTypeEnum('type').notNull(),
+  amount: decimal('amount', { precision: 12, scale: 2 }).notNull(),
+  notes: text('notes'),
+  frequency: recurrenceFrequencyEnum('frequency').notNull(),
+  startDate: timestamp('startDate').notNull(),
+  endDate: timestamp('endDate'),
+  nextOccurrence: timestamp('nextOccurrence').notNull(),
+  status: recurringStatusEnum('status').default('ACTIVE').notNull(),
+  createdAt: timestamp('createdAt').defaultNow().notNull(),
+  updatedAt: timestamp('updatedAt').defaultNow().notNull(),
+});
+
+export const recurringTransactionsRelations = relations(
+  recurringTransactions,
+  ({ one, many }) => ({
+    user: one(users, {
+      fields: [recurringTransactions.userId],
+      references: [users.id],
+    }),
+    account: one(accounts, {
+      fields: [recurringTransactions.accountId],
+      references: [accounts.id],
+    }),
+    category: one(categories, {
+      fields: [recurringTransactions.categoryId],
+      references: [categories.id],
+    }),
+    transferAccount: one(accounts, {
+      fields: [recurringTransactions.transferToAccountId],
+      references: [accounts.id],
+    }),
+    transactions: many(transactions),
+  }),
+);
+
 // Transactions
 export const transactions = pgTable('transactions', {
   id: text('id')
@@ -177,10 +244,20 @@ export const transactions = pgTable('transactions', {
     () => accounts.id,
     { onDelete: 'set null' },
   ),
+  recurringTransactionId: text('recurringTransactionId').references(
+    () => recurringTransactions.id,
+    { onDelete: 'set null' },
+  ),
+  occurrenceDate: timestamp('occurrenceDate'),
   isOverridden: boolean('isOverridden').default(false).notNull(),
   createdAt: timestamp('createdAt').defaultNow().notNull(),
   updatedAt: timestamp('updatedAt').defaultNow().notNull(),
-});
+}, (t) => [
+  uniqueIndex('uq_recurring_occurrence').on(
+    t.recurringTransactionId,
+    t.occurrenceDate,
+  ),
+]);
 
 export const transactionsRelations = relations(transactions, ({ one }) => ({
   user: one(users, {
@@ -198,6 +275,10 @@ export const transactionsRelations = relations(transactions, ({ one }) => ({
   transferAccount: one(accounts, {
     fields: [transactions.transferToAccountId],
     references: [accounts.id],
+  }),
+  recurringTransaction: one(recurringTransactions, {
+    fields: [transactions.recurringTransactionId],
+    references: [recurringTransactions.id],
   }),
 }));
 

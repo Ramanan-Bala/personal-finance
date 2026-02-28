@@ -1,8 +1,17 @@
 import { and, between, desc, eq } from 'drizzle-orm';
 import { adjustAccountBalance, stripTimestamps } from '../../common/utils';
 import { db } from '../../db';
-import { accounts, categories, transactions } from '../../db/schema';
+import {
+  accounts,
+  categories,
+  recurringTransactions,
+  transactions,
+} from '../../db/schema';
 import { aiService } from '../ai/ai.service';
+import {
+  computeNextOccurrence,
+  recurringTransactionsService,
+} from '../recurring-transactions/recurring-transactions.service';
 import {
   CreateTransactionInput,
   UpdateTransactionInput,
@@ -37,6 +46,31 @@ export class TransactionsService {
             input.type === 'TRANSFER' ? input.transferToAccountId : null,
         })
         .returning();
+
+      if (input.isRecurring && input.recurringFrequency && transaction) {
+        const nextOcc = computeNextOccurrence(
+          new Date(input.transactionDate),
+          input.recurringFrequency,
+        );
+        await tx.insert(recurringTransactions).values({
+          userId,
+          accountId: input.accountId,
+          categoryId: input.type === 'TRANSFER' ? null : categoryId,
+          type: input.type,
+          amount: input.amount.toString(),
+          notes: input.notes ?? null,
+          frequency: input.recurringFrequency,
+          startDate: new Date(input.transactionDate),
+          endDate: input.recurringEndDate
+            ? new Date(input.recurringEndDate)
+            : null,
+          nextOccurrence: nextOcc,
+          transferToAccountId:
+            input.type === 'TRANSFER'
+              ? (input.transferToAccountId ?? null)
+              : null,
+        });
+      }
 
       return transaction ? stripTimestamps(transaction) : null;
     });
@@ -79,6 +113,12 @@ export class TransactionsService {
     to: Date,
     withAdditional?: boolean,
   ) {
+    await recurringTransactionsService.materializeDueTransactions(
+      userId,
+      from,
+      to,
+    );
+
     return db.query.transactions.findMany({
       where: and(
         eq(transactions.userId, userId),

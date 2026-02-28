@@ -1,19 +1,25 @@
 "use client";
 
-import { createTransactionSchema } from "@/shared/validators/transaction";
+import {
+  createTransactionSchema,
+  recurringFrequencyValues,
+} from "@/shared/validators/transaction";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
+  Badge,
   Button,
   Flex,
   Select,
+  Switch,
   Text,
   TextArea,
   TextField,
 } from "@radix-ui/themes";
+import { Repeat } from "lucide-react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
-import { Account, Category, DatePicker } from "@/shared";
+import { Account, Category, DatePicker, FREQUENCY_LABELS } from "@/shared";
 
 export type TransactionFormOutput = z.infer<typeof createTransactionSchema>;
 type TransactionFormInput = z.input<typeof createTransactionSchema>;
@@ -43,15 +49,15 @@ export function TransactionForm({
     watch,
     setValue,
     formState: { errors },
-    getValues,
   } = useForm<TransactionFormInput>({
     resolver: zodResolver(createTransactionSchema),
     defaultValues: {
       type: "INCOME",
+      isRecurring: false,
       ...defaultValues,
       transferToAccountId: defaultValues?.transferToAccountId || "",
       transactionDate: defaultValues?.transactionDate
-        ? (defaultValues.transactionDate as any).toISOString()
+        ? (defaultValues.transactionDate as unknown as Date).toISOString()
         : new Date().toISOString(),
     },
   });
@@ -60,6 +66,9 @@ export function TransactionForm({
   const accountId = watch("accountId");
   const categoryId = watch("categoryId");
   const transferToAccountId = watch("transferToAccountId");
+  const isRecurring = watch("isRecurring");
+  const recurringFrequency = watch("recurringFrequency");
+  const recurringEndDate = watch("recurringEndDate");
 
   const currentCategories = categories.filter((cat) => cat.type === type);
 
@@ -78,7 +87,7 @@ export function TransactionForm({
           <Select.Root
             defaultValue={defaultValues?.type || "INCOME"}
             onValueChange={(val) => {
-              setValue("type", val as never);
+              setValue("type", val as "INCOME" | "EXPENSE" | "TRANSFER");
               setValue("categoryId", ""); // Reset category when type changes
             }}
           >
@@ -233,6 +242,89 @@ export function TransactionForm({
             </Text>
           )}
         </label>
+
+        {/* Recurring Toggle — only in create mode */}
+        {!isEditMode && (
+          <div className="rounded-lg border border-gray-200 dark:border-white/10 p-3 space-y-3">
+            <Flex justify="between" align="center">
+              <Flex gap="2" align="center">
+                <Repeat size={16} className="text-primary" />
+                <Text size="2" weight="bold">
+                  Make this recurring
+                </Text>
+              </Flex>
+              <Switch
+                checked={!!isRecurring}
+                onCheckedChange={(checked) => {
+                  setValue("isRecurring", checked);
+                  if (!checked) {
+                    setValue("recurringFrequency", undefined);
+                    setValue("recurringEndDate", undefined);
+                  }
+                }}
+                color="green"
+              />
+            </Flex>
+
+            {isRecurring && (
+              <Flex direction="column" gap="3">
+                {/* Frequency */}
+                <label className="block">
+                  <Text as="div" size="2" mb="1" weight="bold">
+                    Frequency
+                  </Text>
+                  <Select.Root
+                    value={recurringFrequency || ""}
+                    onValueChange={(val) =>
+                      setValue(
+                        "recurringFrequency",
+                        val as (typeof recurringFrequencyValues)[number],
+                      )
+                    }
+                  >
+                    <Select.Trigger
+                      className="w-full"
+                      placeholder="Select frequency"
+                    />
+                    <Select.Content position="popper">
+                      {recurringFrequencyValues.map((freq) => (
+                        <Select.Item key={freq} value={freq}>
+                          {FREQUENCY_LABELS[freq]}
+                        </Select.Item>
+                      ))}
+                    </Select.Content>
+                  </Select.Root>
+                  {errors.recurringFrequency && (
+                    <Text color="red" size="1">
+                      {errors.recurringFrequency.message}
+                    </Text>
+                  )}
+                </label>
+
+                {/* End Date (optional) */}
+                <label className="block">
+                  <Flex gap="2" align="center" mb="1">
+                    <Text as="div" size="2" weight="bold">
+                      End Date
+                    </Text>
+                    <Badge size="1" variant="soft" color="gray">
+                      Optional
+                    </Badge>
+                  </Flex>
+                  <DatePicker
+                    className="w-full block"
+                    selected={
+                      recurringEndDate ? new Date(recurringEndDate) : undefined
+                    }
+                    onChange={(date) =>
+                      setValue("recurringEndDate", date?.toISOString() ?? null)
+                    }
+                  />
+                </label>
+              </Flex>
+            )}
+          </div>
+        )}
 
         <Button type="submit" disabled={isLoading}>
           {isLoading ? "Saving..." : "Save Transaction"}
