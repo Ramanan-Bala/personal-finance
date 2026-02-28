@@ -346,26 +346,13 @@ const LendDebtPage = () => {
               )}
             </Flex>
 
-            {hasPayments && (
-              <Tooltip content="Payment history">
-                <Button
-                  variant="ghost"
-                  color="gray"
-                  size="2"
-                  onClick={() => setHistoryTarget(item)}
-                >
-                  <History size={15} />
-                </Button>
-              </Tooltip>
-            )}
-
             <DropdownMenu.Root>
               <DropdownMenu.Trigger>
                 <Button variant="ghost" color="gray">
                   <MoreVertical size={16} />
                 </Button>
               </DropdownMenu.Trigger>
-              <DropdownMenu.Content align="end">
+              <DropdownMenu.Content align="end" size="2">
                 {!isSettled && (
                   <>
                     <DropdownMenu.Item
@@ -393,7 +380,6 @@ const LendDebtPage = () => {
                   <Pencil size={14} />
                   Edit
                 </DropdownMenu.Item>
-                <DropdownMenu.Separator />
                 <DropdownMenu.Item
                   color="red"
                   onClick={() =>
@@ -407,6 +393,15 @@ const LendDebtPage = () => {
                   <Trash2 size={14} />
                   Delete
                 </DropdownMenu.Item>
+                {hasPayments && (
+                  <>
+                    <DropdownMenu.Separator />
+                    <DropdownMenu.Item onClick={() => setHistoryTarget(item)}>
+                      <History size={15} />
+                      Payment History
+                    </DropdownMenu.Item>
+                  </>
+                )}
               </DropdownMenu.Content>
             </DropdownMenu.Root>
           </Flex>
