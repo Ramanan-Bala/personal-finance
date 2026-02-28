@@ -386,10 +386,11 @@ export default function LedgerPage() {
                   <Flex
                     direction={{ initial: "column", sm: "row" }}
                     justify="between"
-                    className="sticky top-0 z-10 backdrop-blur-lg"
-                    my="3"
+                    className="sticky -top-6 z-10 backdrop-blur-lg"
+                    mb="3"
                     wrap="wrap"
                     gap="2"
+                    py={{ initial: "2", sm: "0" }}
                   >
                     <Flex gap="3">
                       <Button
