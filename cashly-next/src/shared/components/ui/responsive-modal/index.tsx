@@ -63,7 +63,6 @@ export function ResponsiveModal({
       open={open}
       onOpenChange={onOpenChange}
       shouldScaleBackground={false}
-      disablePreventScroll={true}
     >
       {trigger && <Drawer.Trigger asChild>{trigger}</Drawer.Trigger>}
       <Drawer.Portal container={portalRef.current}>
