@@ -386,7 +386,7 @@ export default function LedgerPage() {
                   <Flex
                     direction={{ initial: "column", sm: "row" }}
                     justify="between"
-                    align="center"
+                    align={{ initial: "stretch", sm: "center" }}
                     className="sticky -top-6 z-10 backdrop-blur-lg"
                     mb="3"
                     wrap="wrap"
