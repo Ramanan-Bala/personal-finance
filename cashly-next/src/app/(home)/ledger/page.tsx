@@ -80,6 +80,7 @@ export default function LedgerPage() {
   }>({});
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [aiCategorizationEnabled, setAiCategorizationEnabled] = useState(false);
 
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -129,10 +130,13 @@ export default function LedgerPage() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const [accountsRes, categoriesRes] = await Promise.all([
+      const [accountsRes, categoriesRes, featuresResponse] = await Promise.all([
         api.get<Account[]>("/accounts"),
         api.get<Category[]>("/categories"),
+        api.get<{ aiCategorizationEnabled: boolean }>("/settings/features"),
       ]);
+
+      setAiCategorizationEnabled(featuresResponse.data.aiCategorizationEnabled);
 
       setAccounts(accountsRes.data);
       setCategories(categoriesRes.data);
@@ -272,7 +276,7 @@ export default function LedgerPage() {
           accounts={accounts}
           onSubmit={createTransaction}
           isLoading={loading}
-          aiCategorizationEnabled={false}
+          aiCategorizationEnabled={aiCategorizationEnabled}
         />
       </ResponsiveModal>
 
@@ -290,7 +294,7 @@ export default function LedgerPage() {
           defaultValues={editData as never}
           isLoading={loading}
           isEditMode
-          aiCategorizationEnabled={false}
+          aiCategorizationEnabled={aiCategorizationEnabled}
         />
       </ResponsiveModal>
 

@@ -1,11 +1,11 @@
 import { and, between, desc, eq } from 'drizzle-orm';
 import { db } from '../../db';
 import { accounts, categories, transactions } from '../../db/schema';
+import { aiService } from '../ai/ai.service';
 import {
   CreateTransactionInput,
   UpdateTransactionInput,
 } from './transactions.schema';
-import { aiService } from '../ai/ai.service';
 
 export class TransactionsService {
   async createTransaction(userId: string, input: CreateTransactionInput) {
@@ -20,8 +20,7 @@ export class TransactionsService {
       if (!account) throw new Error('Account not found');
 
       // 2. AI categorization or validate provided category
-      const aiEnabled =
-        process.env.AI_CATEGORIZATION_ENABLED !== 'false';
+      const aiEnabled = process.env.AI_CATEGORIZATION_ENABLED !== 'false';
       let resolvedCategoryId = input.categoryId || null;
       if (input.type !== 'TRANSFER') {
         if (input.categoryId) {
@@ -52,7 +51,7 @@ export class TransactionsService {
               toCategory: t.category!.name,
             }));
 
-          const result = await aiService.categorizeTransaction(
+          const result = await aiService.categorizeTransactionWithNvidia(
             userId,
             input.type as 'INCOME' | 'EXPENSE',
             input.amount,
