@@ -59,7 +59,12 @@ export function ResponsiveModal({
   }
 
   return (
-    <Drawer.Root open={open} onOpenChange={onOpenChange}>
+    <Drawer.Root
+      open={open}
+      onOpenChange={onOpenChange}
+      shouldScaleBackground={false}
+      disablePreventScroll={true}
+    >
       {trigger && <Drawer.Trigger asChild>{trigger}</Drawer.Trigger>}
       <Drawer.Portal container={portalRef.current}>
         <Drawer.Overlay className="fixed inset-0 bg-black/40 z-50" />
