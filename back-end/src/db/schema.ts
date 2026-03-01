@@ -47,6 +47,7 @@ export const users = pgTable('users', {
   currency: text('currency').default('INR').notNull(),
   dateFormat: text('dateFormat').default('MM-DD-YYYY').notNull(),
   fontFamily: text('fontFamily').default('Inter').notNull(),
+  timezone: text('timezone').default('UTC').notNull(),
   createdAt: timestamp('createdAt').defaultNow().notNull(),
   updatedAt: timestamp('updatedAt').defaultNow().notNull(),
 });

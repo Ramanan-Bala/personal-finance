@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { parseUtcDate } from '../../common/date-utils';
 import { transactionsService } from './transactions.service';
 
 export class TransactionsController {
@@ -32,11 +33,20 @@ export class TransactionsController {
       }
 
       if (from && to) {
+        const fromDate = parseUtcDate(from);
+        const toDate = parseUtcDate(to);
+
+        if (!fromDate || !toDate) {
+          return res.status(400).json({
+            message: 'Invalid date range. Send from/to as UTC ISO strings.',
+          });
+        }
+
         const transactions =
           await transactionsService.getTransactionsByDateRange(
             userId,
-            new Date(from as string),
-            new Date(to as string),
+            fromDate,
+            toDate,
             Boolean(withAdditional ?? false),
           );
         return res.json(transactions);

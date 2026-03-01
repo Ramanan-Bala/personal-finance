@@ -39,6 +39,7 @@ interface User {
   currency?: string;
   dateFormat?: string;
   fontFamily?: string;
+  timezone?: string;
 }
 
 interface LoginResponse {
@@ -51,6 +52,7 @@ interface LoginResponse {
   currency?: string;
   dateFormat?: string;
   fontFamily?: string;
+  timezone?: string;
 }
 
 interface LoginAcceptResponse {
@@ -112,6 +114,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       currency: response.data.currency,
       dateFormat: response.data.dateFormat,
       fontFamily: response.data.fontFamily,
+      timezone: response.data.timezone,
     };
     setUser(userData);
     localStorage.setItem("accessToken", response.data.accessToken);

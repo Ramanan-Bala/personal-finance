@@ -28,7 +28,7 @@ import {
   Type,
 } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import RecurringTransactionsSection from "./components/recurring-transactions-section";
 
 interface SettingRowProps {
@@ -117,6 +117,11 @@ export default function SettingsPage() {
   const [customFormat, setCustomFormat] = useState(
     isCustom ? currentDateFormat : "",
   );
+
+  const timezoneOptions = useMemo(() => {
+    if (typeof Intl.supportedValuesOf !== "function") return ["UTC"];
+    return Intl.supportedValuesOf("timeZone");
+  }, []);
 
   useEffect(() => {
     if (user?.dateFormat) {
@@ -447,6 +452,26 @@ export default function SettingsPage() {
                       })()}
                     </Badge>
                   </Flex>
+                }
+              />
+              <SettingRow
+                icon={Globe}
+                label="Timezone"
+                description="Used for recurring schedules and date boundaries"
+                action={
+                  <Select.Root
+                    value={user?.timezone || "UTC"}
+                    onValueChange={(val) => updateProfile({ timezone: val })}
+                  >
+                    <Select.Trigger variant="soft" />
+                    <Select.Content position="popper" align="end">
+                      {timezoneOptions.map((timezone) => (
+                        <Select.Item key={timezone} value={timezone}>
+                          {timezone}
+                        </Select.Item>
+                      ))}
+                    </Select.Content>
+                  </Select.Root>
                 }
               />
             </Flex>

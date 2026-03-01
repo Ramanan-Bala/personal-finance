@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { parseUtcDate } from '../../common/date-utils';
 import { recurringTransactionsService } from './recurring-transactions.service';
 
 export class RecurringTransactionsController {
@@ -51,11 +52,21 @@ export class RecurringTransactionsController {
     try {
       const userId = (req.user as any).id;
       const { from, to } = req.body;
+
+      const fromDate = parseUtcDate(from);
+      const toDate = parseUtcDate(to);
+
+      if (!fromDate || !toDate) {
+        return res.status(400).json({
+          message: 'Invalid date range. Send from/to as UTC ISO strings.',
+        });
+      }
+
       const result =
         await recurringTransactionsService.materializeDueTransactions(
           userId,
-          new Date(from),
-          new Date(to),
+          fromDate,
+          toDate,
         );
       return res.json(result);
     } catch (error) {
