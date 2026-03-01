@@ -1,5 +1,5 @@
 "use client";
-import { PageTransition, Sidebar, useAuth, useKeyboardFix } from "@/shared";
+import { PageTransition, Sidebar, useAuth } from "@/shared";
 import { Flex } from "@radix-ui/themes";
 import { redirect } from "next/navigation";
 
@@ -9,7 +9,7 @@ export default function HomeLayout({
   children: React.ReactNode;
 }) {
   const { isAuthenticated, isLoading } = useAuth();
-  useKeyboardFix();
+  // useKeyboardFix();
 
   if (isLoading) {
     return null;
@@ -20,7 +20,7 @@ export default function HomeLayout({
   }
 
   return (
-    <Flex className="overflow-hidden min-h-[var(--app-vh,100dvh)]">
+    <Flex className="overflow-hidden min-h-(--app-vh,100dvh)">
       <Sidebar />
 
       <Flex
