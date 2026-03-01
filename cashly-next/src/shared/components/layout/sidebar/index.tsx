@@ -185,8 +185,8 @@ export const Sidebar = () => {
 const primaryNavItems = [
   { icon: LayoutDashboard, label: "Home", url: "/dashboard" },
   // { icon: ArrowUpDown, label: "Transactions", url: "/transactions" },
-  { icon: BookOpen, label: "Ledger", url: "/ledger" },
   { icon: ArrowUpDown, label: "Lend & Debts", url: "/lend-debt" },
+  { icon: BookOpen, label: "Ledger", url: "/ledger" },
   { icon: Settings, label: "Settings", url: "/settings" },
 ];
 
