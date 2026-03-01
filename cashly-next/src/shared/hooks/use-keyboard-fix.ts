@@ -3,35 +3,38 @@ import { useEffect } from "react";
 
 export function useKeyboardFix() {
   useEffect(() => {
-    const handleFocusOut = () => {
-      setTimeout(() => {
-        // Reset scroll
-        window.scrollTo({ top: 0, behavior: "instant" });
-        document.body.scrollTop = 0;
-        document.documentElement.scrollTop = 0;
-
-        // Reset any transform
-        document.body.style.transform = "";
-        document.body.style.height = "";
-        document.body.style.top = "";
-        document.body.style.position = "";
-      }, 150); // slightly longer delay than before
-    };
-
+    const root = document.documentElement;
     const viewport = window.visualViewport;
-    const handleViewport = () => {
-      if (viewport && viewport.height === window.innerHeight) {
-        // Keyboard fully closed
-        window.scrollTo({ top: 0, behavior: "instant" });
-      }
+    let baselineViewportHeight = viewport?.height ?? window.innerHeight;
+
+    const updateViewportState = () => {
+      const currentHeight = viewport?.height ?? window.innerHeight;
+      baselineViewportHeight = Math.max(baselineViewportHeight, currentHeight);
+
+      const keyboardOpen = baselineViewportHeight - currentHeight > 120;
+
+      root.style.setProperty("--app-vh", `${currentHeight}px`);
+      root.classList.toggle("keyboard-open", keyboardOpen);
     };
 
-    document.addEventListener("focusout", handleFocusOut);
-    viewport?.addEventListener("resize", handleViewport);
+    const resetBaseline = () => {
+      baselineViewportHeight = viewport?.height ?? window.innerHeight;
+      updateViewportState();
+    };
+
+    updateViewportState();
+
+    viewport?.addEventListener("resize", updateViewportState);
+    viewport?.addEventListener("scroll", updateViewportState);
+    window.addEventListener("orientationchange", resetBaseline);
+    window.addEventListener("pageshow", resetBaseline);
 
     return () => {
-      document.removeEventListener("focusout", handleFocusOut);
-      viewport?.removeEventListener("resize", handleViewport);
+      root.classList.remove("keyboard-open");
+      viewport?.removeEventListener("resize", updateViewportState);
+      viewport?.removeEventListener("scroll", updateViewportState);
+      window.removeEventListener("orientationchange", resetBaseline);
+      window.removeEventListener("pageshow", resetBaseline);
     };
   }, []);
 }

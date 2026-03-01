@@ -216,7 +216,7 @@ function MobileBottomNav({
   );
 
   return (
-    <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 h-14">
+    <div className="mobile-bottom-nav md:hidden fixed bottom-0 left-0 right-0 z-50 h-14">
       <nav className="bg-card border-t border-border rounded-t-2xl shadow-[0_-2px_10px_rgba(0,0,0,0.08)] px-2 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] flex items-center justify-around">
         {primaryNavItems.map((item) => {
           const Icon = item.icon;
@@ -252,10 +252,10 @@ function MobileBottomNav({
       <Drawer.Root open={moreOpen} onOpenChange={setMoreOpen}>
         <Drawer.Portal container={portalRef.current}>
           <Drawer.Overlay className="fixed inset-0 bg-black/40 z-50" />
-          <Drawer.Content className="fixed bottom-0 left-0 right-0 z-50 rounded-t-2xl bg-card border-t border-border flex flex-col">
+          <Drawer.Content className="fixed bottom-0 left-0 right-0 z-50 rounded-t-2xl bg-card border-t border-border flex flex-col max-h-[calc(var(--app-vh,100dvh)-max(env(safe-area-inset-top),0.5rem))]">
             <div className="mx-auto mt-3 mb-1 h-1.5 w-12 rounded-full bg-muted-foreground/30" />
             <Drawer.Title className="sr-only">More</Drawer.Title>
-            <div className="px-2 pb-[max(1rem,env(safe-area-inset-bottom))]">
+            <div className="px-2 pb-[max(1rem,env(safe-area-inset-bottom))] overflow-y-auto" data-vaul-no-drag>
               {secondaryNavItems.map((item) => {
                 const Icon = item.icon;
                 const isActive = pathname.startsWith(item.url);

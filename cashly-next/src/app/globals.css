@@ -37,6 +37,7 @@
   :root {
     --font-heading: var(--font-source-sans);
     --font-body: var(--font-source-sans);
+    --app-vh: 100dvh;
   }
 
   /* Font variations */
@@ -142,6 +143,28 @@
     .main-container {
       padding-bottom: 6rem !important;
     }
+
+    html.keyboard-open .main-container {
+      padding-bottom: max(env(safe-area-inset-bottom), 1rem) !important;
+    }
+  }
+
+  .mobile-bottom-nav,
+  .floating-add-btn {
+    transition:
+      transform 0.2s ease,
+      opacity 0.2s ease;
+  }
+
+  html.keyboard-open .mobile-bottom-nav,
+  html.keyboard-open .floating-add-btn {
+    transform: translateY(120%);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  html.keyboard-open .main-container {
+    padding-bottom: max(env(safe-area-inset-bottom), 1rem) !important;
   }
 
   .floating-container {

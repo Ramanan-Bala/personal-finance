@@ -63,11 +63,12 @@ export function ResponsiveModal({
       open={open}
       onOpenChange={onOpenChange}
       shouldScaleBackground={false}
+      repositionInputs={true}
     >
       {trigger && <Drawer.Trigger asChild>{trigger}</Drawer.Trigger>}
       <Drawer.Portal container={portalRef.current}>
         <Drawer.Overlay className="fixed inset-0 bg-black/40 z-50" />
-        <Drawer.Content className="fixed bottom-0 left-0 right-0 z-50 rounded-t-2xl bg-card border-t border-border max-h-[90dvh] flex flex-col outline-0">
+        <Drawer.Content className="fixed bottom-0 left-0 right-0 z-50 rounded-t-2xl bg-card border-t border-border max-h-[calc(var(--app-vh,100dvh)-max(env(safe-area-inset-top),0.5rem))] flex flex-col outline-0">
           <div className="mx-auto mt-3 mb-2 h-1.5 w-12 rounded-full bg-muted-foreground/30" />
           <div className="px-4 pb-2">
             <Drawer.Title className="text-lg font-semibold text-foreground">
@@ -79,7 +80,12 @@ export function ResponsiveModal({
               </Drawer.Description>
             )}
           </div>
-          <div className="px-4 pb-6 overflow-y-auto flex-1">{children}</div>
+          <div
+            className="px-4 pb-[max(1.5rem,env(safe-area-inset-bottom))] overflow-y-auto flex-1"
+            data-vaul-no-drag
+          >
+            {children}
+          </div>
         </Drawer.Content>
       </Drawer.Portal>
     </Drawer.Root>
