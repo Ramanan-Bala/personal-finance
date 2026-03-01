@@ -107,10 +107,13 @@ export function LendDebtPaymentForm({
             Payment Date
           </Text>
           <DatePicker
-            className="w-full block"
+            className="block w-full"
             selected={new Date()}
             onChange={(date) =>
-              setValue("paymentDate", date?.toISOString() || new Date().toISOString())
+              setValue(
+                "paymentDate",
+                date?.toISOString() || new Date().toISOString(),
+              )
             }
           />
           {errors.paymentDate && (

@@ -11,7 +11,7 @@ export function FloatingAddButton({ onClick }: FloatingAddButtonProps) {
   return (
     <Button
       onClick={onClick}
-      className="floating-add-btn sm:hidden w-10 h-10 rounded-full fixed z-50 right-[max(env(safe-area-inset-right),2rem)]"
+      className="floating-add-btn fixed right-[max(env(safe-area-inset-right),2rem)] z-50 h-10 w-10 rounded-full sm:hidden"
       style={{
         bottom: "max(calc(env(safe-area-inset-bottom) + 4rem), 5rem)",
       }}

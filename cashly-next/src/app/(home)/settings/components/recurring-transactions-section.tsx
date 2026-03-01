@@ -106,7 +106,7 @@ export default function RecurringTransactionsSection() {
         size="2"
         weight="bold"
         color="gray"
-        className="uppercase tracking-wider"
+        className="tracking-wider uppercase"
       >
         Recurring Transactions
       </Text>
@@ -143,7 +143,7 @@ export default function RecurringTransactionsSection() {
             className="divide-y divide-gray-100 dark:divide-white/5"
           >
             {recurringRules.map((rule) => (
-              <div key={rule.id} className="p-1 space-y-2">
+              <div key={rule.id} className="space-y-2 p-1">
                 <Flex justify="between" align="center" wrap="wrap" gap="2">
                   <Flex direction="column" gap="1" className="min-w-0">
                     <Flex align="center" gap="2">

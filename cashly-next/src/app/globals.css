@@ -164,7 +164,9 @@
   }
 
   html.keyboard-open .main-container {
-    max-height: calc(var(--app-vh, 100dvh) - max(env(safe-area-inset-bottom), 0px)) !important;
+    max-height: calc(
+      var(--app-vh, 100dvh) - max(env(safe-area-inset-bottom), 0px)
+    ) !important;
     padding-bottom: max(env(safe-area-inset-bottom), 1rem) !important;
   }
 

@@ -49,7 +49,7 @@ export function DatePicker({
           <Button
             variant="outline"
             color="gray"
-            className="justify-start w-full"
+            className="w-full justify-start"
           >
             <div className="flex items-center gap-3">
               <CalendarIcon className="h-4 w-4" />
@@ -67,11 +67,11 @@ export function DatePicker({
           onInteractOutside={() => setOpen(false)}
           align="start"
           sideOffset={8}
-          className="p-0 border-none bg-transparent"
+          className="border-none bg-transparent p-0"
           style={{ minWidth: "max-content" }}
           maxWidth="250px"
         >
-          <div className="flex flex-col sm:flex-row border border-border shadow-xl rounded-lg max-w-max overflow-hidden bg-(--color-panel-solid) text-foreground">
+          <div className="border-border text-foreground flex max-w-max flex-col overflow-hidden rounded-lg border bg-(--color-panel-solid) shadow-xl sm:flex-row">
             <div className="p-3">
               <DayPicker
                 mode="single"

@@ -30,10 +30,7 @@ import {
   Text,
   TextField,
 } from "@radix-ui/themes";
-import {
-  addMonths,
-  subMonths,
-} from "date-fns";
+import { addMonths, subMonths } from "date-fns";
 import {
   ArrowDownRight,
   ArrowLeftRight,
@@ -356,7 +353,7 @@ export default function LedgerPage() {
 
       {materializing ? (
         <Flex direction="column" align="center" justify="center" gap="3" py="9">
-          <LoaderCircleIcon size={28} className="animate-spin text-primary" />
+          <LoaderCircleIcon size={28} className="text-primary animate-spin" />
           <Text size="3" weight="medium" color="gray">
             Creating recurring transactions, please wait...
           </Text>
@@ -369,7 +366,7 @@ export default function LedgerPage() {
           description="Try adjusting your filters or search query."
         />
       ) : (
-        <div className="flex-1 relative space-y-5 rounded-lg">
+        <div className="relative flex-1 space-y-5 rounded-lg">
           <AnimatePresence mode="popLayout">
             {Object.entries(filteredTransactions).map(([date, item]) => (
               <motion.div
@@ -394,7 +391,7 @@ export default function LedgerPage() {
                     <Flex gap="3">
                       <Button
                         variant="soft"
-                        className="py-6 rounded-lg shrink-0 hidden sm:flex"
+                        className="hidden shrink-0 rounded-lg py-6 sm:flex"
                       >
                         <Calendar />
                       </Button>
@@ -443,14 +440,14 @@ export default function LedgerPage() {
                             ? "red"
                             : "gray"
                       }
-                      className="shrink-0 hidden sm:block"
+                      className="hidden shrink-0 sm:block"
                     >
                       {formatCurrency(item.totalIncome - item.totalExpense)}
                     </Heading>
                   </Flex>
                   <Card
                     asChild
-                    className="p-0 sticky top-0 z-0"
+                    className="sticky top-0 z-0 p-0"
                     variant="classic"
                   >
                     <motion.div

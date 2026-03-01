@@ -27,9 +27,7 @@ export const createTransactionSchema = z
     notes: z.string().optional(),
     transferToAccountId: z.string().optional(),
     isRecurring: z.boolean().optional(),
-    recurringFrequency: z
-      .enum(recurringFrequencyValues)
-      .optional(),
+    recurringFrequency: z.enum(recurringFrequencyValues).optional(),
     recurringEndDate: z.iso.datetime().nullable().optional(),
   })
   .refine(

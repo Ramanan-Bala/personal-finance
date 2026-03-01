@@ -164,7 +164,7 @@ export function LendDebtForm({
             Due Date (Optional)
           </Text>
           <DatePicker
-            className="w-full block"
+            className="block w-full"
             selected={
               defaultValues?.dueDate
                 ? new Date(defaultValues.dueDate)

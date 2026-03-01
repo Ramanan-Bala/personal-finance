@@ -316,10 +316,10 @@ const LendDebtPage = () => {
           <Flex gap="4" align={{ sm: "center" }} className="w-full">
             <TabsList className="w-full sm:w-max">
               <TabsTrigger value="lent" className="bg-primary">
-                <ArrowUpRight className="w-4 h-4" /> Money Lent
+                <ArrowUpRight className="h-4 w-4" /> Money Lent
               </TabsTrigger>
               <TabsTrigger value="borrowed" className="bg-red-400">
-                <ArrowDownLeft className="w-4 h-4" /> Money Borrowed
+                <ArrowDownLeft className="h-4 w-4" /> Money Borrowed
               </TabsTrigger>
             </TabsList>
           </Flex>
@@ -337,7 +337,7 @@ const LendDebtPage = () => {
         ) : lendDebts.length > 0 ? (
           <Card
             asChild
-            className="divide-y divide-border p-0 overflow-hidden"
+            className="divide-border divide-y overflow-hidden p-0"
             variant="classic"
           >
             <motion.div

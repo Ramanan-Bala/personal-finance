@@ -52,7 +52,7 @@ export function HeroSection({
 
           <motion.h1
             {...leftToRightVariants}
-            className="text-foreground font-bold mb-6 text-5xl lg:text-6xl"
+            className="text-foreground mb-6 text-5xl font-bold lg:text-6xl"
           >
             Smart Money,
             <br />
@@ -154,7 +154,7 @@ export function HeroSection({
             ease: "easeInOut",
             delay: 0.5,
           }}
-          className="absolute -bottom-6 -left-6 rounded-2xl border border-neutral-200 bg-white p-4 shadow-xl dark:bg-emerald-950 dark:border-emerald-700"
+          className="absolute -bottom-6 -left-6 rounded-2xl border border-neutral-200 bg-white p-4 shadow-xl dark:border-emerald-700 dark:bg-emerald-950"
         >
           <ChartColumn className="h-8 w-8 text-emerald-600" />
         </motion.div>

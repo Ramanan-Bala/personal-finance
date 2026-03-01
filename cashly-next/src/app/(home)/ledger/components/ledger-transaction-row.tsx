@@ -64,20 +64,20 @@ export function LedgerTransactionRow({
       exit={{ opacity: 0, scale: 0.9 }}
       whileInView="visible"
       {...viewPortComplete}
-      className="flex items-center justify-between p-3 sm:p-4 hover:bg-muted/90 transition-colors sm:pl-6 cursor-pointer"
+      className="hover:bg-muted/90 flex cursor-pointer items-center justify-between p-3 transition-colors sm:p-4 sm:pl-6"
     >
       <Flex align="center" gap="4" className="relative">
         <span
-          className={`hidden sm:block absolute -left-3 top-1/2 -translate-y-1/2 w-1 h-full rounded-full ${style.barClass}`}
+          className={`absolute top-1/2 -left-3 hidden h-full w-1 -translate-y-1/2 rounded-full sm:block ${style.barClass}`}
         />
-        <div className={`p-2.5 rounded-lg hidden sm:block ${style.bgClass}`}>
+        <div className={`hidden rounded-lg p-2.5 sm:block ${style.bgClass}`}>
           {!isTransfer ? (
             getIconForCategory(
               transaction.type,
               transaction.category?.icon,
-            ) || <ArrowUpRight className="w-4 h-4 text-primary" />
+            ) || <ArrowUpRight className="text-primary h-4 w-4" />
           ) : (
-            <ArrowLeftRight className="w-4 h-4 text-blue-400" />
+            <ArrowLeftRight className="h-4 w-4 text-blue-400" />
           )}
         </div>
         <div>

@@ -41,7 +41,9 @@ export function PaymentHistoryModal({
   return (
     <ResponsiveModal
       open={!!item}
-      onOpenChange={(open) => { if (!open) onClose(); }}
+      onOpenChange={(open) => {
+        if (!open) onClose();
+      }}
       title="Payment History"
       description={
         isLend
@@ -54,31 +56,47 @@ export function PaymentHistoryModal({
         <Flex
           justify="between"
           align="center"
-          className="rounded-lg bg-muted/60 dark:bg-muted/40 px-4 py-3"
+          className="bg-muted/60 dark:bg-muted/40 rounded-lg px-4 py-3"
         >
           <Flex direction="column" gap="0">
-            <Text size="1" color="gray" weight="medium">Total</Text>
-            <Text size="3" weight="bold">{formatCurrency(item.amount)}</Text>
+            <Text size="1" color="gray" weight="medium">
+              Total
+            </Text>
+            <Text size="3" weight="bold">
+              {formatCurrency(item.amount)}
+            </Text>
           </Flex>
           <Flex direction="column" gap="0" align="center">
-            <Text size="1" color="gray" weight="medium">Paid</Text>
+            <Text size="1" color="gray" weight="medium">
+              Paid
+            </Text>
             <Text size="3" weight="bold" color="green">
               {formatCurrency(item.amount - (item.outstanding || 0))}
             </Text>
           </Flex>
           <Flex direction="column" gap="0" align="end">
-            <Text size="1" color="gray" weight="medium">Outstanding</Text>
-            <Text size="3" weight="bold" color={item.outstanding === 0 ? "green" : "orange"}>
+            <Text size="1" color="gray" weight="medium">
+              Outstanding
+            </Text>
+            <Text
+              size="3"
+              weight="bold"
+              color={item.outstanding === 0 ? "green" : "orange"}
+            >
               {formatCurrency(item.outstanding || 0)}
             </Text>
           </Flex>
         </Flex>
 
-        <Progress value={getProgressPercent(item)} color={isLend ? "green" : "red"} size="2" />
+        <Progress
+          value={getProgressPercent(item)}
+          color={isLend ? "green" : "red"}
+          size="2"
+        />
 
         {item.payments && item.payments.length > 0 ? (
           <div className="relative ml-3">
-            <div className="absolute left-0 top-2 bottom-2 w-px bg-border" />
+            <div className="bg-border absolute top-2 bottom-2 left-0 w-px" />
             <Flex direction="column" gap="0">
               {item.payments.map((payment, i) => (
                 <motion.div
@@ -90,31 +108,54 @@ export function PaymentHistoryModal({
                   <Flex
                     align="start"
                     gap="3"
-                    className="relative py-3 pl-5 group hover:bg-muted/30 -ml-3 pr-2 rounded-lg transition-colors"
+                    className="group hover:bg-muted/30 relative -ml-3 rounded-lg py-3 pr-2 pl-5 transition-colors"
                   >
                     <div
-                      className={`absolute left-0 top-[18px] w-2.5 h-2.5 rounded-full ring-2 ring-card z-10 ${
-                        isLend ? "bg-green-500 dark:bg-green-400" : "bg-red-500 dark:bg-red-400"
+                      className={`ring-card absolute top-[18px] left-0 z-10 h-2.5 w-2.5 rounded-full ring-2 ${
+                        isLend
+                          ? "bg-green-500 dark:bg-green-400"
+                          : "bg-red-500 dark:bg-red-400"
                       }`}
                     />
-                    <Flex justify="between" align="center" className="flex-1 min-w-0">
-                      <Flex direction="column" gap="0" className="min-w-0 flex-1">
+                    <Flex
+                      justify="between"
+                      align="center"
+                      className="min-w-0 flex-1"
+                    >
+                      <Flex
+                        direction="column"
+                        gap="0"
+                        className="min-w-0 flex-1"
+                      >
                         <Flex align="center" gap="2">
-                          <Text size="3" weight="bold">{formatCurrency(Number(payment.amount))}</Text>
-                          <Text size="1" color="gray">{formatDate(new Date(payment.paymentDate))}</Text>
+                          <Text size="3" weight="bold">
+                            {formatCurrency(Number(payment.amount))}
+                          </Text>
+                          <Text size="1" color="gray">
+                            {formatDate(new Date(payment.paymentDate))}
+                          </Text>
                         </Flex>
                         <Flex align="center" gap="1" className="mt-0.5">
-                          <Wallet size={11} className="text-muted-foreground shrink-0" />
-                          <Text size="1" color="gray" truncate>{getAccountName(payment.accountId)}</Text>
+                          <Wallet
+                            size={11}
+                            className="text-muted-foreground shrink-0"
+                          />
+                          <Text size="1" color="gray" truncate>
+                            {getAccountName(payment.accountId)}
+                          </Text>
                           {payment.notes && (
                             <>
-                              <Text size="1" color="gray" className="shrink-0">&middot;</Text>
-                              <Text size="1" color="gray" truncate>{payment.notes}</Text>
+                              <Text size="1" color="gray" className="shrink-0">
+                                &middot;
+                              </Text>
+                              <Text size="1" color="gray" truncate>
+                                {payment.notes}
+                              </Text>
                             </>
                           )}
                         </Flex>
                       </Flex>
-                      <div className="opacity-0 group-hover:opacity-100 transition-opacity shrink-0 ml-2">
+                      <div className="ml-2 shrink-0 opacity-0 transition-opacity group-hover:opacity-100">
                         <DeleteConfirmDialog
                           onConfirm={() => onDeletePayment(payment.id)}
                           title="Delete Payment"
@@ -129,7 +170,9 @@ export function PaymentHistoryModal({
           </div>
         ) : (
           <Flex align="center" justify="center" py="6">
-            <Text size="2" color="gray">No payments recorded yet.</Text>
+            <Text size="2" color="gray">
+              No payments recorded yet.
+            </Text>
           </Flex>
         )}
 

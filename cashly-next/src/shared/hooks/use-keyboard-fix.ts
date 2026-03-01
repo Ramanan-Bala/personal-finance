@@ -36,7 +36,8 @@ export function useKeyboardFix() {
       const currentHeight = viewport?.height ?? window.innerHeight;
       baselineViewportHeight = Math.max(baselineViewportHeight, currentHeight);
 
-      const viewportSuggestsKeyboard = baselineViewportHeight - currentHeight > 120;
+      const viewportSuggestsKeyboard =
+        baselineViewportHeight - currentHeight > 120;
       const keyboardOpen = hasFocusedEditable || viewportSuggestsKeyboard;
 
       root.style.setProperty("--app-vh", `${currentHeight}px`);

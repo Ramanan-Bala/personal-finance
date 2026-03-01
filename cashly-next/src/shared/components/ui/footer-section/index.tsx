@@ -52,7 +52,7 @@ function FooterLinkGroup({
 
 export function FooterSection() {
   return (
-    <footer className="border-muted border-t bg-card">
+    <footer className="border-muted bg-card border-t">
       <div className="container mx-auto px-6 py-12 lg:px-8">
         <div className="mb-8 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-5">
           <div className="lg:col-span-2">
@@ -68,7 +68,7 @@ export function FooterSection() {
                   <a
                     key={i}
                     href={social.href}
-                    className="bg-muted hover:bg-primary hover:text-primary-foreground transition-colors flex h-10 w-10 items-center justify-center rounded-lg"
+                    className="bg-muted hover:bg-primary hover:text-primary-foreground flex h-10 w-10 items-center justify-center rounded-lg transition-colors"
                     aria-label={social.label}
                   >
                     <Icon className="text-foreground h-5 w-5" />
@@ -90,7 +90,7 @@ export function FooterSection() {
               {["Privacy", "Terms", "Cookies"].map((item) => (
                 <button
                   key={item}
-                  className="text-muted-foreground hover:text-foreground transition-colors text-sm"
+                  className="text-muted-foreground hover:text-foreground text-sm transition-colors"
                 >
                   {item}
                 </button>

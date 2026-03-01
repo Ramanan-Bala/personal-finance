@@ -20,14 +20,14 @@ export default function HomeLayout({
   }
 
   return (
-    <Flex className="overflow-hidden min-h-(--app-vh,100dvh)">
+    <Flex className="min-h-(--app-vh,100dvh) overflow-hidden">
       <Sidebar />
 
       <Flex
         direction="column"
-        className="flex-1 bg-bg transition-all duration-300 relative min-h-0"
+        className="bg-bg relative min-h-0 flex-1 transition-all duration-300"
       >
-        <div className="flex-1 overflow-y-auto max-h-[calc(var(--app-vh,100dvh)-max(env(safe-area-inset-bottom),3rem))] p-3 sm:p-6 pt-[max(env(safe-area-inset-top),1.5rem)] pb-[max(env(safe-area-inset-bottom),5rem)] md:pt-6 md:pb-6 main-container">
+        <div className="main-container max-h-[calc(var(--app-vh,100dvh)-max(env(safe-area-inset-bottom),3rem))] flex-1 overflow-y-auto p-3 pt-[max(env(safe-area-inset-top),1.5rem)] pb-[max(env(safe-area-inset-bottom),5rem)] sm:p-6 md:pt-6 md:pb-6">
           <PageTransition>{children}</PageTransition>
         </div>
       </Flex>

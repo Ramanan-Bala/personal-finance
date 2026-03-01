@@ -24,7 +24,7 @@ export const EmptyState = ({
       align="center"
       justify="center"
       p="8"
-      className="w-full min-h-72"
+      className="min-h-72 w-full"
     >
       <motion.div
         initial={{ opacity: 0, scale: 0.8, y: 10 }}
@@ -35,7 +35,7 @@ export const EmptyState = ({
         }}
         className="flex flex-col items-center text-center"
       >
-        <Box className="mb-6 p-6 rounded-3xl bg-muted/50 text-muted-foreground relative">
+        <Box className="bg-muted/50 text-muted-foreground relative mb-6 rounded-3xl p-6">
           <motion.div
             animate={{
               scale: [1, 1.1, 1],
@@ -52,14 +52,14 @@ export const EmptyState = ({
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 0.5 }}
-            className="absolute -inset-2 bg-primary/10 blur-2xl rounded-full -z-10"
+            className="bg-primary/10 absolute -inset-2 -z-10 rounded-full blur-2xl"
           />
         </Box>
 
         <Heading size="5" mb="2" weight="bold">
           {title}
         </Heading>
-        <Text size="2" color="gray" className="max-w-64 mb-6">
+        <Text size="2" color="gray" className="mb-6 max-w-64">
           {description}
         </Text>
 

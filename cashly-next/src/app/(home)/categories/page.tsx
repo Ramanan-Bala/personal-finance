@@ -199,7 +199,7 @@ export default function CategoriesPage() {
 
       <Button
         onClick={() => setIsAddModalOpen(true)}
-        className="sm:hidden w-10 h-10 rounded-full fixed z-50 right-[max(env(safe-area-inset-right),2rem)]"
+        className="fixed right-[max(env(safe-area-inset-right),2rem)] z-50 h-10 w-10 rounded-full sm:hidden"
         style={{
           bottom: "max(calc(env(safe-area-inset-bottom) + 4rem), 5rem)",
         }}
@@ -219,7 +219,7 @@ export default function CategoriesPage() {
       ) : categories.length > 0 ? (
         <div
           className={
-            filterType === "ALL" ? "grid grid-cols-1 lg:grid-cols-2 gap-6" : ""
+            filterType === "ALL" ? "grid grid-cols-1 gap-6 lg:grid-cols-2" : ""
           }
         >
           {/* Income Column */}
@@ -234,7 +234,7 @@ export default function CategoriesPage() {
                   </Badge>
                 </motion.div>
               </Flex>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <AnimatePresence mode="popLayout">
                   {incomeCategories.map((cat) => (
                     <CategoryCard
@@ -258,7 +258,7 @@ export default function CategoriesPage() {
                     color="gray"
                     size="2"
                     align="center"
-                    className="block rounded-lg border-2 border-dashed py-7 -mt-4"
+                    className="-mt-4 block rounded-lg border-2 border-dashed py-7"
                   >
                     No income categories found
                   </Text>
@@ -283,7 +283,7 @@ export default function CategoriesPage() {
                   </Badge>
                 </motion.div>
               </Flex>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <AnimatePresence mode="popLayout">
                   {expenseCategories.map((cat) => (
                     <CategoryCard
@@ -307,7 +307,7 @@ export default function CategoriesPage() {
                     color="gray"
                     size="2"
                     align="center"
-                    className="block rounded-lg border-2 border-dashed py-7 -mt-4"
+                    className="-mt-4 block rounded-lg border-2 border-dashed py-7"
                   >
                     No expense categories found
                   </Text>
@@ -345,12 +345,12 @@ function CategoryCard({
       whileHover={{ y: -4 }}
     >
       <Card asChild variant="classic" style={{ height: "100%" }}>
-        <motion.div layout className="w-full h-full">
+        <motion.div layout className="h-full w-full">
           <Flex justify="between" align="center" gap="2">
             <Flex direction="column" justify="between" align="start" gap="2">
               <motion.div layout className="flex items-center gap-3">
                 <div
-                  className={`rounded-lg p-2 ${category.type === "INCOME" ? "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600" : "bg-red-100 dark:bg-red-900/30 text-red-600"}`}
+                  className={`rounded-lg p-2 ${category.type === "INCOME" ? "bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30" : "bg-red-100 text-red-600 dark:bg-red-900/30"}`}
                 >
                   <Icon size={18} />
                 </div>
@@ -363,7 +363,7 @@ function CategoryCard({
                 <Text
                   size="1"
                   color="gray"
-                  className="line-clamp-1 text-ellipsis max-w-max"
+                  className="line-clamp-1 max-w-max text-ellipsis"
                   asChild
                 >
                   <motion.div layout>{category.description}</motion.div>

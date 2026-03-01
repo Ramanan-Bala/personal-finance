@@ -129,7 +129,7 @@ export function TransactionForm({
             Date
           </Text>
           <DatePicker
-            className="w-full block"
+            className="block w-full"
             selected={new Date(defaultValues?.transactionDate || new Date())}
             onChange={(date) =>
               setValue(
@@ -245,7 +245,7 @@ export function TransactionForm({
 
         {/* Recurring Toggle — only in create mode */}
         {!isEditMode && (
-          <div className="rounded-lg border border-gray-200 dark:border-white/10 p-3 space-y-3">
+          <div className="space-y-3 rounded-lg border border-gray-200 p-3 dark:border-white/10">
             <Flex justify="between" align="center">
               <Flex gap="2" align="center">
                 <Repeat size={16} className="text-primary" />
@@ -312,7 +312,7 @@ export function TransactionForm({
                     </Badge>
                   </Flex>
                   <DatePicker
-                    className="w-full block"
+                    className="block w-full"
                     selected={
                       recurringEndDate ? new Date(recurringEndDate) : undefined
                     }

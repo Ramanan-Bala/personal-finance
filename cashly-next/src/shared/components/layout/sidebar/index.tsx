@@ -53,7 +53,7 @@ export const Sidebar = () => {
     <>
       {/* Desktop Sidebar */}
       <div
-        className={`border-border/40 bg-card hidden md:flex min-h-screen max-h-screen border-r flex-col transition-all duration-300 ${
+        className={`border-border/40 bg-card hidden max-h-screen min-h-screen flex-col border-r transition-all duration-300 md:flex ${
           isOpen ? "w-64" : "w-15"
         }`}
       >
@@ -68,7 +68,7 @@ export const Sidebar = () => {
             variant="ghost"
             color="gray"
             onClick={toggleSidebar}
-            className="py-2 mr-1"
+            className="mr-1 py-2"
           >
             {isOpen ? (
               <PanelLeftClose size={20} />
@@ -86,11 +86,11 @@ export const Sidebar = () => {
               <button
                 key={item.url}
                 onClick={() => handleNavigate(item.url)}
-                className={`text-foreground hover:bg-primary/10 mb-1 flex w-full items-center gap-2 rounded-lg transition-colors duration-300 p-3 leading-5 ${
+                className={`text-foreground hover:bg-primary/10 mb-1 flex w-full items-center gap-2 rounded-lg p-3 leading-5 transition-colors duration-300 ${
                   isActive ? "bg-primary! text-bg!" : ""
                 }`}
               >
-                <Icon className="min-h-5 min-w-5 max-h-5 max-w-5" />
+                <Icon className="max-h-5 min-h-5 max-w-5 min-w-5" />
                 <AnimatePresence>
                   {isOpen && (
                     <motion.span
@@ -98,7 +98,7 @@ export const Sidebar = () => {
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ duration: 0.2 }}
                       exit={{ opacity: 0, x: -20 }}
-                      className="text-ellipsis overflow-hidden whitespace-nowrap"
+                      className="overflow-hidden text-ellipsis whitespace-nowrap"
                     >
                       {item.label}
                     </motion.span>
@@ -117,7 +117,7 @@ export const Sidebar = () => {
               onClick={() => logout()}
               className="grow p-2"
             >
-              <LogOut className="min-h-5 min-w-5 max-h-5 max-w-5" />
+              <LogOut className="max-h-5 min-h-5 max-w-5 min-w-5" />
               {isOpen && <span>Sign Out</span>}
             </Button>
             <Button
@@ -126,15 +126,15 @@ export const Sidebar = () => {
               className="grow p-2"
               onClick={() => handleNavigate("/settings")}
             >
-              <Settings className="min-h-5 min-w-5 max-h-5 max-w-5" />
+              <Settings className="max-h-5 min-h-5 max-w-5 min-w-5" />
               {isOpen && <span>Settings</span>}
             </Button>
           </Flex>
         </Flex>
-        <div className="px-2 mb-4">
+        <div className="mb-4 px-2">
           <ThemeSwitcher isTabStyle={isOpen} />
         </div>
-        <div className="m-2 mt-0 border-t border-border pt-2">
+        <div className="border-border m-2 mt-0 border-t pt-2">
           <Flex gap="3" align="center">
             <Avatar
               size="3"
@@ -153,7 +153,7 @@ export const Sidebar = () => {
                     as="div"
                     size="2"
                     weight="bold"
-                    className="text-ellipsis overflow-hidden whitespace-nowrap"
+                    className="overflow-hidden text-ellipsis whitespace-nowrap"
                   >
                     {user?.name}
                   </Text>
@@ -161,7 +161,7 @@ export const Sidebar = () => {
                     as="div"
                     size="2"
                     color="gray"
-                    className="text-ellipsis overflow-hidden whitespace-nowrap"
+                    className="overflow-hidden text-ellipsis whitespace-nowrap"
                   >
                     {user?.email}
                   </Text>
@@ -216,8 +216,8 @@ function MobileBottomNav({
   );
 
   return (
-    <div className="mobile-bottom-nav md:hidden fixed bottom-0 left-0 right-0 z-50 h-14">
-      <nav className="bg-card border-t border-border rounded-t-2xl shadow-[0_-2px_10px_rgba(0,0,0,0.08)] px-2 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] flex items-center justify-around">
+    <div className="mobile-bottom-nav fixed right-0 bottom-0 left-0 z-50 h-14 md:hidden">
+      <nav className="bg-card border-border flex items-center justify-around rounded-t-2xl border-t px-2 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] shadow-[0_-2px_10px_rgba(0,0,0,0.08)]">
         {primaryNavItems.map((item) => {
           const Icon = item.icon;
           const isActive = pathname.startsWith(item.url);
@@ -226,7 +226,7 @@ function MobileBottomNav({
             <button
               key={item.url}
               onClick={() => onNavigate(item.url)}
-              className={`flex flex-col items-center justify-center gap-0.5 min-w-11 transition-colors active:scale-90 ${
+              className={`flex min-w-11 flex-col items-center justify-center gap-0.5 transition-colors active:scale-90 ${
                 isActive ? "text-primary" : "text-muted-foreground"
               }`}
             >
@@ -239,7 +239,7 @@ function MobileBottomNav({
         {/* More button */}
         <button
           onClick={() => setMoreOpen(true)}
-          className={`flex flex-col items-center justify-center gap-0.5 min-w-11 transition-colors active:scale-90 ${
+          className={`flex min-w-11 flex-col items-center justify-center gap-0.5 transition-colors active:scale-90 ${
             isSecondaryActive ? "text-primary" : "text-muted-foreground"
           }`}
         >
@@ -251,11 +251,14 @@ function MobileBottomNav({
       {/* More bottom sheet */}
       <Drawer.Root open={moreOpen} onOpenChange={setMoreOpen}>
         <Drawer.Portal container={portalRef.current}>
-          <Drawer.Overlay className="fixed inset-0 bg-black/40 z-50" />
-          <Drawer.Content className="fixed bottom-0 left-0 right-0 z-50 rounded-t-2xl bg-card border-t border-border flex flex-col max-h-[calc(var(--app-vh,100dvh)-max(env(safe-area-inset-top),0.5rem))]">
-            <div className="mx-auto mt-3 mb-1 h-1.5 w-12 rounded-full bg-muted-foreground/30" />
+          <Drawer.Overlay className="fixed inset-0 z-50 bg-black/40" />
+          <Drawer.Content className="bg-card border-border fixed right-0 bottom-0 left-0 z-50 flex max-h-[calc(var(--app-vh,100dvh)-max(env(safe-area-inset-top),0.5rem))] flex-col rounded-t-2xl border-t">
+            <div className="bg-muted-foreground/30 mx-auto mt-3 mb-1 h-1.5 w-12 rounded-full" />
             <Drawer.Title className="sr-only">More</Drawer.Title>
-            <div className="px-2 pb-[max(1rem,env(safe-area-inset-bottom))] overflow-y-auto" data-vaul-no-drag>
+            <div
+              className="overflow-y-auto px-2 pb-[max(1rem,env(safe-area-inset-bottom))]"
+              data-vaul-no-drag
+            >
               {secondaryNavItems.map((item) => {
                 const Icon = item.icon;
                 const isActive = pathname.startsWith(item.url);
@@ -267,7 +270,7 @@ function MobileBottomNav({
                       onNavigate(item.url);
                       setMoreOpen(false);
                     }}
-                    className={`flex items-center gap-3 w-full px-4 h-12 rounded-lg transition-colors active:bg-muted ${
+                    className={`active:bg-muted flex h-12 w-full items-center gap-3 rounded-lg px-4 transition-colors ${
                       isActive ? "text-primary" : "text-foreground"
                     }`}
                   >
@@ -277,14 +280,14 @@ function MobileBottomNav({
                 );
               })}
 
-              <div className="mx-4 my-1 border-t border-border" />
+              <div className="border-border mx-4 my-1 border-t" />
 
               <button
                 onClick={() => {
                   setMoreOpen(false);
                   onLogout();
                 }}
-                className="flex items-center gap-3 w-full px-4 h-12 rounded-lg text-red-500 transition-colors active:bg-red-500/10"
+                className="flex h-12 w-full items-center gap-3 rounded-lg px-4 text-red-500 transition-colors active:bg-red-500/10"
               >
                 <LogOut size={20} />
                 <span className="text-sm font-medium">Sign Out</span>

@@ -9,7 +9,7 @@ export function ThemeSwitcher({ isTabStyle }: { isTabStyle?: boolean }) {
   if (isTabStyle)
     return (
       <Tabs value={theme} onValueChange={toggleTheme}>
-        <TabsList className="w-full dark:bg-bg bg-bg">
+        <TabsList className="dark:bg-bg bg-bg w-full">
           <TabsTrigger
             value="light"
             className="bg-white shadow-md"
@@ -33,9 +33,9 @@ export function ThemeSwitcher({ isTabStyle }: { isTabStyle?: boolean }) {
       aria-label="Toggle theme"
     >
       {theme === "light" ? (
-        <Moon className="h-5 w-5 text-foreground" />
+        <Moon className="text-foreground h-5 w-5" />
       ) : (
-        <Sun className="h-5 w-5 text-foreground" />
+        <Sun className="text-foreground h-5 w-5" />
       )}
     </button>
   );

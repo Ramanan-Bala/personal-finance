@@ -16,15 +16,15 @@ export function MonthNavigator({
   onNext,
 }: MonthNavigatorProps) {
   return (
-    <div className="flex items-center gap-1 justify-between bg-card border border-border rounded-lg px-3 py-2 w-full">
+    <div className="bg-card border-border flex w-full items-center justify-between gap-1 rounded-lg border px-3 py-2">
       <Button variant="ghost" className="h-6 w-4" onClick={onPrev}>
-        <ChevronLeft className="w-4 h-4" />
+        <ChevronLeft className="h-4 w-4" />
       </Button>
-      <span className="px-3 text-sm font-medium text-foreground w-36 text-center">
+      <span className="text-foreground w-36 px-3 text-center text-sm font-medium">
         {format(currentMonth, "MMMM yyyy")}
       </span>
       <Button variant="ghost" className="h-6 w-4" onClick={onNext}>
-        <ChevronRight className="w-4 h-4" />
+        <ChevronRight className="h-4 w-4" />
       </Button>
     </div>
   );

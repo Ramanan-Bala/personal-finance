@@ -15,5 +15,5 @@ export function getIconForCategory(
         ? "text-blue-600"
         : "text-red-600";
 
-  return <Icon className={`w-4 h-4 ${colorClass}`} />;
+  return <Icon className={`h-4 w-4 ${colorClass}`} />;
 }

@@ -156,8 +156,8 @@ export default function LoginPage() {
       </div>
 
       {/* Right Panel */}
-      <div className="flex flex-1 flex-col relative">
-        <div className="flex justify-end p-5 sm:block absolute top-5 right-5">
+      <div className="relative flex flex-1 flex-col">
+        <div className="absolute top-5 right-5 flex justify-end p-5 sm:block">
           <ThemeSwitcher />
         </div>
 
@@ -175,7 +175,7 @@ export default function LoginPage() {
                 <>
                   <div className="mb-8">
                     <Heading mb="2">Log in to your account</Heading>
-                    <p className="text-muted-foreground sm:text-sm text-xs">
+                    <p className="text-muted-foreground text-xs sm:text-sm">
                       Enter your credentials to access your dashboard
                     </p>
                   </div>
@@ -192,7 +192,7 @@ export default function LoginPage() {
                         id="email"
                         type="email"
                         placeholder="you@example.com"
-                        className="text-foreground placeholder-muted-foreground border-border bg-bg rounded-lg border px-4 py-2 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-primary"
+                        className="text-foreground placeholder-muted-foreground border-border bg-bg focus:ring-primary rounded-lg border px-4 py-2 text-sm transition-colors focus:ring-2 focus:outline-none"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         onBlur={(e) => handleBlur("email", e.target.value)}
@@ -212,7 +212,7 @@ export default function LoginPage() {
                         </label>
                         <Link
                           href="/forgot-password"
-                          className="text-xs text-primary hover:underline"
+                          className="text-primary text-xs hover:underline"
                         >
                           Forgot password?
                         </Link>
@@ -221,7 +221,7 @@ export default function LoginPage() {
                         id="password"
                         type="password"
                         placeholder="••••••••"
-                        className="text-foreground placeholder-muted-foreground border-border bg-bg rounded-lg border px-4 py-2 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-primary"
+                        className="text-foreground placeholder-muted-foreground border-border bg-bg focus:ring-primary rounded-lg border px-4 py-2 text-sm transition-colors focus:ring-2 focus:outline-none"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         onBlur={(e) => handleBlur("password", e.target.value)}
@@ -266,7 +266,7 @@ export default function LoginPage() {
 
                     <Link href="/register">
                       <Button
-                        className="w-full text-primary"
+                        className="text-primary w-full"
                         color="gray"
                         variant="soft"
                         size="3"
@@ -284,7 +284,7 @@ export default function LoginPage() {
                       <ShieldCheck className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
                     </div>
                     <Heading mb="2">Two-Factor Authentication</Heading>
-                    <p className="text-muted-foreground sm:text-sm text-xs">
+                    <p className="text-muted-foreground text-xs sm:text-sm">
                       We've sent a 6-digit verification code to your email
                     </p>
                   </div>
@@ -302,7 +302,7 @@ export default function LoginPage() {
                         type="text"
                         maxLength={6}
                         placeholder="000000"
-                        className="text-foreground placeholder-muted-foreground border-border bg-bg rounded-lg border px-4 py-3 text-center text-2xl font-bold tracking-[0.5em] transition-colors focus:outline-none focus:ring-2 focus:ring-primary"
+                        className="text-foreground placeholder-muted-foreground border-border bg-bg focus:ring-primary rounded-lg border px-4 py-3 text-center text-2xl font-bold tracking-[0.5em] transition-colors focus:ring-2 focus:outline-none"
                         value={otp}
                         onChange={(e) =>
                           setOtp(e.target.value.replace(/\D/g, ""))
@@ -329,10 +329,10 @@ export default function LoginPage() {
                 </>
               )}
               {/* Security Features */}
-              <div className="pt-8 flex flex-wrap items-center justify-center gap-6">
+              <div className="flex flex-wrap items-center justify-center gap-6 pt-8">
                 {securityFeatures.map((feature, index) => (
                   <div key={index} className="flex items-center gap-2">
-                    <feature.icon className="h-4 w-4 text-primary" />
+                    <feature.icon className="text-primary h-4 w-4" />
                     <span className="text-muted-foreground text-xs">
                       {feature.text}
                     </span>

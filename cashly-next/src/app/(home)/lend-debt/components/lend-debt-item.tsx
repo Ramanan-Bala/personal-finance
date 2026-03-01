@@ -88,17 +88,17 @@ export function LendDebtItem({
       className="px-4 py-3"
     >
       <Flex justify="between" align="center" gap="3">
-        <Flex gap="3" align="center" className="flex-1 min-w-0">
+        <Flex gap="3" align="center" className="min-w-0 flex-1">
           <Tooltip content={tooltipLines.join("\n")} delayDuration={300}>
             <div
-              className={`p-2 rounded-full shrink-0 cursor-default ${
+              className={`shrink-0 cursor-default rounded-full p-2 ${
                 color === "green"
                   ? "bg-green-100 dark:bg-green-900/30"
                   : "bg-red-100 dark:bg-red-900/30"
               }`}
             >
               <User
-                className={`w-4 h-4 ${
+                className={`h-4 w-4 ${
                   color === "green"
                     ? "text-green-600 dark:text-green-400"
                     : "text-red-600 dark:text-red-400"

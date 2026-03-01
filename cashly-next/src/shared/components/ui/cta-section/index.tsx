@@ -119,7 +119,7 @@ export function CTASection({
                   viewport={{ amount: 0.5 }}
                   className="flex flex-col items-center text-center"
                 >
-                  <div className="bg-emerald-100 dark:bg-emerald-900 mb-4 flex h-16 w-16 items-center justify-center rounded-full">
+                  <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900">
                     <Icon className="h-7 w-7 text-emerald-600 dark:text-emerald-300" />
                   </div>
                   <h3 className="text-foreground mb-2 text-lg font-semibold">

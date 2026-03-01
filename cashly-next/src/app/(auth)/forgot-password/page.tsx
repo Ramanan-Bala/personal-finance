@@ -92,14 +92,14 @@ export default function ForgotPasswordPage() {
           </p>
         </motion.div>
 
-        <div className="relative z-10 text-emerald-50 text-sm opacity-80">
+        <div className="relative z-10 text-sm text-emerald-50 opacity-80">
           Tip: Use a strong, unique password for better security.
         </div>
       </div>
 
       {/* Right Panel */}
-      <div className="flex flex-1 flex-col relative">
-        <div className="flex justify-end p-5 absolute top-5 right-5">
+      <div className="relative flex flex-1 flex-col">
+        <div className="absolute top-5 right-5 flex justify-end p-5">
           <ThemeSwitcher />
         </div>
 
@@ -117,7 +117,7 @@ export default function ForgotPasswordPage() {
                 <>
                   <div className="mb-8">
                     <Heading mb="2">Forgot Password</Heading>
-                    <p className="text-muted-foreground sm:text-sm text-xs">
+                    <p className="text-muted-foreground text-xs sm:text-sm">
                       Enter your email address and we'll send you a recovery
                       code
                     </p>
@@ -132,12 +132,12 @@ export default function ForgotPasswordPage() {
                         Email Address
                       </label>
                       <div className="relative">
-                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Mail className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
                         <input
                           id="email"
                           type="email"
                           placeholder="you@example.com"
-                          className="w-full text-foreground placeholder-muted-foreground border-border bg-bg rounded-lg border pl-10 pr-4 py-2 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-primary"
+                          className="text-foreground placeholder-muted-foreground border-border bg-bg focus:ring-primary w-full rounded-lg border py-2 pr-4 pl-10 text-sm transition-colors focus:ring-2 focus:outline-none"
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
                           required
@@ -170,7 +170,7 @@ export default function ForgotPasswordPage() {
                 <>
                   <div className="mb-8">
                     <Heading mb="2">Verify Identity</Heading>
-                    <p className="text-muted-foreground sm:text-sm text-xs">
+                    <p className="text-muted-foreground text-xs sm:text-sm">
                       Enter the 6-digit code sent to <b>{email}</b> and set your
                       new password
                     </p>
@@ -189,7 +189,7 @@ export default function ForgotPasswordPage() {
                         type="text"
                         maxLength={6}
                         placeholder="000000"
-                        className="text-foreground placeholder-muted-foreground border-border bg-bg rounded-lg border px-4 py-3 text-center text-2xl font-bold tracking-[0.5em] transition-colors focus:outline-none focus:ring-2 focus:ring-primary"
+                        className="text-foreground placeholder-muted-foreground border-border bg-bg focus:ring-primary rounded-lg border px-4 py-3 text-center text-2xl font-bold tracking-[0.5em] transition-colors focus:ring-2 focus:outline-none"
                         value={otp}
                         onChange={(e) =>
                           setOtp(e.target.value.replace(/\D/g, ""))
@@ -210,7 +210,7 @@ export default function ForgotPasswordPage() {
                         id="pass"
                         type="password"
                         placeholder="Min 6 characters"
-                        className="text-foreground placeholder-muted-foreground border-border bg-bg rounded-lg border px-4 py-2 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-primary"
+                        className="text-foreground placeholder-muted-foreground border-border bg-bg focus:ring-primary rounded-lg border px-4 py-2 text-sm transition-colors focus:ring-2 focus:outline-none"
                         value={newPassword}
                         onChange={(e) => setNewPassword(e.target.value)}
                         required
@@ -218,7 +218,7 @@ export default function ForgotPasswordPage() {
                     </div>
 
                     {error && (
-                      <p className="text-xs text-red-500 text-center">
+                      <p className="text-center text-xs text-red-500">
                         {error}
                       </p>
                     )}
@@ -254,7 +254,7 @@ export default function ForgotPasswordPage() {
               )}
 
               {step === "SUCCESS" && (
-                <div className="text-center py-4">
+                <div className="py-4 text-center">
                   <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30">
                     <CheckCircle2 className="h-10 w-10 text-emerald-600 dark:text-emerald-400" />
                   </div>

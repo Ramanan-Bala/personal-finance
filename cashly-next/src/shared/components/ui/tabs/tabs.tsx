@@ -29,7 +29,7 @@ const TabsList = React.forwardRef<
   <TabsPrimitive.List
     ref={ref}
     className={cn(
-      "flex items-center justify-center rounded-xl bg-card p-1 border border-border w-max",
+      "bg-card border-border flex w-max items-center justify-center rounded-xl border p-1",
       className,
     )}
     {...props}
@@ -79,7 +79,7 @@ const TabsTrigger = React.forwardRef<
     <TabsPrimitive.Trigger
       value={value}
       ref={ref}
-      className="relative px-3 py-1.5 grow inline-flex justify-center"
+      className="relative inline-flex grow justify-center px-3 py-1.5"
       {...props}
     >
       <span
@@ -100,7 +100,7 @@ const TabsTrigger = React.forwardRef<
             duration: 0.3,
             bounce: 0.1,
           }}
-          className={cn("absolute inset-0 bg-foreground rounded-lg", className)}
+          className={cn("bg-foreground absolute inset-0 rounded-lg", className)}
         />
       )}
     </TabsPrimitive.Trigger>

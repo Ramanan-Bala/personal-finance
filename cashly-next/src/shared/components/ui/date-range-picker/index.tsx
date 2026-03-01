@@ -87,7 +87,7 @@ export function DateRangePicker({
     <div className={cn("inline-block", className)}>
       <Popover.Root open={open} onOpenChange={setOpen}>
         <Popover.Trigger>
-          <button className="border border-border p-2 px-3 rounded-lg bg-card hover:bg-card/60">
+          <button className="border-border bg-card hover:bg-card/60 rounded-lg border p-2 px-3">
             <div className="flex items-center gap-3">
               <CalendarIcon className="h-4 w-4" />
               {value?.from ? (
@@ -112,9 +112,9 @@ export function DateRangePicker({
           align="start"
           sideOffset={8}
           maxWidth="max"
-          className="p-0 border-none bg-transparent"
+          className="border-none bg-transparent p-0"
         >
-          <div className="flex flex-col sm:flex-row border border-border shadow-xl rounded-lg overflow-hidden bg-card text-foreground">
+          <div className="border-border bg-card text-foreground flex flex-col overflow-hidden rounded-lg border shadow-xl sm:flex-row">
             {/* <div className="flex flex-col border-b sm:border-b-0 sm:border-r border-border p-2 min-w-40 bg-muted/30">
               <div className="px-3 py-2">
                 <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
@@ -136,7 +136,7 @@ export function DateRangePicker({
                 </button>
               ))}
             </div> */}
-            <div className="p-3 day-picker">
+            <div className="day-picker p-3">
               <DayPicker
                 mode="range"
                 showOutsideDays

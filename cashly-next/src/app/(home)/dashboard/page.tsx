@@ -86,18 +86,18 @@ export default function DashboardPage() {
       </div>
 
       {/* Amount Info */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         {amountInfo.map((item, i) => {
           return (
             <div
               key={i}
-              className="border border-border bg-card p-4 rounded-lg space-y-6"
+              className="border-border bg-card space-y-6 rounded-lg border p-4"
             >
-              <div className="flex justify-between items-center">
+              <div className="flex items-center justify-between">
                 <IconButton size="3" variant="soft">
                   {item.icon}
                 </IconButton>
-                <div className="flex items-center gap-1 mt-2 text-green-400 font-medium text-xs">
+                <div className="mt-2 flex items-center gap-1 text-xs font-medium text-green-400">
                   <ArrowUpRight className="h-4 w-4" />
                   {item.percent}%
                 </div>
@@ -113,22 +113,22 @@ export default function DashboardPage() {
 
       {/* Your Accounts */}
       <div className="space-y-3">
-        <h3 className="font-semibold text-lg">Your Accounts</h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <h3 className="text-lg font-semibold">Your Accounts</h3>
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
           {accountInfo.map((item, i) => {
             return (
               <div
                 key={i}
-                className="border border-border bg-card p-4 rounded-lg space-y-2 flex flex-col"
+                className="border-border bg-card flex flex-col space-y-2 rounded-lg border p-4"
               >
                 <IconButton size="3" color={item.color as never}>
                   {item.icon}
                 </IconButton>
-                <span className="text-sm text-muted-foreground font-medium">
+                <span className="text-muted-foreground text-sm font-medium">
                   {item.type}
                 </span>
                 <h3>{formatCurrency(item.amount)}</h3>
-                <div className="flex items-center gap-1 mt-2 text-green-400 font-medium text-xs">
+                <div className="mt-2 flex items-center gap-1 text-xs font-medium text-green-400">
                   <ArrowUpRight className="h-4 w-4" />
                   {item.percent}%{" "}
                   <span className="text-muted-foreground">this month</span>

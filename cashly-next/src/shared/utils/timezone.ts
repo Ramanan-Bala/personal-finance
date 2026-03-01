@@ -77,16 +77,7 @@ export function getUtcMonthRangeInTimeZone(reference: Date, timeZone: string) {
   const from = zonedDateTimeToUtc(year, month, 1, 0, 0, 0, 0, timeZone);
 
   const endDay = new Date(year, month, 0).getDate();
-  const to = zonedDateTimeToUtc(
-    year,
-    month,
-    endDay,
-    23,
-    59,
-    59,
-    999,
-    timeZone,
-  );
+  const to = zonedDateTimeToUtc(year, month, endDay, 23, 59, 59, 999, timeZone);
 
   return { from, to };
 }

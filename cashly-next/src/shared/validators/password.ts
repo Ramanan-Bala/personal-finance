@@ -1,7 +1,7 @@
 export function passwordValidator(
   value: string,
   min = 8,
-  max = 20
+  max = 20,
 ): Record<string, boolean | object> {
   const errors: Record<string, boolean | object> = {};
 

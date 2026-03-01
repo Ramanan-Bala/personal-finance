@@ -43,7 +43,7 @@ export function DeleteConfirmDialog({
 
   const defaultTrigger = (
     <motion.button
-      className="inline-flex items-center justify-center rounded-lg px-3 py-2 text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+      className="inline-flex items-center justify-center rounded-lg px-3 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50"
       style={{
         backgroundColor: "rgba(239, 68, 68, 0.1)",
         color: "#ef4444",
@@ -84,7 +84,7 @@ export function DeleteConfirmDialog({
 
               <AlertDialog.Content forceMount asChild>
                 <motion.div
-                  className="fixed left-1/2 top-1/2 z-50 w-full max-w-lg rounded-lg border p-6 shadow-2xl bg-card border-border"
+                  className="bg-card border-border fixed top-1/2 left-1/2 z-50 w-full max-w-lg rounded-lg border p-6 shadow-2xl"
                   style={{ x: "-50%", y: "-50%" }}
                   initial={{ opacity: 0, scale: 0.9, y: "-45%" }}
                   animate={{ opacity: 1, scale: 1, y: "-50%" }}
@@ -93,10 +93,10 @@ export function DeleteConfirmDialog({
                 >
                   <div className="flex flex-col gap-4">
                     <div className="flex flex-col gap-2">
-                      <AlertDialog.Title className="text-lg font-semibold text-foreground">
+                      <AlertDialog.Title className="text-foreground text-lg font-semibold">
                         {title}
                       </AlertDialog.Title>
-                      <AlertDialog.Description className="text-sm leading-relaxed text-muted-foreground">
+                      <AlertDialog.Description className="text-muted-foreground text-sm leading-relaxed">
                         {description}
                       </AlertDialog.Description>
                     </div>
@@ -104,7 +104,7 @@ export function DeleteConfirmDialog({
                       <AlertDialog.Cancel asChild>
                         <button
                           disabled={isLoading}
-                          className="inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium transition-colors disabled:opacity-50 bg-muted text-foreground"
+                          className="bg-muted text-foreground inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium transition-colors disabled:opacity-50"
                         >
                           Cancel
                         </button>
@@ -113,7 +113,7 @@ export function DeleteConfirmDialog({
                         <button
                           onClick={onConfirm}
                           disabled={isLoading}
-                          className="inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors disabled:opacity-50 bg-red-500"
+                          className="inline-flex items-center justify-center rounded-lg bg-red-500 px-4 py-2 text-sm font-medium text-white transition-colors disabled:opacity-50"
                         >
                           {isLoading ? "Deleting..." : confirmText}
                         </button>
@@ -136,15 +136,15 @@ export function DeleteConfirmDialog({
       )}
       <Drawer.Root open={open} onOpenChange={setOpen}>
         <Drawer.Portal container={portalRef.current}>
-          <Drawer.Overlay className="fixed inset-0 bg-black/40 z-50" />
-          <Drawer.Content className="fixed bottom-0 left-0 right-0 z-50 rounded-t-2xl bg-card border-t border-border flex flex-col">
-            <div className="mx-auto mt-3 mb-2 h-1.5 w-12 rounded-full bg-muted-foreground/30" />
-            <div className="px-4 pb-6 flex flex-col gap-4">
+          <Drawer.Overlay className="fixed inset-0 z-50 bg-black/40" />
+          <Drawer.Content className="bg-card border-border fixed right-0 bottom-0 left-0 z-50 flex flex-col rounded-t-2xl border-t">
+            <div className="bg-muted-foreground/30 mx-auto mt-3 mb-2 h-1.5 w-12 rounded-full" />
+            <div className="flex flex-col gap-4 px-4 pb-6">
               <div>
-                <Drawer.Title className="text-lg font-semibold text-foreground">
+                <Drawer.Title className="text-foreground text-lg font-semibold">
                   {title}
                 </Drawer.Title>
-                <Drawer.Description className="text-sm text-muted-foreground mt-1">
+                <Drawer.Description className="text-muted-foreground mt-1 text-sm">
                   {description}
                 </Drawer.Description>
               </div>
@@ -155,14 +155,14 @@ export function DeleteConfirmDialog({
                     setOpen(false);
                   }}
                   disabled={isLoading}
-                  className="w-full rounded-lg px-4 py-3 text-sm font-medium text-white transition-colors disabled:opacity-50 bg-red-500"
+                  className="w-full rounded-lg bg-red-500 px-4 py-3 text-sm font-medium text-white transition-colors disabled:opacity-50"
                 >
                   {isLoading ? "Deleting..." : confirmText}
                 </button>
                 <button
                   onClick={() => setOpen(false)}
                   disabled={isLoading}
-                  className="w-full rounded-lg px-4 py-3 text-sm font-medium transition-colors disabled:opacity-50 bg-muted text-foreground"
+                  className="bg-muted text-foreground w-full rounded-lg px-4 py-3 text-sm font-medium transition-colors disabled:opacity-50"
                 >
                   Cancel
                 </button>

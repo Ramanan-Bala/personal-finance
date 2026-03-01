@@ -65,12 +65,12 @@ const SettingRow = ({
         onClick();
       }
     }}
-    className={`w-full flex justify-between items-center flex-wrap sm:flex-row sm:items-center gap-3 p-3 rounded-xl hover:bg-gray-100 dark:hover:bg-white/5 transition-colors text-left group ${
+    className={`group flex w-full flex-wrap items-center justify-between gap-3 rounded-xl p-3 text-left transition-colors hover:bg-gray-100 sm:flex-row sm:items-center dark:hover:bg-white/5 ${
       onClick ? "cursor-pointer" : "cursor-default"
     }`}
   >
     <Flex gap="4" align="center" className="min-w-0 shrink-0">
-      <Flex className="h-10 w-10 shrink-0 rounded-xl items-center justify-center bg-gray-100 dark:bg-white/5 group-hover:bg-white dark:group-hover:bg-white/10 transition-colors shadow-sm">
+      <Flex className="h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gray-100 shadow-sm transition-colors group-hover:bg-white dark:bg-white/5 dark:group-hover:bg-white/10">
         <Icon className="h-5 w-5 text-gray-600 dark:text-gray-400" />
       </Flex>
       <Flex direction="column" gap="0" className="min-w-0">
@@ -84,12 +84,12 @@ const SettingRow = ({
         )}
       </Flex>
     </Flex>
-    <div className="sm:ml-auto shrink-0">
+    <div className="shrink-0 sm:ml-auto">
       {action ? (
         action
       ) : (
         <ChevronRight
-          className={`h-4 w-4 text-gray-400 group-hover:translate-x-1 transition-transform ${!onClick && "opacity-0"}`}
+          className={`h-4 w-4 text-gray-400 transition-transform group-hover:translate-x-1 ${!onClick && "opacity-0"}`}
         />
       )}
     </div>
@@ -160,7 +160,7 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
+    <div className="mx-auto max-w-4xl space-y-8">
       <PageHeader
         title="Settings"
         description="Manage your account and preferences"
@@ -179,7 +179,7 @@ export default function SettingsPage() {
               size="6"
               radius="full"
               fallback={avatarFallback || "U"}
-              className="border-2 border-primary/20"
+              className="border-primary/20 border-2"
             />
             <Flex direction="column">
               <Text size="4" weight="bold">
@@ -265,11 +265,11 @@ export default function SettingsPage() {
             size="2"
             weight="bold"
             color="gray"
-            className="uppercase tracking-wider"
+            className="tracking-wider uppercase"
           >
             Account & Security
           </Text>
-          <Card size="1" className="p-0 overflow-hidden">
+          <Card size="1" className="overflow-hidden p-0">
             <Flex direction="column">
               <SettingRow
                 icon={ShieldCheck}
@@ -300,11 +300,11 @@ export default function SettingsPage() {
             size="2"
             weight="bold"
             color="gray"
-            className="uppercase tracking-wider"
+            className="tracking-wider uppercase"
           >
             Preferences
           </Text>
-          <Card size="1" className="p-0 overflow-hidden">
+          <Card size="1" className="overflow-hidden p-0">
             <Flex direction="column">
               <SettingRow
                 icon={Palette}

@@ -20,8 +20,8 @@ export function Toaster() {
                 type === "error"
                   ? "destructive"
                   : type === "success"
-                  ? "success"
-                  : "default"
+                    ? "success"
+                    : "default"
               }
               onOpenChange={(open) => {
                 if (!open) {
@@ -29,8 +29,8 @@ export function Toaster() {
                 }
               }}
             >
-              <div className="flex justify-between items-center">
-                <div className="flex gap-2 items-center">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
                   {title && type === "error" && (
                     <CircleX className="h-4.5 text-red-500" />
                   )}

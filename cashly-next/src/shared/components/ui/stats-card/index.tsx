@@ -21,12 +21,12 @@ export function StatsCard({
 
   return (
     <div
-      className={`rounded-lg border overflow-hidden min-w-0 w-full ${styles.bg} ${styles.border}`}
+      className={`w-full min-w-0 overflow-hidden rounded-lg border ${styles.bg} ${styles.border}`}
     >
       <Flex align="center" justify="between" px="4" py="3" gap="2">
         <Flex align="center" gap="3" className="min-w-0">
           <div
-            className={`p-2 rounded-lg shrink-0 ${styles.iconBg} ${styles.text}`}
+            className={`shrink-0 rounded-lg p-2 ${styles.iconBg} ${styles.text}`}
           >
             {icon}
           </div>
@@ -35,7 +35,7 @@ export function StatsCard({
               size="1"
               color="gray"
               weight="bold"
-              className="uppercase tracking-wider"
+              className="tracking-wider uppercase"
             >
               {label}
             </Text>

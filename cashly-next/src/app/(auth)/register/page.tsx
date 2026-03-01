@@ -178,7 +178,7 @@ export default function RegisterPage() {
 
         <motion.div
           {...fadeScaleInVariants}
-          className="flex flex-1 items-center justify-center p-8 fade-in"
+          className="fade-in flex flex-1 items-center justify-center p-8"
         >
           <div className="w-full max-w-md">
             <div className="mb-8 flex justify-center lg:hidden">
@@ -205,7 +205,7 @@ export default function RegisterPage() {
                     id="fullName"
                     type="text"
                     placeholder="John Doe"
-                    className="text-foreground placeholder-muted-foreground border-border bg-bg rounded-lg border px-4 py-2 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-primary"
+                    className="text-foreground placeholder-muted-foreground border-border bg-bg focus:ring-primary rounded-lg border px-4 py-2 text-sm transition-colors focus:ring-2 focus:outline-none"
                     {...register("name")}
                   />
                   {errors.name && (
@@ -226,7 +226,7 @@ export default function RegisterPage() {
                     id="email"
                     type="email"
                     placeholder="you@example.com"
-                    className="text-foreground placeholder-muted-foreground border-border bg-bg rounded-lg border px-4 py-2 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-primary"
+                    className="text-foreground placeholder-muted-foreground border-border bg-bg focus:ring-primary rounded-lg border px-4 py-2 text-sm transition-colors focus:ring-2 focus:outline-none"
                     {...register("email")}
                   />
                   {errors.email && (
@@ -247,7 +247,7 @@ export default function RegisterPage() {
                     id="password"
                     type="password"
                     placeholder="••••••••"
-                    className="text-foreground placeholder-muted-foreground border-border bg-bg rounded-lg border px-4 py-2 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-primary"
+                    className="text-foreground placeholder-muted-foreground border-border bg-bg focus:ring-primary rounded-lg border px-4 py-2 text-sm transition-colors focus:ring-2 focus:outline-none"
                     {...register("password")}
                   />
                   {errors.password && (
@@ -268,7 +268,7 @@ export default function RegisterPage() {
                     id="confirmPassword"
                     type="password"
                     placeholder="••••••••"
-                    className="text-foreground placeholder-muted-foreground border-border bg-bg rounded-lg border px-4 py-2 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-primary"
+                    className="text-foreground placeholder-muted-foreground border-border bg-bg focus:ring-primary rounded-lg border px-4 py-2 text-sm transition-colors focus:ring-2 focus:outline-none"
                     {...register("confirmPassword")}
                   />
                   {(errors.confirmPassword || passwordMismatchError) && (
@@ -314,7 +314,7 @@ export default function RegisterPage() {
                   <Button
                     color="gray"
                     variant="soft"
-                    className="w-full text-primary"
+                    className="text-primary w-full"
                     size="3"
                   >
                     <LogIn className="h-4 w-4" />

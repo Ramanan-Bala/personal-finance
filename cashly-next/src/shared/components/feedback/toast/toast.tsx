@@ -13,7 +13,7 @@ const ToastViewport = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <ToastPrimitives.Viewport
     ref={ref}
-    className="fixed top-0 z-100 flex max-h-screen w-max flex-col-reverse p-4 left-1/2 -translate-x-1/2 space-y-3"
+    className="fixed top-0 left-1/2 z-100 flex max-h-screen w-max -translate-x-1/2 flex-col-reverse space-y-3 p-4"
     {...props}
   />
 ));
@@ -30,7 +30,7 @@ const Toast = React.forwardRef<
       duration={2000}
       asChild
       ref={ref}
-      className={`dark:bg-zinc-950 bg-white p-3 rounded relative ToastRoot mb-2 shadow-2xl`}
+      className={`ToastRoot relative mb-2 rounded bg-white p-3 shadow-2xl dark:bg-zinc-950`}
       {...props}
     >
       <motion.li
