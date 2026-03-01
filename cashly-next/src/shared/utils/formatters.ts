@@ -10,6 +10,8 @@ export function useFormatter() {
   // Defaults based on requirements
   const currency = user?.currency || "INR";
   const dateFormat = user?.dateFormat || "MM-DD-YYYY";
+  const timezone =
+    user?.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
 
   /**
    * Format a numerical amount as currency.
@@ -52,13 +54,16 @@ export function useFormatter() {
       if (isNaN(d.getTime())) return "";
 
       try {
-        return format(d, dateFormat);
+        const zonedDate = new Date(
+          d.toLocaleString("en-US", { timeZone: timezone }),
+        );
+        return format(zonedDate, dateFormat);
       } catch (err) {
         // Fallback if the dateFormat string is invalid
         return format(d, "MM/dd/yyyy");
       }
     },
-    [dateFormat],
+    [dateFormat, timezone],
   );
 
   return {
@@ -66,5 +71,6 @@ export function useFormatter() {
     formatDate,
     userCurrency: currency,
     userDateFormat: dateFormat,
+    userTimezone: timezone,
   };
 }

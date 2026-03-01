@@ -1,7 +1,18 @@
 import { and, eq, gte, isNull, lte, or } from 'drizzle-orm';
+import {
+  dayStampInTimeZone,
+  endOfDayInTimeZone,
+  startOfDayInTimeZone,
+} from '../../common/date-utils';
 import { adjustAccountBalance, stripTimestamps } from '../../common/utils';
 import { db } from '../../db';
-import { accounts, categories, recurringTransactions, transactions } from '../../db/schema';
+import {
+  accounts,
+  categories,
+  recurringTransactions,
+  transactions,
+  users,
+} from '../../db/schema';
 import {
   CreateRecurringTransactionInput,
   UpdateRecurringTransactionInput,
@@ -135,15 +146,25 @@ export class RecurringTransactionsService {
     from: Date,
     to: Date,
   ): Promise<{ generatedCount: number }> {
-    return db.transaction(async (tx) => {
+    return db.transaction(async tx => {
+      const timezone = await this.getUserTimezone(tx, userId);
+      const normalizedFrom = startOfDayInTimeZone(from, timezone);
+      const requestedTo = endOfDayInTimeZone(to, timezone);
+      const todayUtcEnd = endOfDayInTimeZone(new Date(), timezone);
+      const effectiveTo = requestedTo < todayUtcEnd ? requestedTo : todayUtcEnd;
+
+      if (normalizedFrom > effectiveTo) {
+        return { generatedCount: 0 };
+      }
+
       const rules = await tx.query.recurringTransactions.findMany({
         where: and(
           eq(recurringTransactions.userId, userId),
           eq(recurringTransactions.status, 'ACTIVE'),
-          lte(recurringTransactions.nextOccurrence, to),
+          lte(recurringTransactions.nextOccurrence, effectiveTo),
           or(
             isNull(recurringTransactions.endDate),
-            gte(recurringTransactions.endDate, from),
+            gte(recurringTransactions.endDate, normalizedFrom),
           ),
         ),
       });
@@ -151,7 +172,14 @@ export class RecurringTransactionsService {
       let generatedCount = 0;
 
       for (const rule of rules) {
-        const count = await this.materializeRule(tx, userId, rule, to);
+        const count = await this.materializeRule(
+          tx,
+          userId,
+          rule,
+          normalizedFrom,
+          effectiveTo,
+          timezone,
+        );
         generatedCount += count;
       }
 
@@ -163,18 +191,36 @@ export class RecurringTransactionsService {
     tx: any,
     userId: string,
     rule: any,
+    from: Date,
     to: Date,
+    timezone: string,
   ): Promise<number> {
     let occurrence = new Date(rule.nextOccurrence);
     let count = 0;
+    const fromDay = dayStampInTimeZone(from, timezone);
+    const toDay = dayStampInTimeZone(to, timezone);
 
-    while (occurrence <= to) {
-      if (rule.endDate && occurrence > new Date(rule.endDate)) break;
+    while (dayStampInTimeZone(occurrence, timezone) <= toDay) {
+      if (
+        rule.endDate &&
+        dayStampInTimeZone(occurrence, timezone) >
+          dayStampInTimeZone(new Date(rule.endDate), timezone)
+      ) {
+        break;
+      }
 
-      const inserted = await this.insertOccurrence(tx, userId, rule, occurrence);
-      if (inserted) {
-        count++;
-        await this.applyBalanceChanges(tx, rule);
+      if (dayStampInTimeZone(occurrence, timezone) >= fromDay) {
+        const inserted = await this.insertOccurrence(
+          tx,
+          userId,
+          rule,
+          occurrence,
+          timezone,
+        );
+        if (inserted) {
+          count++;
+          await this.applyBalanceChanges(tx, rule);
+        }
       }
 
       occurrence = computeNextOccurrence(occurrence, rule.frequency);
@@ -193,7 +239,10 @@ export class RecurringTransactionsService {
     userId: string,
     rule: any,
     occurrence: Date,
+    timezone: string,
   ) {
+    const normalizedOccurrence = startOfDayInTimeZone(occurrence, timezone);
+
     const [inserted] = await tx
       .insert(transactions)
       .values({
@@ -202,11 +251,11 @@ export class RecurringTransactionsService {
         categoryId: rule.categoryId,
         type: rule.type,
         amount: rule.amount,
-        transactionDate: occurrence,
+        transactionDate: normalizedOccurrence,
         notes: rule.notes,
         transferToAccountId: rule.transferToAccountId,
         recurringTransactionId: rule.id,
-        occurrenceDate: occurrence,
+        occurrenceDate: normalizedOccurrence,
         isOverridden: false,
       })
       .onConflictDoNothing({
@@ -245,7 +294,12 @@ export class RecurringTransactionsService {
       endDate?: string | null;
     },
   ) {
-    await this.ensureUserAccount(tx, userId, input.accountId, 'Account not found');
+    await this.ensureUserAccount(
+      tx,
+      userId,
+      input.accountId,
+      'Account not found',
+    );
 
     if (input.type === 'TRANSFER') {
       if (!input.transferToAccountId) {
@@ -288,7 +342,14 @@ export class RecurringTransactionsService {
     });
     if (!account) throw new Error(errorMessage);
   }
+
+  private async getUserTimezone(tx: any, userId: string): Promise<string> {
+    const user = await tx.query.users.findFirst({
+      where: eq(users.id, userId),
+      columns: { timezone: true },
+    });
+    return user?.timezone || 'UTC';
+  }
 }
 
-export const recurringTransactionsService =
-  new RecurringTransactionsService();
+export const recurringTransactionsService = new RecurringTransactionsService();

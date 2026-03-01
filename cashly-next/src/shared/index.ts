@@ -40,6 +40,7 @@ export * from "./utils/formatters";
 export * from "./utils/get-icon-for-category";
 export * from "./utils/motion-variants";
 export * from "./utils/tailwind-merger";
+export * from "./utils/timezone";
 export * from "./validators/account";
 export * from "./validators/category";
 export * from "./validators/lend-debt";

@@ -16,6 +16,8 @@ import {
   TransactionForm,
   TransactionFormOutput,
   TransactionType,
+  getDateKeyInTimeZone,
+  getUtcMonthRangeInTimeZone,
   useDeleteConfirm,
   useFormatter,
 } from "@/shared";
@@ -30,9 +32,6 @@ import {
 } from "@radix-ui/themes";
 import {
   addMonths,
-  endOfMonth,
-  format,
-  startOfMonth,
   subMonths,
 } from "date-fns";
 import {
@@ -61,16 +60,14 @@ interface LedgerGroup {
 }
 
 export default function LedgerPage() {
-  const { formatDate, formatCurrency } = useFormatter();
+  const { formatDate, formatCurrency, userTimezone } = useFormatter();
+  const timezone = userTimezone || "UTC";
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [loading, setLoading] = useState(false);
 
   const dateRange = useMemo(
-    () => ({
-      from: startOfMonth(currentMonth),
-      to: endOfMonth(currentMonth),
-    }),
-    [currentMonth],
+    () => getUtcMonthRangeInTimeZone(currentMonth, timezone),
+    [currentMonth, timezone],
   );
 
   const [groupedTransactions, setGroupedTransactions] = useState<
@@ -164,7 +161,8 @@ export default function LedgerPage() {
       });
       const grouped = response.data.reduce(
         (acc, transaction) => {
-          const date = format(transaction.transactionDate, "yyyy-MM-dd");
+          const transactionDate = new Date(transaction.transactionDate);
+          const date = getDateKeyInTimeZone(transactionDate, timezone);
           if (!acc[date])
             acc[date] = {
               totalIncome: 0,
@@ -173,8 +171,8 @@ export default function LedgerPage() {
               transactions: [],
               displayDate: "",
             };
-          acc[date].displayDate = formatDate(transaction.transactionDate);
-          transaction.transactionDate = new Date(transaction.transactionDate);
+          acc[date].displayDate = formatDate(transactionDate);
+          transaction.transactionDate = transactionDate;
           acc[date].transactions.push(transaction);
           if (transaction.type === TransactionType.INCOME)
             acc[date].totalIncome += Number(transaction.amount);
@@ -189,7 +187,7 @@ export default function LedgerPage() {
     } finally {
       setLoading(false);
     }
-  }, [dateRange, formatDate]);
+  }, [dateRange, formatDate, timezone]);
 
   useEffect(() => {
     const loadMonth = async () => {

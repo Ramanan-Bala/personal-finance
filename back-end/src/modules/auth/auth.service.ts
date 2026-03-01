@@ -245,6 +245,7 @@ export class AuthService {
       currency: user.currency,
       dateFormat: user.dateFormat,
       fontFamily: user.fontFamily,
+      timezone: user.timezone,
     };
   }
 

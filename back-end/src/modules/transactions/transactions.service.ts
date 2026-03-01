@@ -1,4 +1,5 @@
 import { and, between, desc, eq } from 'drizzle-orm';
+import { endOfDayInTimeZone, startOfDayInTimeZone } from '../../common/date-utils';
 import { adjustAccountBalance, stripTimestamps } from '../../common/utils';
 import { db } from '../../db';
 import {
@@ -6,6 +7,7 @@ import {
   categories,
   recurringTransactions,
   transactions,
+  users,
 } from '../../db/schema';
 import { aiService } from '../ai/ai.service';
 import {
@@ -113,16 +115,20 @@ export class TransactionsService {
     to: Date,
     withAdditional?: boolean,
   ) {
+    const timezone = await this.getUserTimezone(userId);
+    const normalizedFrom = startOfDayInTimeZone(from, timezone);
+    const normalizedTo = endOfDayInTimeZone(to, timezone);
+
     await recurringTransactionsService.materializeDueTransactions(
       userId,
-      from,
-      to,
+      normalizedFrom,
+      normalizedTo,
     );
 
     return db.query.transactions.findMany({
       where: and(
         eq(transactions.userId, userId),
-        between(transactions.transactionDate, from, to),
+        between(transactions.transactionDate, normalizedFrom, normalizedTo),
       ),
       columns: { createdAt: false, updatedAt: false },
       with: withAdditional
@@ -243,6 +249,14 @@ export class TransactionsService {
     return tx.query.accounts.findFirst({
       where: and(eq(accounts.id, accountId), eq(accounts.userId, userId)),
     });
+  }
+
+  private async getUserTimezone(userId: string): Promise<string> {
+    const user = await db.query.users.findFirst({
+      where: eq(users.id, userId),
+      columns: { timezone: true },
+    });
+    return user?.timezone || 'UTC';
   }
 
   private async resolveCategory(
