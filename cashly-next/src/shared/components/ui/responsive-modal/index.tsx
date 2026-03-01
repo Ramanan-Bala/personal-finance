@@ -1,9 +1,9 @@
 "use client";
 
 import { useMediaQuery } from "@/shared/hooks/use-media-query";
+import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { Button, Dialog, Flex } from "@radix-ui/themes";
 import { X } from "lucide-react";
-import { Drawer } from "vaul";
 
 interface ResponsiveModalProps {
   open: boolean;
@@ -25,6 +25,11 @@ export function ResponsiveModal({
   trigger,
 }: ResponsiveModalProps) {
   const isDesktop = useMediaQuery("(min-width: 768px)");
+  const portalContainer =
+    typeof document !== "undefined"
+      ? ((document.querySelector(".radix-themes") as HTMLElement | null) ??
+        undefined)
+      : undefined;
 
   if (isDesktop === undefined) return null;
 
@@ -53,37 +58,41 @@ export function ResponsiveModal({
   }
 
   return (
-    <Drawer.Root
-      open={open}
-      onOpenChange={onOpenChange}
-      shouldScaleBackground={false}
-      fixed
-      handleOnly
-      repositionInputs={true}
-    >
-      {trigger && <Drawer.Trigger asChild>{trigger}</Drawer.Trigger>}
-      <Drawer.Portal>
-        <Drawer.Overlay className="fixed inset-0 bg-black/40 z-50" />
-        <Drawer.Content className="fixed bottom-0 left-0 right-0 z-50 rounded-t-2xl bg-card border-t border-border max-h-[calc(var(--app-vh,100dvh)-max(env(safe-area-inset-top),0.5rem))] flex flex-col outline-0 overflow-hidden">
-          <Drawer.Handle className="mx-auto mt-3 mb-2 h-1.5 w-12 rounded-full bg-muted-foreground/30" />
+    <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
+      {trigger && (
+        <DialogPrimitive.Trigger asChild>{trigger}</DialogPrimitive.Trigger>
+      )}
+      <DialogPrimitive.Portal container={portalContainer ?? undefined}>
+        <DialogPrimitive.Overlay className="dialog-sheet-overlay fixed inset-0 bg-black/40 z-50" />
+        <DialogPrimitive.Content
+          className="dialog-sheet-content fixed bottom-0 left-0 right-0 z-50 rounded-t-2xl bg-card border-t border-border max-h-[calc(var(--app-vh,100dvh)-max(env(safe-area-inset-top),0.5rem))] flex flex-col outline-none overflow-hidden"
+          onOpenAutoFocus={(event) => event.preventDefault()}
+        >
+          <div className="mx-auto mt-3 mb-2 h-1.5 w-12 rounded-full bg-muted-foreground/30" />
           <div className="px-4 pb-2">
-            <Drawer.Title className="text-lg font-semibold text-foreground">
+            <DialogPrimitive.Title className="text-lg font-semibold text-foreground">
               {title}
-            </Drawer.Title>
+            </DialogPrimitive.Title>
             {description && (
-              <Drawer.Description className="text-sm text-muted-foreground">
+              <DialogPrimitive.Description className="text-sm text-muted-foreground">
                 {description}
-              </Drawer.Description>
+              </DialogPrimitive.Description>
             )}
           </div>
-          <div
-            className="px-4 pb-[max(1.5rem,env(safe-area-inset-bottom))] overflow-y-auto flex-1"
-            data-vaul-no-drag
-          >
+          <DialogPrimitive.Close asChild>
+            <button
+              type="button"
+              aria-label="Close"
+              className="absolute top-3 right-3 inline-flex items-center justify-center rounded-md p-1 text-muted-foreground hover:text-foreground"
+            >
+              <X size={18} />
+            </button>
+          </DialogPrimitive.Close>
+          <div className="px-4 pb-[max(1.5rem,env(safe-area-inset-bottom))] overflow-y-auto flex-1">
             {children}
           </div>
-        </Drawer.Content>
-      </Drawer.Portal>
-    </Drawer.Root>
+        </DialogPrimitive.Content>
+      </DialogPrimitive.Portal>
+    </DialogPrimitive.Root>
   );
 }
