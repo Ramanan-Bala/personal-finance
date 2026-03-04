@@ -7,6 +7,8 @@ import {
   DeleteConfirmDialog,
   EmptyState,
   FloatingAddButton,
+  getDateKeyInTimeZone,
+  getUtcMonthRangeInTimeZone,
   ListSkeleton,
   PageHeader,
   ResponsiveModal,
@@ -16,8 +18,6 @@ import {
   TransactionForm,
   TransactionFormOutput,
   TransactionType,
-  getDateKeyInTimeZone,
-  getUtcMonthRangeInTimeZone,
   useDeleteConfirm,
   useFormatter,
 } from "@/shared";
@@ -409,7 +409,7 @@ export default function LedgerPage() {
                             size="2"
                             className="flex items-center gap-1"
                           >
-                            <ArrowUpRight size="12" />
+                            <ArrowDownRight size="12" />
                             {formatCurrency(item.totalIncome)}
                           </Text>
                           <Text
@@ -417,7 +417,7 @@ export default function LedgerPage() {
                             size="2"
                             className="flex items-center gap-1"
                           >
-                            <ArrowDownRight size="12" />
+                            <ArrowUpRight size="12" />
                             {formatCurrency(item.totalExpense)}
                           </Text>
                           <Text
