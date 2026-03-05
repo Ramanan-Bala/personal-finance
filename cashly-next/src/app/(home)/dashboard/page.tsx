@@ -164,23 +164,14 @@ export default function DashboardPage() {
       <PageHeader
         title="Dashboard"
         description="Track your balance, trends, and recent activity"
-      />
-      <Flex justify="end">
-        <Flex
-          mb="4"
-          width={{
-            initial: "100%",
-            sm: "calc(50% - 12px)",
-            lg: "calc(25% - 12px)",
-          }}
-        >
+        actions={
           <MonthNavigator
             currentMonth={currentMonth}
             onPrev={() => setCurrentMonth((p) => subMonths(p, 1))}
             onNext={() => setCurrentMonth((p) => addMonths(p, 1))}
           />
-        </Flex>
-      </Flex>
+        }
+      />
 
       <motion.div {...staggerContainerVariants} className="space-y-6">
         <Grid columns={{ initial: "1", sm: "2", lg: "4" }} gap="4">
@@ -239,7 +230,7 @@ export default function DashboardPage() {
             </Flex>
             {loading ? (
               <>
-                <Skeleton className="mb-2 h-8 w-32" />
+                <Skeleton className="mb-2 h-7.5 w-32" />
                 <Skeleton className="h-4 w-24" />
               </>
             ) : (
@@ -266,12 +257,12 @@ export default function DashboardPage() {
           <Text size="3" weight="bold" mb="3" as="div">
             Account Balances
           </Text>
-          <div className="flex flex-wrap gap-3 pb-1">
+          <Grid gap="3" pb="1" columns={{ initial: "1", sm: "2", lg: "4" }}>
             {loading
               ? Array.from({ length: 4 }).map((_, index) => (
-                  <Card key={index} className="min-w-[78%] sm:min-w-64">
+                  <Card key={index} className="min-w-full">
                     <Skeleton className="mb-2 h-5 w-24" />
-                    <Skeleton className="mb-2 h-7 w-40" />
+                    <Skeleton className="mb-2 h-6.5 w-40" />
                     <Skeleton className="h-5 w-24" />
                   </Card>
                 ))
@@ -311,7 +302,7 @@ export default function DashboardPage() {
                     </Card>
                   );
                 })}
-          </div>
+          </Grid>
         </motion.div>
 
         <Card>
