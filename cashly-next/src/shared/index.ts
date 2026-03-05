@@ -34,6 +34,7 @@ export * from "./providers/auth-provider";
 export * from "./providers/font-provider";
 export * from "./providers/theme-provider";
 export * from "./types/account";
+export * from "./types/dashboard";
 export * from "./types/lend-debt";
 export * from "./types/transactions";
 export * from "./utils/formatters";
