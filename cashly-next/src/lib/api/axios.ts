@@ -118,9 +118,9 @@ api.interceptors.response.use(
 
       return new Promise(function (resolve, reject) {
         // Attempt to refresh the token using base axios to avoid recursion
-        axios
+        api
           .post(
-            "http://localhost:8080/api/auth/refresh",
+            "/auth/refresh",
             {
               refreshToken: localStorage.getItem("refreshToken"),
             },
