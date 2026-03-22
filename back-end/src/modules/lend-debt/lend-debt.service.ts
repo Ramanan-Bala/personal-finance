@@ -100,10 +100,12 @@ export class LendDebtService {
       },
     });
 
-    return items.map(item => ({
-      ...item,
-      outstanding: this.computeOutstanding(item),
-    }));
+    return items
+      .map(item => ({
+        ...item,
+        outstanding: this.computeOutstanding(item),
+      }))
+      .filter(item => item.outstanding !== 0);
   }
 
   async getLendDebt(userId: string, id: string) {
