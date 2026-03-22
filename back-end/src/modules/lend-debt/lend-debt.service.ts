@@ -92,7 +92,7 @@ export class LendDebtService {
 
   async getLendDebts(userId: string) {
     const items = await db.query.lendDebts.findMany({
-      where: eq(lendDebts.userId, userId),
+      where: and(eq(lendDebts.userId, userId), eq(lendDebts.status, 'OPEN')),
       columns: { createdAt: false, updatedAt: false },
       with: {
         payments: { columns: { createdAt: false, updatedAt: false } },
@@ -100,12 +100,10 @@ export class LendDebtService {
       },
     });
 
-    return items
-      .map(item => ({
-        ...item,
-        outstanding: this.computeOutstanding(item),
-      }))
-      .filter(item => item.outstanding !== 0);
+    return items.map(item => ({
+      ...item,
+      outstanding: this.computeOutstanding(item),
+    }));
   }
 
   async getLendDebt(userId: string, id: string) {
